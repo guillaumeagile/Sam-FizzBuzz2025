@@ -1,172 +1,164 @@
-﻿using FizzBuzzGame;
+﻿using FizzBuzz.Engine;
 using FluentAssertions;
 
-namespace FizzBuzzEngineTests
+namespace FizzBuzz.Tests
 {
-	
-	[TestFixture]
-	public class FizzBuzzEngineTests
-	{
-		private FizzBuzzEngine engine;
+    [TestFixture]
+    public class FizzBuzzEngineTests
+    {
+        private FizzBuzzEngine engine;
 
-		[SetUp]
-		public void setUp ()
-		{
-			List<IRule>? _rules = new List<IRule> ();
-			_rules.Add (new FizzRule ());
-			_rules.Add (new BuzzRule ());
-			_rules.Add (new BangRule ());
-			_rules.Add (new TheAnswerRule ());
+        [SetUp]
+        public void setUp()
+        {
+            List<IRule>? _rules = new List<IRule>();
+            _rules.Add(new FizzRule());
+            _rules.Add(new BuzzRule());
+            _rules.Add(new BangRule());
+            _rules.Add(new TheAnswerRule());
 
-			engine = new FizzBuzzEngine (_rules);
-		}
+            engine = new FizzBuzzEngine(_rules);
+        }
 
-		[Test]
-		public void CanSayOne ()
-		{
-			// Act
-			var one = engine.Say (1);
+        [Test]
+        public void CanSayOne()
+        {
+            // Act
+            var one = engine.Say(1);
 
-			// Assert
-		one.Should().Be( "1");
-		}
+            // Assert
+            one.Should().Be("1");
+        }
 
-		[Test]
-		public void CanSayFizz ()
-		{
-			// Act
-			var fizz = engine.Say (3);
+        [Test]
+        public void CanSayFizz()
+        {
+            // Act
+            var fizz = engine.Say(3);
 
-			// Assert
-		 fizz .Should().Be( "Fizz");
-		}
+            // Assert
+            fizz.Should().Be("Fizz");
+        }
 
-		[Test]
-		public void CanStillSayFizz ()
-		{
-			// Act
-			var fizz = engine.Say (6);
+        [Test]
+        public void CanStillSayFizz()
+        {
+            // Act
+            var fizz = engine.Say(6);
 
-			// Assert
-			fizz .Should().Be( "Fizz");
-		}
+            // Assert
+            fizz.Should().Be("Fizz");
+        }
 
-		[Test]
-		public void CanSayBuzz ()
-		{
-			// Act
-			var buzz = engine.Say (5);
+        [Test]
+        public void CanSayBuzz()
+        {
+            // Act
+            var buzz = engine.Say(5);
 
-			// Assert
-			buzz?.Should().Be( "Buzz");
-			
-		}
+            // Assert
+            buzz?.Should().Be("Buzz");
+        }
 
-		[Test]
-		public void CanSayFizzBuzz ()
-		{
-			// Act
-			var fizzbuzz = engine.Say (15);
+        [Test]
+        public void CanSayFizzBuzz()
+        {
+            // Act
+            var fizzbuzz = engine.Say(15);
 
-			// Assert
-			fizzbuzz .Should().Be( "FizzBuzz");
-			
-		}
+            // Assert
+            fizzbuzz.Should().Be("FizzBuzz");
+        }
 
-	//	[ Nunit.Framework.ExpectedException (typeof(NoDefinedeRulesException))]
-		[Test]
-		public void WillExplodeWhenNoRules ()
-		{
-			// Arrange
-			engine = new FizzBuzzEngine (null);
+        [Test]
+        public void WillExplodeWhenNoRules()
+        {
+            // Arrange
+            engine = new FizzBuzzEngine(null); // too much complexity
 
-			// Act
-			
-			Action act = () =>   engine.Say (15);
-				
-			act.Should().Throw<NoDefinedeRulesException>();;
+            // Act
 
-			
-		}
+            Action act = () => engine.Say(15);
 
-		[Test]
-		public void CanSayBang ()
-		{
-			// Act
-			var bang = engine.Say (7);
+            act.Should().Throw<NoDefinedeRulesException>();
+            ;
+        }
 
-			// Assert
-		bang.Should().Be( "Bang");
-		}
+        [Test]
+        public void CanSayBang()
+        {
+            // Act
+            var bang = engine.Say(7);
 
-		[Test]
-		public void CanSayFizzBang ()
-		{
-			// Act
-			var fizzBang = engine.Say (21);
+            // Assert
+            bang.Should().Be("Bang");
+        }
 
-			// Assert
-		fizzBang.Should().Be( "FizzBang");
-		}
+        [Test]
+        public void CanSayFizzBang()
+        {
+            // Act
+            var fizzBang = engine.Say(21);
 
-		[Test]
-		public void CanSayFizzBuzzBang ()
-		{
-			// Act
-			var fizzBuzzBang = engine.Say (105);
+            // Assert
+            fizzBang.Should().Be("FizzBang");
+        }
 
-			// Assert
-		fizzBuzzBang .Should().Be( "FizzBuzzBang");
-		}
+        [Test]
+        public void CanSayFizzBuzzBang()
+        {
+            // Act
+            var fizzBuzzBang = engine.Say(105);
 
-		[Test]
-		public void RuleInjectionOrderDoesntMatter ()
-		{
-			// Arrange
-			List<IRule>? _rules = new List<IRule> ();
-			_rules.Add (new BangRule ());
-			_rules.Add (new FizzRule ());
-			_rules.Add (new BuzzRule ());
+            // Assert
+            fizzBuzzBang.Should().Be("FizzBuzzBang");
+        }
 
-			engine = new FizzBuzzEngine (_rules);
+        [Test]
+        public void RuleInjectionOrderDoesntMatter()
+        {
+            // Arrange
+            List<IRule>? _rules = new List<IRule>();
+            _rules.Add(new BangRule());
+            _rules.Add(new FizzRule());
+            _rules.Add(new BuzzRule());
 
-			// Act
-			var fizzBang = engine.Say (21);
+            engine = new FizzBuzzEngine(_rules);
 
-			// Assert
-			fizzBang .Should().Be( "FizzBang");
-		}
+            // Act
+            var fizzBang = engine.Say(21);
 
-		[Test]
-		public void CantAddTheSameRuleTwice ()
-		{
-			// Arrange
-			List<IRule>? _rules = new List<IRule> ();
-			_rules.Add (new BangRule ());
-			_rules.Add (new FizzRule ());
-			_rules.Add (new BuzzRule ());
-			_rules.Add (new BangRule ());
+            // Assert
+            fizzBang.Should().Be("FizzBang");
+        }
 
-			engine = new FizzBuzzEngine (_rules);
+        [Test]
+        public void CantAddTheSameRuleTwice()
+        {
+            // Arrange
+            List<IRule>? _rules = new List<IRule>();
+            _rules.Add(new BangRule());
+            _rules.Add(new FizzRule());
+            _rules.Add(new BuzzRule());
+            _rules.Add(new BangRule());
 
-			// Act
-			var fizzBang = engine.Say (21);
+            engine = new FizzBuzzEngine(_rules);
 
-			// Assert
-			fizzBang .Should().Be( "FizzBang");
-		}
+            // Act
+            var fizzBang = engine.Say(21);
 
-		[Test]
-		public void CanSayTheAnswerTo42()
-		{
-			// Act
-			var theAnswer = engine.Say (42);
+            // Assert
+            fizzBang.Should().Be("FizzBang");
+        }
 
-			// Assert
-			theAnswer .Should().Be( "The answer to the meaning of life, the universe, and everything");
-			
-			
-		}
-	}
+        [Test]
+        public void CanSayTheAnswerTo42()
+        {
+            // Act
+            var theAnswer = engine.Say(42);
+
+            // Assert
+            theAnswer.Should().Be("The answer to the meaning of life, the universe, and everything");
+        }
+    }
 }
-

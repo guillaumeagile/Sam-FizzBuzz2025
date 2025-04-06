@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using FizzBuzzGame;
+﻿using FizzBuzz.Engine;
 
-
-namespace FizzBuzzRunner
+namespace FizzBuzz.Game
 {
 	class MainClass
 	{

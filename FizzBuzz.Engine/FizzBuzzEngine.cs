@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace FizzBuzzGame
+﻿namespace FizzBuzz.Engine
 {
 	/// <summary>
 	/// Fizz buzz game engine.
@@ -10,33 +6,25 @@ namespace FizzBuzzGame
 	public class FizzBuzzEngine
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="FizzBuzzGame.FizzBuzzEngine"/> class.
+		/// Initializes a new instance of the <see cref="FizzBuzzEngine"/> class.
 		/// </summary>
 		/// <param name="rules">Rules.</param>
 		public FizzBuzzEngine(IEnumerable<IRule>? rules)
 		{
-			if (rules == null) {
+			if (rules == null) {  
 				rules = new List<IRule> ();
 			}
 			_rules = new SortedSet<IRule> (rules);
 		}
 
 		private SortedSet<IRule> _rules;	
-		/// <summary>
-		/// Gets the rules.
-		/// </summary>
-		/// <remarks>
-		/// Use a SortedSet so that the rules are sorted and unique.
-		/// </remarks>
-		/// <exception cref="FizzBuzzGame.NoDefinedRulesException">
-		/// Verifies that there are some rules defined or throws this exception
-		/// </exception>
-		/// <value>The rules.</value>
+
+		
 		private SortedSet<IRule> Rules 
 		{
 			get 
 			{
-				if (_rules == null || !_rules.Any()) 
+				if (_rules == null || !_rules.Any())  // uncessary complexity
 				{
 					throw new NoDefinedeRulesException ("You must declare some rules to play");
 				}

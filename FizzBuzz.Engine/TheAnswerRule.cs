@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FizzBuzzGame
+﻿namespace FizzBuzz.Engine
 {
 	public class TheAnswerRule : BaseRule
 	{

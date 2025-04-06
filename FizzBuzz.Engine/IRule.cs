@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FizzBuzzGame
+﻿namespace FizzBuzz.Engine
 {
 	/// <summary>
 	/// Basic interface for FizzBuzz rules

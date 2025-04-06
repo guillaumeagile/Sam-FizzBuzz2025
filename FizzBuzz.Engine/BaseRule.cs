@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FizzBuzzGame
+﻿namespace FizzBuzz.Engine
 {
 	/// <summary>
 	/// Base rule abstract class for creating new rules
