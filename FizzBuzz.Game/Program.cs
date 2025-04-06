@@ -26,7 +26,7 @@ namespace FizzBuzzRunner
 				}
 			}
 
-			List<IRule> _rules = new List<IRule> ();
+			List<IRule>? _rules = new List<IRule> ();
 			_rules.Add (new FizzRule ());
 			_rules.Add (new BuzzRule ());
 			_rules.Add (new BangRule ());

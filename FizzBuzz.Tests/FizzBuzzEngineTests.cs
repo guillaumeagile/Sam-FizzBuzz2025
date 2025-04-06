@@ -12,7 +12,7 @@ namespace FizzBuzzEngineTests
 		[SetUp]
 		public void setUp ()
 		{
-			List<IRule> _rules = new List<IRule> ();
+			List<IRule>? _rules = new List<IRule> ();
 			_rules.Add (new FizzRule ());
 			_rules.Add (new BuzzRule ());
 			_rules.Add (new BangRule ());
@@ -123,7 +123,7 @@ namespace FizzBuzzEngineTests
 		public void RuleInjectionOrderDoesntMatter ()
 		{
 			// Arrange
-			List<IRule> _rules = new List<IRule> ();
+			List<IRule>? _rules = new List<IRule> ();
 			_rules.Add (new BangRule ());
 			_rules.Add (new FizzRule ());
 			_rules.Add (new BuzzRule ());
@@ -141,7 +141,7 @@ namespace FizzBuzzEngineTests
 		public void CantAddTheSameRuleTwice ()
 		{
 			// Arrange
-			List<IRule> _rules = new List<IRule> ();
+			List<IRule>? _rules = new List<IRule> ();
 			_rules.Add (new BangRule ());
 			_rules.Add (new FizzRule ());
 			_rules.Add (new BuzzRule ());

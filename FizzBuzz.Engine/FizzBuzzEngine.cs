@@ -13,7 +13,7 @@ namespace FizzBuzzGame
 		/// Initializes a new instance of the <see cref="FizzBuzzGame.FizzBuzzEngine"/> class.
 		/// </summary>
 		/// <param name="rules">Rules.</param>
-		public FizzBuzzEngine(IEnumerable<IRule> rules)
+		public FizzBuzzEngine(IEnumerable<IRule>? rules)
 		{
 			if (rules == null) {
 				rules = new List<IRule> ();
