@@ -1,8 +1,8 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS base
-USER $APP_UID
-WORKDIR /app/build
-
+﻿# Stage 1: Build and Test
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /app
+
+
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["FizzBuzz.Tests/FizzBuzz.Tests.csproj", "FizzBuzz.Tests/"]
@@ -12,11 +12,13 @@ COPY . .
 WORKDIR "/src/FizzBuzz.Tests"
 RUN dotnet build "FizzBuzz.Tests.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+# Publish the app
+#RUN dotnet publish -c Release -o out
 
-FROM build AS final
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS test
 WORKDIR /app
-COPY --from=build /app/build .
-WORKDIR "/app" 
+COPY --from=build /app/build ./
 
 
 # entry point to run tests
