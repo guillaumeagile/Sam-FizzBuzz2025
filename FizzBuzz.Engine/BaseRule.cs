@@ -15,14 +15,13 @@
 
 		public virtual bool Final { get { return false; } }
 
-		/// <Docs>To be added.</Docs>
-		/// <para>Returns the sort order of the current instance compared to the specified object.</para>
+		/// pointless... the best documentation is the code itself
 		/// <summary>
 		/// Compares two rules by priority, from 1 to n
 		/// </summary>
 		/// <returns>The to.</returns>
 		/// <param name="other">Other.</param>
-		public int CompareTo(IRule other)
+		public int CompareTo(IRule other)   // here we need nullable !
 		{
 			return this.Priority.CompareTo (other.Priority);
 		}

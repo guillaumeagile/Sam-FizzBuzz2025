@@ -17,4 +17,8 @@ The rules are ordered by priority
 The usage of the SortedSet allows us to insert the rules in any order and even insert them multple time without duplication.
 
 ## Technical Aspects ##
-This solution was originally developed on Windows 10 with Visual Studio 2015 Community Edition. It was then adapted to Monodevelop 5.10 and Mono 4.6.2 and all of the further modifications were developed with Monodevelop on Debian 8. The solution was also adapted to NUnit from the original MSTest implementation.
+
+ the solution is implemented in C# using .NET core 8.0.
+Can build and run the solution using `dotnet build` and `dotnet run`, under any OS (Windows, Linux, Mac)
+Can run on CI/CD: a docker file is provided in the test project, so that it can run on its own
+
