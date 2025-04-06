@@ -1,0 +1,47 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/projectSettingsUpdater.xml
+/contentModel.xml
+/.idea.FizzBuzz2025.iml
+/modules.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+
+
+# .NET Core
+/bin/
+/obj/
+/project.lock.json
+/project.nuget.cache
+/packages/
+/.vs/
+/.vscode/
+/Debug/
+/Release/
+/Build/
+/Publish/
+/.nuget/
+
+# Visual Studio
+.vs/
+.vscode/
+/Debug/
+/Release/
+/Build/
+/Publish/
+
+# .NET Core SDK
+/.net/
+/.NETCoreApp/
+/.NETStandard/
+
+# NuGet
+/*.nupkg
+/*.snupkg
+/packages/
