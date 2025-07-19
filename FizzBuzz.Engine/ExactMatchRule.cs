@@ -9,7 +9,7 @@ namespace FizzBuzz.Engine
         public string Output { get; }
         public override bool Final => true; // Always final - stops processing
 
-        public ExactMatchRule(int targetNumber, string output, int priority) : base(priority)
+        public ExactMatchRule(int targetNumber, string output)
         {
             TargetNumber = targetNumber;
             Output = output;

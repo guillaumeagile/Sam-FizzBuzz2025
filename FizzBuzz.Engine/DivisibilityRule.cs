@@ -8,7 +8,7 @@ namespace FizzBuzz.Engine
         public int Divisor { get; }
         public string Output { get; }
 
-        public DivisibilityRule(int divisor, string output, int priority) : base(priority)
+        public DivisibilityRule(int divisor, string output)
         {
             Divisor = divisor;
             Output = output;

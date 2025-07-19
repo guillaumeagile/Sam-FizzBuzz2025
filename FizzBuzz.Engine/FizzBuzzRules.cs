@@ -5,12 +5,12 @@ namespace FizzBuzz.Engine
     /// </summary>
     public static class FizzBuzzRules
     {
-        public static DivisibilityRule Fizz() => new(3, "Fizz", 1);
-        public static DivisibilityRule Buzz() => new(5, "Buzz", 2);
-        public static DivisibilityRule Bang() => new(7, "Bang", 3);
+        public static DivisibilityRule Fizz() => new(3, "Fizz");
+        public static DivisibilityRule Buzz() => new(5, "Buzz");
+        public static DivisibilityRule Bang() => new(7, "Bang");
         
         public static ExactMatchRule TheAnswer() => 
-            new(42, "The answer to the meaning of life, the universe, and everything", 4);
+            new(42, "The answer to the meaning of life, the universe, and everything");
         
         public static DefaultRule Default() => new();
 
@@ -28,7 +28,7 @@ namespace FizzBuzz.Engine
         /// <summary>
         /// Creates a custom divisibility rule
         /// </summary>
-        public static DivisibilityRule Divisible(int by, string output, int priority = 10) =>
-            new(by, output, priority);
+        public static DivisibilityRule Divisible(int by, string output) =>
+            new(by, output);
     }
 }

@@ -28,8 +28,8 @@ namespace FizzBuzz.Tests
             // Arrange - Domain-focused rule creation
             var rules = new IRule[]
             {
-                FizzBuzzRules.Divisible(by: 2, output: "Even", priority: 1),
-                FizzBuzzRules.Divisible(by: 4, output: "Quad", priority: 2)
+                FizzBuzzRules.Divisible(by: 2, output: "Even"),
+                FizzBuzzRules.Divisible(by: 4, output: "Quad")
             };
             
             var engine = new CupidFizzBuzzEngine(rules);
@@ -44,11 +44,11 @@ namespace FizzBuzz.Tests
         [Test]
         public void ExactMatchRule_ShouldStopProcessing()
         {
-            // Arrange
+            // Arrange - Order matters: ExactMatchRule first will override Fizz
             var rules = new IRule[]
             {
-                FizzBuzzRules.Fizz(),
-                new ExactMatchRule(3, "Special Three", priority: 0) // Higher priority
+                new ExactMatchRule(3, "Special Three"), // First = higher priority
+                FizzBuzzRules.Fizz()
             };
             
             var engine = new CupidFizzBuzzEngine(rules);

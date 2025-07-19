@@ -6,17 +6,8 @@ namespace FizzBuzz.Engine
     /// </summary>
     public abstract class RuleBase : IRule
     {
-        public int Priority { get; }
         public virtual bool Final => false;
 
-        protected RuleBase(int priority)
-        {
-            Priority = priority;
-        }
-
         public abstract string Evaluate(int number);
-
-        public int CompareTo(IRule? other) => 
-            other == null ? 1 : Priority.CompareTo(other.Priority);
     }
 }

@@ -2,6 +2,7 @@ namespace FizzBuzz.Engine
 {
     /// <summary>
     /// CUPID-compliant FizzBuzz engine - predictable, composable, domain-focused
+    /// Rules are processed in the order they are provided (no hidden priorities)
     /// </summary>
     public class CupidFizzBuzzEngine
     {
@@ -10,12 +11,12 @@ namespace FizzBuzz.Engine
         public CupidFizzBuzzEngine(IEnumerable<IRule> rules)
         {
             _rules = (rules ?? throw new ArgumentNullException(nameof(rules)))
-                .OrderBy(r => r.Priority)
                 .ToList();
         }
 
         /// <summary>
         /// Evaluates a number against all rules and returns the result
+        /// Rules are processed in the order they were added
         /// </summary>
         public string Evaluate(int number)
         {

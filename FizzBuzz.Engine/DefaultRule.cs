@@ -5,10 +5,6 @@ namespace FizzBuzz.Engine
     /// </summary>
     public class DefaultRule : RuleBase
     {
-        public DefaultRule() : base(int.MaxValue) // Always last
-        {
-        }
-
         public override string Evaluate(int number) => number.ToString();
     }
 }
