@@ -7,7 +7,6 @@ namespace FizzBuzz.Engine
     {
         public int TargetNumber { get; }
         public string Output { get; }
-        public override bool Final => true; // Always final - stops processing
 
         public ExactMatchRule(int targetNumber, string output)
         {
@@ -15,7 +14,9 @@ namespace FizzBuzz.Engine
             Output = output;
         }
 
-        public override string Evaluate(int number) => 
-            number == TargetNumber ? Output : string.Empty;
+        public override RuleResult Evaluate(int number) => 
+            number == TargetNumber 
+                ? RuleResult.StopWith(Output) 
+                : RuleResult.Empty;
     }
 }

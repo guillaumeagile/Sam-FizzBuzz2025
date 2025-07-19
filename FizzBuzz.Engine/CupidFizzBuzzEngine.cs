@@ -17,6 +17,7 @@ namespace FizzBuzz.Engine
         /// <summary>
         /// Evaluates a number against all rules and returns the result
         /// Rules are processed in the order they were added
+        /// Uses modern pattern matching on the Either monad (RuleResult)
         /// </summary>
         public string Evaluate(int number)
         {
@@ -24,15 +25,21 @@ namespace FizzBuzz.Engine
             
             foreach (var rule in _rules)
             {
-                var output = rule.Evaluate(number);
+                var ruleResult = rule.Evaluate(number);
                 
-                if (!string.IsNullOrEmpty(output))
+                // Modern pattern matching - much cleaner!
+                result = ruleResult switch
                 {
-                    if (rule.Final)
-                        return output; // Final rule stops processing
-                    
-                    result += output;
-                }
+                    RuleResult.Final(var output) => output, // Stop and return immediately
+                    RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => result + output,
+                    RuleResult.Continue => result, // Empty output, continue
+                    _ => result // Should never happen with sealed record hierarchy
+                    //but the compiler needs it to be exhaustive
+                };
+
+                // If we got a Final result, return immediately
+                if (ruleResult is RuleResult.Final)
+                    return result;
             }
             
             // Only return number.ToString() if no rules produced output

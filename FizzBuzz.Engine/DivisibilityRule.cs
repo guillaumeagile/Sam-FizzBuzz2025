@@ -14,7 +14,9 @@ namespace FizzBuzz.Engine
             Output = output;
         }
 
-        public override string Evaluate(int number) => 
-            number % Divisor == 0 ? Output : string.Empty;
+        public override RuleResult Evaluate(int number) => 
+            number % Divisor == 0 
+                ? RuleResult.ContinueWith(Output) 
+                : RuleResult.Empty;
     }
 }

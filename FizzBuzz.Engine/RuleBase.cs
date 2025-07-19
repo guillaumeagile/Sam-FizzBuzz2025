@@ -1,13 +1,11 @@
 namespace FizzBuzz.Engine
 {
     /// <summary>
-    /// Base class that eliminates duplication in rule implementations
-    /// Focused only on common infrastructure, not domain logic
+    /// Base class that provides common functionality for rules
+    /// Now much simpler with the Either monad pattern
     /// </summary>
     public abstract class RuleBase : IRule
     {
-        public virtual bool Final => false;
-
-        public abstract string Evaluate(int number);
+        public abstract RuleResult Evaluate(int number);
     }
 }

@@ -1,11 +1,11 @@
 namespace FizzBuzz.Engine
 {
 	/// <summary>
-	/// Basic interface for FizzBuzz rules
+	/// A rule is simply a function that returns either a continuation or a final result
+	/// This eliminates the need for separate Evaluate and Final properties
 	/// </summary>
 	public interface IRule
 	{
-		string Evaluate(int number);
-		bool Final { get; }
+		RuleResult Evaluate(int number);
 	}
 }
