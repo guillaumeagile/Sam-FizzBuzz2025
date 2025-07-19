@@ -11,7 +11,9 @@
 		/// <param name="rules">Rules.</param>
 		public FizzBuzzEngine(IEnumerable<IRule>? rules)
 		{
-			if (rules == null) rules = new List<IRule> ();
+			if (rules == null) {  
+				rules = new List<IRule> ();
+			}
 			_rules = new SortedSet<IRule> (rules);
 		}
 
@@ -22,8 +24,10 @@
 		{
 			get 
 			{
-				if (_rules == null || !_rules.Any()) // uncessary complexity
+				if (_rules == null || !_rules.Any())  // uncessary complexity
+				{
 					throw new NoDefinedeRulesException ("You must declare some rules to play");
+				}
 				return _rules;
 			}
 		}	
