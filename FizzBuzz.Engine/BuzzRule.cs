@@ -2,15 +2,9 @@
 {
 	public class BuzzRule : BaseRule
 	{
-		public BuzzRule()
-		{
-			base._priority = 2;
-		}
+		public BuzzRule() => base.Priority = 2;
 
-		public override string Evaluate(int number)
-		{
-			return IsBuzz(number) ? "Buzz" : "";
-		}
+		public override string Evaluate(int number) => IsBuzz(number) ? "Buzz" : "";
 	}
 }
 
