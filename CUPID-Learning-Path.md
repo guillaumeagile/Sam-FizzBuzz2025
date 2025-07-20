@@ -95,6 +95,13 @@ var buzz = new DivisibilityRule(5, "Buzz");
 var custom = new DivisibilityRule(11, "Eleven");
 ```
 
+#### 🫵 Practice by yourself
+
+Now that you've seen how to compose rules, practice by creating a new rule that checks for divisibility by 13.
+
+We have the divisibility rules, but we also need the ExactMatchRule to handle exact matches, like for 42.  
+
+
 #### 💡 Learning Objective
 Learn to make code **extensible through composition** rather than modification. Parameters > hardcoded values.
 
