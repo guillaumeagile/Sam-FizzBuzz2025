@@ -231,8 +231,8 @@ https://spencerfarley.com/2021/03/26/unions-in-csharp/
 
 We have created a type that looks like a union type by using a base record type and nested records inside it.
 
-In C#14 (.Net 10 preview), they have introduced discriminated unions: https://medium.com/@yathavarajan/discriminated-unions-in-c-14-modeling-data-the-smarter-way-6390e3d411c6
-
+In C#14 (.Net 10 preview), they should introduce discriminated unions: https://medium.com/@yathavarajan/discriminated-unions-in-c-14-modeling-data-the-smarter-way-6390e3d411c6
+but it's not available yet.
 
 
 #### 💡 Learning Objective
@@ -504,4 +504,29 @@ This conversation demonstrates that the best learning happens when:
 - AI provides **analysis, implementation, and systematic thinking**  
 - Both engage in **continuous, iterative improvement**
 
-The result? A journey from "TERRIBLE OO DESIGN" to functional programming excellence that neither could have achieved alone! 🎯
+The result? A journey from "TERRIBLE OO DESIGN" to functional programming excellence that AI could have achieved alone! 🎯
+And Guillaume is just becoming more and more lazy. That's the problem with AI 🤖
+
+## Allez, je reprends la main, ca suffit la plaisanterie 😅
+
+C'est allé beaucoup plus loin que ce que j'imaginais.
+C'est interessant de voir ce que l'IA peut faire. Puissant.
+Déroutant même.
+
+
+Mes conclusions personnelles:
+
+Restez curieux, gardez la maitrise des concepts. 
+
+Pratiquez avec l'IA mais relisez son code. Mettez vous en mode pair programming avec .
+
+Jamais l'IA ne va vous challenger. Ou oser vous contredire. C'est ce qui m'emnnuie le plus.
+
+C'est à vous d'être le plus malin, d'être celui qui voit l'étape d'après.
+L'IA ne créé rien. Il imite les autres.
+
+A vous de faire que cette imitation devienne plus que cela, et ajoutez votre propre style. 
+
+Ne vous satisfaisez pas des réponses toutes faites.
+
+Restez curieux et gardez votre esprit critique et créatif.
