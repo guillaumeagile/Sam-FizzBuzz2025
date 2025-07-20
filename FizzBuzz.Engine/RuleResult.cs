@@ -2,7 +2,7 @@ namespace FizzBuzz.Engine
 {
     /// <summary>
     /// Represents the result of a rule evaluation - either continue or stop processing
-    /// This is our Either monad: Either<Continue, Final>
+    /// This is our 'Either like' monad: Either<Continue, Final>
     /// </summary>
     public abstract record RuleResult
     {
