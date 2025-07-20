@@ -28,16 +28,17 @@ namespace FizzBuzz.Engine
                 var ruleResult = rule.Evaluate(number);
                 
                 // Modern pattern matching - much cleaner!
+                // it's here where the engine decides to stop (on Final) or to continue when the result is not empty
                 result = ruleResult switch
                 {
-                    RuleResult.Final(var output) => output, // Stop and return immediately
+                    RuleResult.Final(var output) => output, // we keep the output, because after that we exit immediately
                     RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => result + output,
-                    RuleResult.Continue => result, // Empty output, continue
+                    RuleResult.Continue => result, // Empty output, just continue
                     _ => result // Should never happen with sealed record hierarchy
                     //but the compiler needs it to be exhaustive
                 };
 
-                // If we got a Final result, return immediately
+                // If we got a Final result, we exit immediately
                 if (ruleResult is RuleResult.Final)
                     return result;
             }
