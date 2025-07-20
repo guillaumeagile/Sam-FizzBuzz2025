@@ -178,11 +178,15 @@ Learn to use **modern language features** that make code more concise and expres
 
 ---
 
-## 🎯 SHIFT 2: FROM OOP TO FUNCTIONAL
+## 🎯 SHIFT 2: FROM OOP TO FUNCTIONAL PROGRAMMING (FP)
 **Goal**: Embrace functional programming principles *(Paradigm change)*
 
 ### Step 2.1: Two Concerns → 🔧 Single Function
-**"A rule is just a function: int → Either<Continue, Final>"**
+**"A rule is just a function that takes an int and can either continue or stop"** :
+
+```fsharp
+int → Either<Continue, Final>
+```
 
 #### ❌ Problem
 ```csharp
@@ -202,11 +206,17 @@ public interface IRule
     RuleResult Evaluate(int number); // One function, clear semantics
 }
 
+// this is a type inspired by the Either monad
 public abstract record RuleResult
 {
     public record Continue(string Output) : RuleResult;  // Keep going
     public record Final(string Output) : RuleResult;    // Stop here
 }
+// it uses idioms from C#: Records within an base Record, for a more fluent syntax
+// a usage would be:
+// RuleResult.Final("Hello")
+//
+// you can see usages in tests
 ```
 
 #### 💡 Learning Objective
