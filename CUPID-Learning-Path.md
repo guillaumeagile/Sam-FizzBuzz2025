@@ -221,12 +221,18 @@ public abstract record RuleResult
 
 #### 🫵 Practice by yourself
 
-By writing (or reading existing) tests, understand of the type RuleResult can be used.
+By writing (or reading existing) tests, understand how the type RuleResult can be used.
 
 Open the method Evaluate, and use pattern matching to replace the old switch/case logic.
 This is where the engine will use the "union" type to decide to continue or stop.
-Union types does not exist in C#.
+
+Union types, stricto senso, don't exist in C#. See
+https://spencerfarley.com/2021/03/26/unions-in-csharp/
+
 We have created a type that looks like a union type by using a base record type and nested records inside it.
+
+In C#14 (.Net 10 preview), they have introduced discriminated unions: https://medium.com/@yathavarajan/discriminated-unions-in-c-14-modeling-data-the-smarter-way-6390e3d411c6
+
 
 
 #### 💡 Learning Objective
