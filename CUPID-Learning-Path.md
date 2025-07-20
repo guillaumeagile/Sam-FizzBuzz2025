@@ -178,11 +178,15 @@ Learn to use **modern language features** that make code more concise and expres
 
 ---
 
-## 🎯 SHIFT 2: FROM OOP TO FUNCTIONAL
+## 🎯 SHIFT 2: FROM OOP TO FUNCTIONAL PROGRAMMING (FP)
 **Goal**: Embrace functional programming principles *(Paradigm change)*
 
 ### Step 2.1: Two Concerns → 🔧 Single Function
-**"A rule is just a function: int → Either<Continue, Final>"**
+**"A rule is just a function that takes an int and can either continue or stop"** :
+
+```fsharp
+int → Either<Continue, Final>
+```
 
 #### ❌ Problem
 ```csharp
@@ -196,18 +200,34 @@ public interface IRule
 
 #### ✅ Solution
 ```csharp
-// Single function with Either monad
+// Single function that returns a type that looks like the Either monad
 public interface IRule
 {
     RuleResult Evaluate(int number); // One function, clear semantics
 }
 
+// this is a type that reflects two possible states:
 public abstract record RuleResult
 {
     public record Continue(string Output) : RuleResult;  // Keep going
     public record Final(string Output) : RuleResult;    // Stop here
 }
+// it uses idioms from C#: Records within an base Record, for a more fluent syntax
+// a usage would be:
+// RuleResult.Final("Hello")
+//
+// you can see usages in tests
 ```
+
+#### 🫵 Practice by yourself
+
+By writing (or reading existing) tests, understand of the type RuleResult can be used.
+
+Open the method Evaluate, and use pattern matching to replace the old switch/case logic.
+This is where the engine will use the "union" type to decide to continue or stop.
+Union types does not exist in C#.
+We have created a type that looks like a union type by using a base record type and nested records inside it.
+
 
 #### 💡 Learning Objective
 Learn that **functional design** can eliminate the need for multiple properties by using **algebraic data types** (Either monad).
