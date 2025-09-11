@@ -514,19 +514,24 @@ C'est interessant de voir ce que l'IA peut faire. Puissant.
 Déroutant même.
 
 
-Mes conclusions personnelles:
+### Mes conclusions personnelles:
 
 Restez curieux, gardez la maitrise des concepts. 
 
 Pratiquez avec l'IA mais relisez son code. Mettez vous en mode pair programming avec .
 
-Jamais l'IA ne va vous challenger. Ou oser vous contredire. C'est ce qui m'emnnuie le plus.
+Jamais l'IA ne va vous challenger. Ou oser vous contredire. 
+C'est ce qui m'emnnuie le plus.
+
 
 C'est à vous d'être le plus malin, d'être celui qui voit l'étape d'après.
-L'IA ne créé rien. Il imite les autres.
 
-A vous de faire que cette imitation devienne plus que cela, et ajoutez votre propre style. 
+L'IA ne créé rien. "Ca" ne fait qu'imiter les autres.
 
-Ne vous satisfaisez pas des réponses toutes faites.
+A vous de de vous approprier cette imitation pour qu'elle devienne bien plus, et ajoutez votre propre style. 
+
+Car au final, au délà de la surprise, ce n'est guère mieux que si j'avais exploré tout StackOverflow. C'est juste plus rapide.
+
+Règle d'OR: ne vous satisfaisez jamais des réponses toutes faites.
 
 Restez curieux et gardez votre esprit critique et créatif.
