@@ -36,6 +36,10 @@ namespace FizzBuzz.Tests
             finalCombined.Should().BeOfType<RuleResult.Final>();
         }
 
+        // TODOOOOO TODO TODO
+        // completer gtout ca pour faire émerger la fonction Game.Standard()
+        // et un Game.Extended()
+
         [Test]
         public void PatternMatching_ShouldWork()
         {

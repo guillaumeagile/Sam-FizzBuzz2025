@@ -25,16 +25,27 @@ namespace FizzBuzz.Tests
                 .Which.Output.Should().Be("Buzz");
         }
 
+
         [Test]
         public void StandardFizzBuzz_ShouldWork()
         {
-            // Act & Assert - Using the curried function
             StandardFizzBuzz(1).Should().Be("1");
             StandardFizzBuzz(3).Should().Be("Fizz");
             StandardFizzBuzz(5).Should().Be("Buzz");
             StandardFizzBuzz(15).Should().Be("FizzBuzz");
-            StandardFizzBuzz(21).Should().Be("FizzBang");
-            StandardFizzBuzz(42).Should().Be("The answer to the meaning of life, the universe, and everything");
+            StandardFizzBuzz(21).Should().Be("Fizz");
+            StandardFizzBuzz(42).Should().Be("Fizz");
+        }
+
+        [Test]
+        public void ExtendedFizzBuzz_ShouldWork()
+        {
+            ExtendedFizzBuzz(1).Should().Be("1");
+            ExtendedFizzBuzz(3).Should().Be("Fizz");
+            ExtendedFizzBuzz(5).Should().Be("Buzz");
+            ExtendedFizzBuzz(15).Should().Be("FizzBuzz");
+            ExtendedFizzBuzz(21).Should().Be("FizzBang");
+            ExtendedFizzBuzz(42).Should().Be("The answer to the meaning of life, the universe, and everything");
         }
 
         [Test]

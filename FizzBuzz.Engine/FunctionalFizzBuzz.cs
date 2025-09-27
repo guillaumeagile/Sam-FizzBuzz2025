@@ -81,6 +81,9 @@ namespace FizzBuzz.Engine
         /// Standard FizzBuzz evaluator
         /// </summary>
         public static readonly Func<int, string> StandardFizzBuzz = 
+            CreateEvaluator(Rules.Fizz, Rules.Buzz);
+
+        public static readonly Func<int, string> ExtendedFizzBuzz =
             CreateEvaluator(Rules.Fizz, Rules.Buzz, Rules.Bang, Rules.TheAnswer);
 
         /// <summary>
