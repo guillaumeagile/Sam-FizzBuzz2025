@@ -19,12 +19,14 @@ namespace FizzBuzz.Engine
         /// <summary>
         /// Creates a standard FizzBuzz game with Fizz, Buzz, Bang, and TheAnswer rules
         /// </summary>
-        public static ImmutableSortedSet<IRule> StandardGame() =>
-            ImmutableSortedSet.Create(
-                Fizz() as IRule,
-                Buzz()
-            );
+        public static IEnumerable<IRule> StandardGame()
+        {
+            var queue = new Queue<IRule>(); //{ Fizz() as IRule, Buzz() }
+                queue.Enqueue(Fizz());
+                queue.Enqueue(Buzz());
+                    return queue;
 
+        }
 
 
         /// <summary>
