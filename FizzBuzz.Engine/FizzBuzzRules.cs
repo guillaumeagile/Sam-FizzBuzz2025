@@ -10,6 +10,8 @@ namespace FizzBuzz.Engine
         public static DivisibilityRule Fizz() => new(3, "Fizz");
         public static DivisibilityRule Buzz() => new(5, "Buzz");
         public static DivisibilityRule Bang() => new(7, "Bang");
+
+        public static DivisibilityRule Meeeh() => new(21, "Meeeh");
         
         public static ExactMatchRule TheAnswer() => 
             new(42, "The answer to the meaning of life, the universe, and everything");
