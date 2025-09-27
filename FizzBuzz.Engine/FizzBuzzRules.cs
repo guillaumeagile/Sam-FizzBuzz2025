@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace FizzBuzz.Engine
 {
     /// <summary>
@@ -17,13 +19,13 @@ namespace FizzBuzz.Engine
         /// <summary>
         /// Creates a standard FizzBuzz game with Fizz, Buzz, Bang, and TheAnswer rules
         /// </summary>
-        public static IEnumerable<IRule> StandardGame() => new IRule[]
-        {
-            Fizz(),
-            Buzz(), 
-            Bang(),
-            TheAnswer()
-        };
+        public static ImmutableSortedSet<IRule> StandardGame() =>
+            ImmutableSortedSet.Create(
+                Fizz() as IRule,
+                Buzz()
+            );
+
+
 
         /// <summary>
         /// Creates a custom divisibility rule

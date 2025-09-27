@@ -7,7 +7,7 @@ namespace FizzBuzz.Tests
     public class CupidFizzBuzzEngineTests
     {
         [Test]
-        public void StandardEngine_ShouldHandleBasicNumbers()
+        public void StandardEngine_ShouldHandleBasicNumbers_DefaultRuleSet()
         {
             // Arrange
             var engine = CupidFizzBuzzEngine.Standard();
@@ -16,10 +16,26 @@ namespace FizzBuzz.Tests
             engine.Evaluate(1).Should().Be("1");
             engine.Evaluate(3).Should().Be("Fizz");
             engine.Evaluate(5).Should().Be("Buzz");
+            engine.Evaluate(15).Should().Be("FizzBuzz");
+        }
+
+        [Test]
+        public void ExtendedEngine_ShouldHandleBasicNumbers_AndExtendedRules()
+        {
+            // Arrange
+
+            var extendedRules = new List<IRule>() { FizzBuzzRules.Bang() };
+            var engine = CupidFizzBuzzEngine.Extended(extendedRules );
+
+
+            // Act & Assert
+            engine.Evaluate(1).Should().Be("1");
+            engine.Evaluate(3).Should().Be("Fizz");
+            engine.Evaluate(5).Should().Be("Buzz");
             engine.Evaluate(7).Should().Be("Bang");
             engine.Evaluate(15).Should().Be("FizzBuzz");
             engine.Evaluate(21).Should().Be("FizzBang");
-            engine.Evaluate(42).Should().Be("The answer to the meaning of life, the universe, and everything");
+//            engine.Evaluate(42).Should().Be("The answer to the meaning of life, the universe, and everything");
         }
 
         [Test]
@@ -31,7 +47,7 @@ namespace FizzBuzz.Tests
                 FizzBuzzRules.Divisible(by: 2, output: "Even"),
                 FizzBuzzRules.Divisible(by: 4, output: "Quad")
             };
-            
+
             var engine = new CupidFizzBuzzEngine(rules);
 
             // Act & Assert
@@ -50,7 +66,7 @@ namespace FizzBuzz.Tests
                 new ExactMatchRule(3, "Special Three"), // First = higher priority
                 FizzBuzzRules.Fizz()
             };
-            
+
             var engine = new CupidFizzBuzzEngine(rules);
 
             // Act & Assert

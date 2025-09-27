@@ -52,5 +52,10 @@ namespace FizzBuzz.Engine
         /// </summary>
         public static CupidFizzBuzzEngine Standard() => 
             new(FizzBuzzRules.StandardGame());
+
+        public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
+        {
+            return new(FizzBuzzRules.StandardGame().Concat(extendedRules));
+        }
     }
 }
