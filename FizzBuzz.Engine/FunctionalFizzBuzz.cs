@@ -86,6 +86,15 @@ namespace FizzBuzz.Engine
         public static readonly Func<int, string> ExtendedFizzBuzz =
             CreateEvaluator(Rules.Fizz, Rules.Buzz, Rules.Bang, Rules.TheAnswer);
 
+        /*  version F# like
+      fizzBuw=
+            treatFizzBuzz
+            -> orElse
+            treatFizz
+                -> treatFuzz
+*/
+
+
         /// <summary>
         /// Functional pipeline for processing ranges
         /// </summary>

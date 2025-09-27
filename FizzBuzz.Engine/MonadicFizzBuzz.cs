@@ -110,7 +110,7 @@ namespace FizzBuzz.Engine
             {
                 var answer = Answer(n);
                 if (!string.IsNullOrEmpty(answer)) return answer; // Early termination
-
+                //           Fizz(n) |> Buzz(n) |> Bang(n)
                 var result = Fizz(n) + Buzz(n) + Bang(n);
                 return string.IsNullOrEmpty(result) ? n.ToString() : result;
             };
