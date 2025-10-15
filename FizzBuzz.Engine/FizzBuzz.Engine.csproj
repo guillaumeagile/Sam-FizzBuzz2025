@@ -7,10 +7,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Content Include="..\CUPID-Learning-Path.md">
-        <Link>CUPID-Learning-Path.md</Link>
-      </Content>
-    </ItemGroup>
-
 </Project>
