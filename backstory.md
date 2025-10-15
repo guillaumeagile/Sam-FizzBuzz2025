@@ -6,3 +6,4 @@ The original implementation dates back to circa 2015, and was used multiple time
 
 Looking back, it is now obvious that the implementation is old and dated, which gave us the inspiration to update it, which then gave us the idea to create a whole new workshop based on it. 
 
+Ten years ago, when the initial implementation was conceived, Clean Code was concidered an important reference for, well, clean code. 
