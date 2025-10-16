@@ -7,6 +7,7 @@ namespace FizzBuzz.Tests
     public class CupidFizzBuzzEngineTests
     {
         [Test]
+        [Category("StandardEngine")]
         public void StandardEngine_ShouldHandleBasicNumbers_DefaultRuleSet()
         {
             // Arrange
@@ -20,7 +21,8 @@ namespace FizzBuzz.Tests
         }
 
         [Test]
-        public void StandardEngine_ShouldHandleBasicNumbers_DefaultRuleSet_WhatHappenIfWeInstertTHeSameRuleTwice()
+        [Category("ExtendedEngine")]
+        public void ExtendedEngine_ShouldHandleBasicNumbers_DefaultRuleSet_WhatHappenIfWeInsertTHeSameRuleTwice()
         {
             // Arrange
             var extendedRules = new List<IRule>() { FizzBuzzRules.Buzz() };
@@ -34,7 +36,8 @@ namespace FizzBuzz.Tests
         }
 
         [Test]
-        public void StandardEngine_ShouldHandleBasicNumbers_DefaultRuleSet_WhatHappenIfWeInstertTHeSameRuleTwice_2()
+        [Category("ExtendedEngine")]
+        public void ExtendedEngine_ShouldHandleBasicNumbers_DefaultRuleSet_WhatHappenIfWeInsertTHeSameRuleTwice_2()
         {
             // Arrange
             var extendedRules = new List<IRule>() { FizzBuzzRules.Buzz(), FizzBuzzRules.Fizz() };
@@ -49,6 +52,7 @@ namespace FizzBuzz.Tests
 
 
         [Test]
+        [Category("ExtendedEngine")]
         public void ExtendedEngine_ShouldHandleBasicNumbers_AndOneExtendedRule()
         {
             // Arrange
@@ -68,6 +72,7 @@ namespace FizzBuzz.Tests
         }
 
         [Test]
+        [Category("ExtendedEngine")]
         public void ExtendedEngine_ShouldHandleBasicNumbers_AndOneExtendedRule_AndRepeatAnExisting()
         {
             // Arrange
@@ -88,6 +93,7 @@ namespace FizzBuzz.Tests
 
 
         [Test]
+        [Category("ExtendedEngine")]
         public void ExtendedEngine_ShouldHandleBasicNumbers_AndTwoExtendedRules()
         {
             // Arrange
@@ -108,6 +114,7 @@ namespace FizzBuzz.Tests
         }
 
         [Test]
+        [Category("ExtendedEngine")]
         public void ExtendedEngine_ShouldHandleBasicNumbers_OrderOfRulesMatters()
         {
             // Arrange
@@ -123,6 +130,7 @@ namespace FizzBuzz.Tests
         }
 
         [Test]
+        [Category("CustomEngine")]
         public void CustomEngine_ShouldHandleBasicNumbers_OrderOfRulesMatters()
         {
             // Arrange
@@ -138,6 +146,7 @@ namespace FizzBuzz.Tests
         }
 
         [Test]
+        [Category("CustomEngine")]
         public void CustomEngine_ShouldHandleBasicNumbers_OrderOfRulesMatters_DifferentOrder()
         {
             // Arrange
@@ -153,6 +162,7 @@ namespace FizzBuzz.Tests
 
 
         [Test]
+        [Category("CustomEngine")]
         public void CustomEngine_ShouldBeComposableWithDomainRules()
         {
             // Arrange - Domain-focused rule creation
