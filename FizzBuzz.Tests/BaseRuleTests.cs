@@ -91,7 +91,8 @@ public class BaseRuleTests
         // INDEEP: Idiomatic of C# allows us to accept null, at the level of the CompareTo method
         // but our Product Owner said that it should be impossible to insert a null rule in the list
         //
-
+        // FROM THE PERSPECTIVE OF THE CLIENT, SHE WANTS AN ELABORATE FIZZBUZZ WITH CUSTOM RULES
+        // as many, and with the right order, and with possibility to terminal rules.
 
         // NOW WE ARE READY TO MOVE TO CUPID !!!!!!
     }
