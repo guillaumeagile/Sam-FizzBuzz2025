@@ -20,11 +20,59 @@ namespace FizzBuzz.Tests
         }
 
         [Test]
+        public void StandardEngine_ShouldHandleBasicNumbers_DefaultRuleSet_WhatHappenIfWeInstertTHeSameRuleTwice()
+        {
+            // Arrange
+            var extendedRules = new List<IRule>() { FizzBuzzRules.Buzz() };
+            var engine = CupidFizzBuzzEngine.Extended(extendedRules );
+
+            // Act & Assert
+            engine.Evaluate(1).Should().Be("1");
+            engine.Evaluate(3).Should().Be("Fizz");
+            engine.Evaluate(5).Should().Be("Buzz");
+            engine.Evaluate(15).Should().Be("FizzBuzz");
+        }
+
+        [Test]
+        public void StandardEngine_ShouldHandleBasicNumbers_DefaultRuleSet_WhatHappenIfWeInstertTHeSameRuleTwice_2()
+        {
+            // Arrange
+            var extendedRules = new List<IRule>() { FizzBuzzRules.Buzz(), FizzBuzzRules.Fizz() };
+            var engine = CupidFizzBuzzEngine.Extended(extendedRules );
+
+            // Act & Assert
+            engine.Evaluate(1).Should().Be("1");
+            engine.Evaluate(3).Should().Be("Fizz");
+            engine.Evaluate(5).Should().Be("Buzz");
+            engine.Evaluate(15).Should().Be("FizzBuzz");
+        }
+
+
+        [Test]
         public void ExtendedEngine_ShouldHandleBasicNumbers_AndOneExtendedRule()
         {
             // Arrange
 
             var extendedRules = new List<IRule>() { FizzBuzzRules.Bang() };
+            var engine = CupidFizzBuzzEngine.Extended(extendedRules );
+
+            // Act & Assert
+            engine.Evaluate(1).Should().Be("1");
+            engine.Evaluate(3).Should().Be("Fizz");
+            engine.Evaluate(5).Should().Be("Buzz");
+            engine.Evaluate(7).Should().Be("Bang");
+            engine.Evaluate(15).Should().Be("FizzBuzz");
+            engine.Evaluate(21).Should().Be("FizzBang");
+            engine.Evaluate(105).Should().Be("FizzBuzzBang");
+//            engine.Evaluate(42).Should().Be("The answer to the meaning of life, the universe, and everything");
+        }
+
+        [Test]
+        public void ExtendedEngine_ShouldHandleBasicNumbers_AndOneExtendedRule_AndRepeatAnExisting()
+        {
+            // Arrange
+
+            var extendedRules = new List<IRule>() { FizzBuzzRules.Bang() , FizzBuzzRules.Fizz()};
             var engine = CupidFizzBuzzEngine.Extended(extendedRules );
 
             // Act & Assert
