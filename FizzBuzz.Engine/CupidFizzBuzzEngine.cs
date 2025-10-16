@@ -58,7 +58,7 @@ namespace FizzBuzz.Engine
         public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
         {
             // Union removes duplicates automatically - functional and idiomatic
-            var mergedRules = FizzBuzzRules.StandardGame().Concat(extendedRules).Distinct();
+            var mergedRules = FizzBuzzRules.StandardGame().Union(extendedRules);
             return new(mergedRules);
         }
 
