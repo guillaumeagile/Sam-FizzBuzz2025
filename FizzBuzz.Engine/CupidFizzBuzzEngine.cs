@@ -55,11 +55,16 @@ namespace FizzBuzz.Engine
 
         public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
         {
-            if (! FizzBuzzRules.StandardGame().Intersect(extendedRules).Any() )
-               return new(FizzBuzzRules.StandardGame());
+          //  if (! FizzBuzzRules.StandardGame().Intersect(extendedRules).Any() )
+          //     return new(FizzBuzzRules.StandardGame());
 
             var extendedRulesList = FizzBuzzRules.StandardGame().Concat(extendedRules);
             return new(extendedRulesList);
+        }
+
+        public static CupidFizzBuzzEngine NewSet(List<IRule> extendedRules)
+        {
+            return new(extendedRules );
         }
     }
 }

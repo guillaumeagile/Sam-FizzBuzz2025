@@ -112,26 +112,48 @@ namespace FizzBuzz.Tests
         {
             // Arrange
 
-            var extendedRules = new List<IRule>() { FizzBuzzRules.Bang() , FizzBuzzRules.Meeeh() };
+            var extendedRules = new List<IRule>()
+            {
+                FizzBuzzRules.Bang() ,
+                FizzBuzzRules.Meeeh()
+            };
             var engine = CupidFizzBuzzEngine.Extended(extendedRules);
 
             engine.Evaluate(21).Should().Be("FizzBangMeeeh");
         }
 
         [Test]
-        public void ExtendedEngine_ShouldHandleBasicNumbers_InvertOrderOfRules()
+        public void CustomEngine_ShouldHandleBasicNumbers_OrderOfRulesMatters()
         {
             // Arrange
-            var extendedRules = new List<IRule>() { FizzBuzzRules.Meeeh(), FizzBuzzRules.Bang()  };
-            var engine = CupidFizzBuzzEngine.Extended(extendedRules);
 
-            engine.Evaluate(21).Should().Be("FizzMeeehBang");
+            var extendedRules = new List<IRule>()
+            {
+                FizzBuzzRules.Bang() ,
+                FizzBuzzRules.Meeeh()
+            };
+            var engine =  CupidFizzBuzzEngine.NewSet(extendedRules);
+
+            engine.Evaluate(21).Should().Be("BangMeeeh");
+        }
+
+        [Test]
+        public void CustomEngine_ShouldHandleBasicNumbers_OrderOfRulesMatters_DifferentOrder()
+        {
+            // Arrange
+            var extendedRules = new List<IRule>()
+            {
+                FizzBuzzRules.Meeeh(),
+                FizzBuzzRules.Bang()
+            };
+            var engine = CupidFizzBuzzEngine.NewSet(extendedRules);
+
+            engine.Evaluate(21).Should().Be("MeeehBang");
         }
 
 
-
         [Test]
-        public void CustomEngine_ShouldBeComposable()
+        public void CustomEngine_ShouldBeComposableWithDomainRules()
         {
             // Arrange - Domain-focused rule creation
             var rules = new IRule[]
@@ -165,6 +187,29 @@ namespace FizzBuzz.Tests
             engine.Evaluate(3).Should().Be("Special Three"); // Not "Fizz"
             engine.Evaluate(6).Should().Be("Fizz"); // Normal fizz rule
         }
+
+        [Test]
+        public void ExactMatchRule_ShouldStopProcessing_OrderOfRulesDoesntMatter()
+        {
+            // Arrange - Order matters: ExactMatchRule first will override Fizz
+            var rules = new IRule[]
+            {
+                FizzBuzzRules.Fizz(),
+                new ExactMatchRule(3, "Special Three")
+
+            };
+
+            var engine = new CupidFizzBuzzEngine(rules);
+
+            // Act & Assert
+            engine.Evaluate(3).Should().Be("Special Three"); // Not "Fizz"
+            engine.Evaluate(6).Should().Be("Fizz"); // Normal fizz rule
+        }
+
+
+
+        //TODO : ajouter des tests dédiés à RuleResult
+
 
         [Test]
         public void RuleResult_EitherMonad_ShouldWorkCorrectly()

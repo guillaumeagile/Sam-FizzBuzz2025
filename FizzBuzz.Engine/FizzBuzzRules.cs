@@ -27,7 +27,6 @@ namespace FizzBuzz.Engine
                 queue.Enqueue(Fizz());
                 queue.Enqueue(Buzz());
                     return queue;
-
         }
 
 

@@ -1,5 +1,7 @@
 namespace FizzBuzz.Engine
 {
+    //TODO: test this as UnitOfWork
+
     /// <summary>
     /// Represents the result of a rule evaluation - either continue or stop processing
     /// This is our 'Either like' monad: Either<Continue, Final>
