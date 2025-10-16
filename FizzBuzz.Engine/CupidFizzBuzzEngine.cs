@@ -31,13 +31,17 @@ namespace FizzBuzz.Engine
                 
                 // Modern pattern matching - much cleaner!
                 // it's here where the engine decides to stop (on Final) or to continue when the result is not empty
+                // we use  pattern matching with deconstruction here, because we want to keep the result of the previous rule
                 result = ruleResult switch
                 {
                     RuleResult.Final(var output) => output, // we keep the output, because after that we exit immediately
+
                     RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => result + output,
-                    RuleResult.Continue => result, // Empty output, just continue
+
+                    RuleResult.Continue => result, // Empty output, just continue with the current result
+
                     _ => result // Should never happen with sealed record hierarchy
-                    //but the compiler needs it to be exhaustive
+                    //but the compiler needs it to be exhaustive (C#14 is not fully FP language)
                 };
 
                 // If we got a Final result, we exit immediately

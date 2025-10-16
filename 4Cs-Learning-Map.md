@@ -184,31 +184,130 @@ public CupidFizzBuzzEngine(IEnumerable<IRule> rules)
 **"Code should feel natural in the language"**
 
 ##### Mini-Lecture (3 min)
-- **Problem**: Old-fashioned C# patterns
-- **CUPID Principle**: Idiomatic = Use modern language features
-- **Solution**: Expression-bodied members, auto-properties
+- **Problem**: Old-fashioned C# patterns (verbose syntax, unnecessary ceremony)
+- **CUPID Principle**: Idiomatic = Use modern language features that reduce noise
+- **Solution**: Target-typed `new`, expression-bodied members, records, primary constructors
 
 ##### Code Comparison (4 min)
+
+**Example 1: Target-typed `new` (C# 9+)**
+
 **Before** (Old-fashioned):
 ```csharp
-public virtual bool Final 
-{ 
-    get { return false; } 
-}
-
-public override string Evaluate(int number)
+// Verbose constructor calls with explicit type names
+public static CupidFizzBuzzEngine Standard()
 {
-    return IsBuzz(number) ? "Buzz" : "";
+    return new CupidFizzBuzzEngine(FizzBuzzRules.StandardGame());
+}
+
+public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
+{
+    var mergedRules = FizzBuzzRules.StandardGame().Union(extendedRules);
+    return new CupidFizzBuzzEngine(mergedRules);
 }
 ```
 
-**After** (Modern C#):
+**After** (Modern C# - Target-typed `new`):
 ```csharp
-public virtual bool Final => false;
+// Concise, idiomatic factory methods using target-typed new() expressions
+public static CupidFizzBuzzEngine Standard() => 
+    new(FizzBuzzRules.StandardGame());
 
-public override string Evaluate(int number) => 
-    IsBuzz(number) ? "Buzz" : "";
+public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
+{
+    var mergedRules = FizzBuzzRules.StandardGame().Union(extendedRules);
+    return new(mergedRules);  // Type inferred from return type
+}
 ```
+
+**Why it's better**: The compiler knows the return type, so repeating `CupidFizzBuzzEngine` is redundant noise.
+
+---
+
+**Example 2: Records with Nested Types - Simulating Discriminated Unions (C# 9+)**
+
+**Before** (Old-fashioned classes):
+```csharp
+// Verbose class hierarchy with boilerplate
+public abstract class RuleResult
+{
+    public class Continue : RuleResult
+    {
+        public string Output { get; }
+        
+        public Continue(string output)
+        {
+            Output = output;
+        }
+    }
+    
+    public class Final : RuleResult
+    {
+        public string Output { get; }
+        
+        public Final(string output)
+        {
+            Output = output;
+        }
+    }
+}
+```
+
+**After** (Modern C# - Records as Discriminated Union Pattern):
+```csharp
+// Concise, immutable by default, with structural equality
+// This simulates discriminated unions from F#/Haskell
+public abstract record RuleResult
+{
+    public record Continue(string Output) : RuleResult;
+    public record Final(string Output) : RuleResult;
+}
+
+// Usage: RuleResult.Final("42")
+```
+
+**Why it's better**: Records eliminate boilerplate, provide immutability by default, and give you structural equality for free.
+
+This pattern simulates **discriminated unions** (a.k.a. sum types) from functional languages like F#, Haskell, or Scala.
+
+**Note**: Even C# 14 doesn't have true discriminated unions (though they're proposed for future versions). This record pattern is the closest idiomatic approach to model "Either/Or" types in modern C#.
+
+( see foot notes )
+
+---
+
+**Example 3: Expression-bodied Members (C# 6+)**
+
+**Before** (Old-fashioned):
+```csharp
+public class DivisibilityRule : RuleBase
+{
+    public override RuleResult Evaluate(int number)
+    {
+        if (number % Divisor == 0)
+        {
+            return RuleResult.ContinueWith(Output);
+        }
+        else
+        {
+            return RuleResult.Empty;
+        }
+    }
+}
+```
+
+**After** (Modern C# - Expression-bodied + ternary):
+```csharp
+public class DivisibilityRule : RuleBase
+{
+    public override RuleResult Evaluate(int number) => 
+        number % Divisor == 0 
+            ? RuleResult.ContinueWith(Output) 
+            : RuleResult.Empty;
+}
+```
+
+**Why it's better**: More concise, reads like a mathematical expression, eliminates unnecessary ceremony.
 
 ##### Quick Activity (3 min)
 **Spot the Difference**: What makes the "after" code more idiomatic?
@@ -329,7 +428,7 @@ switch (ruleResult)
 }
 ```
 
-**After** (Declarative):
+**After** (Declarative and functional like):
 ```csharp
 result = ruleResult switch
 {
@@ -340,20 +439,37 @@ result = ruleResult switch
 };
 ```
 
+Hints to read that code better:
+- **Switch**:  upon `ruleResult` a pattern type is trying to be matched
+- **Pattern Type**: `RuleResult.Final(var output)` or `RuleResult.Continue(var output)`
+- **Deconstruction**: `var output` 
+This is Deconstruction in Pattern Matching:
+  The pattern ```RuleResult.Final(var output)``` extracts the Output property from the Final record
+  and captures the deconstructed value.
+  
+  - It's similar to:  ```if (ruleResult is RuleResult.Final final) { var output = final.Output; }```
+- **Guard**: `when !string.IsNullOrEmpty(output)`
+- **Default**: `_ => result`
+- **Result Expression**: is what you read on the right-hand side of the `=>` (the value to return) . 
+   - Sometimes called the **Arm body** - The body of the switch arm
+
+
+
+
 ##### Quick Activity (5 min)
 **Compare**: Which version is easier to read? Why?
 
 ---
 
-#### Concept 2.4: Object Methods → 🏠 Pure Functions (20 min)
+#### Concept 2.4: Object Methods → 🏠 Pure Functions ( quickie, 5 min)
 **"Pure functions are predictable, testable, and composable"**
 
-##### Mini-Lecture (7 min)
+##### Mini-Lecture (2 min)
 - **Problem**: Methods with side effects are unpredictable
 - **FP Principle**: Pure functions = same input → same output, no side effects
 - **Solution**: Eliminate mutable state and side effects
 
-##### Code Comparison (8 min)
+##### Code Comparison (3 min)
 **Before** (Impure - side effects):
 ```csharp
 public class BuzzRule : BaseRule
@@ -380,8 +496,6 @@ public class DivisibilityRule : RuleBase
 }
 ```
 
-##### Quick Activity (5 min)
-**Test It**: How would you test each version? Which is easier?
 
 ---
 
@@ -429,14 +543,14 @@ public class DivisibilityRule : RuleBase
 ### Practice Session 2: Functional Programming (60-90 min)
 **Objective**: Transform OOP code into functional style
 
-#### Exercise 4: Implement Either Monad (20 min)
+#### Exercise 4: Implement Result Monad (20 min)
 **Task**: Create RuleResult type and refactor IRule interface
 - Define RuleResult abstract record with Continue and Final nested records
 - Change IRule.Evaluate to return RuleResult
 - Update existing rules to return RuleResult
 
 **Success Criteria**:
-- ✅ RuleResult type correctly models Either monad
+- ✅ RuleResult type correctly models Result monad
 - ✅ All rules return RuleResult
 - ✅ Tests pass
 
@@ -671,3 +785,41 @@ After completing this learning path, you should be able to:
 ---
 
 **Remember**: Learning is not linear. Revisit concepts, practice regularly, and be patient with yourself. The journey from "terrible OO design" to functional excellence is a marathon, not a sprint! 🚀
+
+
+## 📚 Resources
+
+### on Discriminated Unions
+
+- https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/discriminated-unions
+- https://fsharpforfunandprofit.com/posts/discriminated-unions/
+
+## 👣 Foot notes
+
+### on Discriminated Unions
+
+#### What Makes It Similar to Discriminated Unions:
+- Closed Set of Cases: The abstract base record RuleResult with sealed nested records creates a finite set of possible values (Continue or Final)
+- Type Safety: Pattern matching ensures you handle all cases at compile time
+- Immutability: Records are immutable by default, like functional discriminated unions
+- Structural Equality: Records provide value-based equality, not reference equality
+
+However, It's Not Perfect:
+
+#### Limitations compared to true discriminated unions (F#/Haskell):
+
+ - Not truly sealed: Without the sealed keyword on the base record, someone could theoretically create a third case
+- More verbose: Requires explicit inheritance syntax
+- No exhaustiveness checking: C# won't warn you if you forget a case in pattern matching (unless you use switch expressions carefully)
+
+
+A better pattern:
+```csharp
+public abstract record RuleResult
+{
+    private RuleResult() { } // Private constructor prevents external inheritance
+    
+    public sealed record Continue(string Output) : RuleResult;
+    public sealed record Final(string Output) : RuleResult;
+}
+```
