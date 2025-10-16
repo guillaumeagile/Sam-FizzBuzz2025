@@ -220,11 +220,11 @@ namespace FizzBuzz.Tests
 
 
 
-        //TODO : ajouter des tests dédiés à RuleResult
+
 
 
         [Test]
-        public void RuleResult_EitherMonad_ShouldWorkCorrectly()
+        public void RuleResult_ResultMonad_ShouldWorkCorrectly()
         {
             // Arrange - Test the Either monad pattern directly
             var continueRule = FizzBuzzRules.Fizz();
@@ -244,7 +244,7 @@ namespace FizzBuzz.Tests
             finalResult.Should().BeOfType<RuleResult.Final>();
             ((RuleResult.Final)finalResult).Output.Should().Be("Final Answer");
 
-            var noMatchResult = finalRule.Evaluate(41);
+            var noMatchResult = finalRule.Evaluate(43);
             noMatchResult.Should().BeOfType<RuleResult.Continue>();
         }
     }
