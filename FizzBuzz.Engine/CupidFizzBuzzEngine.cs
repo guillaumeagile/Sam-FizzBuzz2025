@@ -14,6 +14,8 @@ namespace FizzBuzz.Engine
                 .ToList();
         }
 
+        public IReadOnlyList<IRule> Rules => _rules;
+
         /// <summary>
         /// Evaluates a number against all rules and returns the result
         /// Rules are processed in the order they were added
@@ -55,11 +57,9 @@ namespace FizzBuzz.Engine
 
         public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
         {
-          //  if (! FizzBuzzRules.StandardGame().Intersect(extendedRules).Any() )
-          //     return new(FizzBuzzRules.StandardGame());
-
-            var extendedRulesList = FizzBuzzRules.StandardGame().Concat(extendedRules);
-            return new(extendedRulesList);
+            // Union removes duplicates automatically - functional and idiomatic
+            var mergedRules = FizzBuzzRules.StandardGame().Concat(extendedRules).Distinct();
+            return new(mergedRules);
         }
 
         public static CupidFizzBuzzEngine NewSet(List<IRule> extendedRules)

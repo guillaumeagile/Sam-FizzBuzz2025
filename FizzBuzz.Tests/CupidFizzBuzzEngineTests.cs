@@ -80,6 +80,8 @@ namespace FizzBuzz.Tests
             var extendedRules = new List<IRule>() { FizzBuzzRules.Bang() , FizzBuzzRules.Fizz()};
             var engine = CupidFizzBuzzEngine.Extended(extendedRules );
 
+            engine.Rules.Count.Should().Be(3);
+
             // Act & Assert
             engine.Evaluate(1).Should().Be("1");
             engine.Evaluate(3).Should().Be("Fizz");
