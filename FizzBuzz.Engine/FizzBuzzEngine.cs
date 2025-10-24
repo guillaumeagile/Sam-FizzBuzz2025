@@ -7,18 +7,27 @@
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FizzBuzzEngine"/> class.
+		/// The basic engine should always be initialized with Fizz and Buzz rules.
 		/// </summary>
 		/// <param name="rules">Rules.</param>
+		public FizzBuzzEngine()
+		{
+			_rules = new SortedSet<IRule> { new FizzRule(), new BuzzRule() };
+		}
+		
 		public FizzBuzzEngine(IEnumerable<IRule>? rules)
 		{
-			if (rules == null) {  
-				rules = new List<IRule> ();
+			_rules = new SortedSet<IRule> { new FizzRule(), new BuzzRule() };
+			if (rules != null) {  
+				_rules.Concat(rules).ToList().ForEach(rule => _rules.Add(rule));
 			}
-			_rules = new SortedSet<IRule> (rules);
 		}
 
 		private SortedSet<IRule> _rules;	
-
+		public void AddRule(IRule rule)
+		{
+			_rules.Add(rule);
+		}
 		
 		private SortedSet<IRule> Rules 
 		{
@@ -51,6 +60,8 @@
 			}
 			return (finalAnswer != string.Empty) ? finalAnswer : number.ToString();
 		}
+
+	
 	}
 }
 
