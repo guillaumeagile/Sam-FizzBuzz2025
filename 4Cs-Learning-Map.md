@@ -1,230 +1,68 @@
 # 4Cs Learning Map: CUPID Learning Path
-## Based on "Training from the Back of the Room" by Sharon Bowman
+### Based on "Training from the Back of the Room" by Sharon Bowman
 
 ---
 
-## 🔗 C1: CONNECTIONS (10-15 minutes)
-**Goal**: Activate prior knowledge and connect to what learners already know
-
-### What Learners Already Know
-- **Traditional OOP**: Classes, inheritance, interfaces, mutable state, methods with side effects
-- **SOLID Principles**: SRP, OCP, LSP, ISP, DIP
-- **C# Basics**: Properties, methods, constructors
-- **FizzBuzz Problem**: Classic coding kata
-- **Limited FP Exposure**: May have used LINQ but not deep functional programming concepts (immutability, pure functions, monads)
-- **Note**: Some developers may have deeper FP experience (F#, Haskell, Scala, Kotlin, TS) - they can help bridge concepts for others
-
-### Connection Activities
-
-#### Activity 1: Code Review Challenge (5 min)
-**Instructions**: Look at the current BaseRule implementation (main branch)
-- What feels "wrong" or "smelly" about this code?
-- Which SOLID principles are violated?
-- Share one thing that bothers you most
-
-**Expected Responses**:
-- "Too many responsibilities in one class"
-- "Hardcoded magic numbers (3, 5, 7)"
-- "Complex priority system is confusing"
-- "Old-fashioned C# syntax"
-
-#### Activity 2: Pair & Share (5 min)
-**Prompt**: "Think of a time when you had to modify legacy code that was hard to change. What made it difficult?"
-
-**Connect to Learning**: Today we'll transform similar "terrible OO design" into elegant, maintainable code.
-
-#### Activity 3: Learning Goal Preview (3 min)
-**Question**: "What does 'good code' mean to you?"
-
-Write 3 words on sticky notes. Share with group.
-
-**Bridge**: Today we'll learn CUPID principles - a modern alternative to SOLID that makes code **Composable, Unix-philosophy, Predictable, Idiomatic, and Domain-based**.
-
----
 
 ## 📖 C2: CONCEPTS (Chunked Learning)
 **Goal**: Present new information in small, digestible chunks with active learning
 
-### 🚀 CHUNK 1: SHIFT 1 - From SOLID to CUPID (OOP Improvement)
-**Duration**: 60-90 minutes | **Paradigm**: Stay in OOP
+
+### 🎯 CHUNK 2: SHIFT 2 - From OOP to Functional Programming (Paradigm Change)
+**Duration**: ?? minutes | **Paradigm**: Functional Programming
 
 ---
 
-#### Concept 1.1: Single Responsibility → 🔧 Unix Philosophy (15 min)
-**"Do one thing well"**
+#### Concept 2.1: Two Concerns → 🔧 Single Function (20 min)
+**"A rule is just a function: int → Either<Continue, Final>"**
 
-##### Mini-Lecture (5 min)
-- **Problem**: BaseRule has multiple responsibilities
-  - Comparison logic (CompareTo)
-  - Evaluation logic (Evaluate)
-  - Domain knowledge (IsFizz, IsBuzz, IsBang)
-  - Priority management
+##### Mini-Lecture (7 min)
+- **Problem**: Two separate concerns in interface (Evaluate + Final)
+- **FP Principle**: Combine concerns into single function with algebraic data type
+- **Solution**: Either/Result monad pattern with RuleResult
 
-- **CUPID Principle**: Unix Philosophy = Do ONE thing well
-  - Each class should have a single, focused purpose
-  - Domain-specific knowledge belongs in domain-specific classes
-
-##### Code Comparison (5 min)
-**Before** (Multiple responsibilities):
+##### Code Comparison (2 min)
+**Before** (Two concerns):
 ```csharp
-public abstract class BaseRule : IRule
+public interface IRule
 {
-    public int CompareTo(IRule other) { ... }           // Comparison
-    public virtual string Evaluate(int number) { ... }  // Evaluation
-    protected static bool IsFizz(int number) { ... }    // Domain: Fizz=3
-    protected static bool IsBuzz(int number) { ... }    // Domain: Buzz=5
+    string Evaluate(int number);  // Concern 1: What output?
+    bool Final { get; }          // Concern 2: Should we stop?
 }
 ```
 
-**After** (Single responsibility):
+**After** (Single function with Either/Result monad):
 ```csharp
-public class FizzRule : BaseRule
+public interface IRule
 {
-    public override string Evaluate(int number) => 
-        number % 3 == 0 ? "Fizz" : "";
+    RuleResult Evaluate(int number); // One function, clear semantics
 }
 
-public class BuzzRule : BaseRule
+// Result monad: two possible states
+public abstract record RuleResult
 {
-    public override string Evaluate(int number) => 
-        number % 5 == 0 ? "Buzz" : "";
+    public record Continue(string Output) : RuleResult;  // Keep going
+    public record Final(string Output) : RuleResult;    // Stop here
 }
+
+// Usage:
+// RuleResult.Final("42")
+// RuleResult.Continue("Fizz")
 ```
 
 ##### Quick Activity (5 min)
-**Think-Pair-Share**: 
-- Why is separating concerns better?
-- What happens when you need to add a new rule?
+**Think-Pair-Share**: How does this design eliminate the need for two separate properties?
 
----
-
-#### Concept 1.2: Open/Closed → 🏠 Composable (15 min)
-**"Rules should compose naturally without modification"**
-
-##### Mini-Lecture (5 min)
-- **Problem**: Hardcoded divisors (3, 5, 7) make extension impossible
-- **CUPID Principle**: Composable = Extend through composition, not modification
-- **Solution**: Make divisors configurable parameters
-
-##### Code Comparison (5 min)
-**Before** (Hardcoded, not composable):
-```csharp
-protected static bool IsFizz(int number) => number % 3 == 0;  // 3 hardcoded!
-protected static bool IsBuzz(int number) => number % 5 == 0;  // 5 hardcoded!
-```
-
-**After** (Composable):
-```csharp
-public class DivisibilityRule : BaseRule
-{
-    public int Divisor { get; }
-    public string Output { get; }
-
-    public DivisibilityRule(int divisor, string output)
-    {
-        Divisor = divisor;
-        Output = output;
-    }
-
-    public override string Evaluate(int number) => 
-        number % Divisor == 0 ? Output : "";
-}
-
-// Now compose ANY rule:
-var fizz = new DivisibilityRule(3, "Fizz");
-var buzz = new DivisibilityRule(5, "Buzz");
-var custom = new DivisibilityRule(11, "Eleven");
-```
-
-##### Quick Activity (5 min)
-**Challenge**: How would you create a rule for divisibility by 13 that outputs "Lucky"?
-
----
-
-#### Concept 1.3: Complex Priority → 🔮 Predictable (15 min)
-**"Behavior should be obvious - no hidden complexity"**
-
-##### Mini-Lecture (5 min)
-- **Problem**: Hidden priority system with magic numbers
-- **CUPID Principle**: Predictable = Obvious behavior, no surprises
-- **Solution**: Use insertion order instead of priority
-
-##### Code Comparison (5 min)
-**Before** (Hidden priority):
-```csharp
-public class FizzRule : BaseRule
-{
-    public FizzRule() => base._priority = 1;  // Magic number!
-}
-
-// Engine sorts by priority - hidden behavior!
-_rules = new SortedSet<IRule>(rules);
-```
-
-**After** (Predictable order):
-```csharp
-public class DivisibilityRule : BaseRule
-{
-    // No priority property needed
-}
-
-// Order = insertion order - obvious!
-public CupidFizzBuzzEngine(IEnumerable<IRule> rules)
-{
-    _rules = rules.ToList(); // First added = first processed
-}
-```
-
-##### Quick Activity (5 min)
-**Discussion**: Which is easier to understand? Why does predictability matter?
-
----
-
-#### Concept 1.4: Old Syntax → 🆔 Idiomatic (10 min)
+#### Concept 2.4: Old Syntax → 🆔 Idiomatic (10 min)
 **"Code should feel natural in the language"**
 
 ##### Mini-Lecture (3 min)
 - **Problem**: Old-fashioned C# patterns (verbose syntax, unnecessary ceremony)
 - **CUPID Principle**: Idiomatic = Use modern language features that reduce noise
-- **Solution**: Target-typed `new`, expression-bodied members, records, primary constructors
+- **Solution**: records to model nested types (union types alike) + pattern matching to model imperative code
 
-##### Code Comparison (4 min)
 
-**Example 1: Target-typed `new` (C# 9+)**
-
-**Before** (Old-fashioned):
-```csharp
-// Verbose constructor calls with explicit type names
-public static CupidFizzBuzzEngine Standard()
-{
-    return new CupidFizzBuzzEngine(FizzBuzzRules.StandardGame());
-}
-
-public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
-{
-    var mergedRules = FizzBuzzRules.StandardGame().Union(extendedRules);
-    return new CupidFizzBuzzEngine(mergedRules);
-}
-```
-
-**After** (Modern C# - Target-typed `new`):
-```csharp
-// Concise, idiomatic factory methods using target-typed new() expressions
-public static CupidFizzBuzzEngine Standard() => 
-    new(FizzBuzzRules.StandardGame());
-
-public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
-{
-    var mergedRules = FizzBuzzRules.StandardGame().Union(extendedRules);
-    return new(mergedRules);  // Type inferred from return type
-}
-```
-
-**Why it's better**: The compiler knows the return type, so repeating `CupidFizzBuzzEngine` is redundant noise.
-
----
-
-**Example 2: Records with Nested Types - Simulating Discriminated Unions (C# 9+)**
+**Example : Records with Nested Types - Simulating Discriminated Unions (C# 9+)**
 
 **Before** (Old-fashioned classes):
 ```csharp
@@ -274,90 +112,9 @@ This pattern simulates **discriminated unions** (a.k.a. sum types) from function
 
 ( see foot notes )
 
----
 
-**Example 3: Expression-bodied Members (C# 6+)**
 
-**Before** (Old-fashioned):
-```csharp
-public class DivisibilityRule : RuleBase
-{
-    public override RuleResult Evaluate(int number)
-    {
-        if (number % Divisor == 0)
-        {
-            return RuleResult.ContinueWith(Output);
-        }
-        else
-        {
-            return RuleResult.Empty;
-        }
-    }
-}
-```
 
-**After** (Modern C# - Expression-bodied + ternary):
-```csharp
-public class DivisibilityRule : RuleBase
-{
-    public override RuleResult Evaluate(int number) => 
-        number % Divisor == 0 
-            ? RuleResult.ContinueWith(Output) 
-            : RuleResult.Empty;
-}
-```
-
-**Why it's better**: More concise, reads like a mathematical expression, eliminates unnecessary ceremony.
-
-##### Quick Activity (3 min)
-**Spot the Difference**: What makes the "after" code more idiomatic?
-
----
-
-### 🎯 CHUNK 2: SHIFT 2 - From OOP to Functional Programming (Paradigm Change)
-**Duration**: 90-120 minutes | **Paradigm**: Functional Programming
-
----
-
-#### Concept 2.1: Two Concerns → 🔧 Single Function (20 min)
-**"A rule is just a function: int → Either<Continue, Final>"**
-
-##### Mini-Lecture (7 min)
-- **Problem**: Two separate concerns in interface (Evaluate + Final)
-- **FP Principle**: Combine concerns into single function with algebraic data type
-- **Solution**: Either monad pattern with RuleResult
-
-##### Code Comparison (8 min)
-**Before** (Two concerns):
-```csharp
-public interface IRule
-{
-    string Evaluate(int number);  // Concern 1: What output?
-    bool Final { get; }          // Concern 2: Should we stop?
-}
-```
-
-**After** (Single function with Either monad):
-```csharp
-public interface IRule
-{
-    RuleResult Evaluate(int number); // One function, clear semantics
-}
-
-// Either monad: two possible states
-public abstract record RuleResult
-{
-    public record Continue(string Output) : RuleResult;  // Keep going
-    public record Final(string Output) : RuleResult;    // Stop here
-}
-
-// Usage:
-// RuleResult.Final("42")
-// RuleResult.Continue("Fizz")
-```
-
-##### Quick Activity (5 min)
-**Think-Pair-Share**: How does this design eliminate the need for two separate properties?
 
 ---
 
@@ -687,7 +444,7 @@ You've learned to transform "TERRIBLE OO DESIGN" into elegant, functional code t
 - ✅ Old Syntax → Idiomatic
 
 **SHIFT 2: OOP → Functional Programming**
-- ✅ Two Concerns → Single Function (Either monad)
+- ✅ Two Concerns → Single Function (Result monad)
 - ✅ Mutable State → Immutable Data
 - ✅ Imperative → Pattern Matching
 - ✅ Object Methods → Pure Functions
@@ -762,7 +519,7 @@ After completing this learning path, you should be able to:
 - [ ] Explain the 5 CUPID principles
 - [ ] Describe the difference between CUPID and SOLID
 - [ ] Define what makes a function "pure"
-- [ ] Explain the Either monad pattern
+- [ ] Explain the Either/Result monad pattern
 
 **Application** (Skills):
 - [ ] Refactor a class to follow Unix Philosophy
