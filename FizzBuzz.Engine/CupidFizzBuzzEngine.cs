@@ -27,7 +27,7 @@ namespace FizzBuzz.Engine
         /// </summary>
         public string Evaluate(int number)
         {
-            var result = string.Empty;
+            var printableResult = string.Empty;
             
             foreach (var rule in _rules)
             {
@@ -36,39 +36,29 @@ namespace FizzBuzz.Engine
                 // Modern pattern matching - much cleaner!
                 // it's here where the engine decides to stop (on Final) or to continue when the result is not empty
                 // we use  pattern matching with deconstruction here, because we want to keep the result of the previous rule
-                result = ruleResult switch
+                printableResult = ruleResult switch
                 {
                     RuleResult.Final(var output) => output, // we keep the output, because after that we exit immediately
 
-                    RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => result + output,
+                    RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => printableResult + output,
 
-                    RuleResult.Continue => result, // Empty output, just continue with the current result
+                    RuleResult.Continue => printableResult, // Empty output, just continue with the current result
 
-                    _ => result // Should never happen with sealed record hierarchy
+                    _ => printableResult // Should never happen with sealed record hierarchy
                     //but the compiler needs it to be exhaustive (C#14 is not fully FP language)
                 };
 
                 // If we got a Final result, we exit immediately
                 if (ruleResult is RuleResult.Final)
-                    return result;
+                    return printableResult;
             }
             
             // Only return number.ToString() if no rules produced output
-            return string.IsNullOrEmpty(result) ? number.ToString() : result;
+            return string.IsNullOrEmpty(printableResult) ? number.ToString() : printableResult;
         }
 
-        /// <summary>
-        /// Creates a standard FizzBuzz engine
-        /// </summary>
-        public static CupidFizzBuzzEngine Standard() => 
-            new(FizzBuzzRules.StandardGame());
 
-        public static CupidFizzBuzzEngine Extended(List<IRule> extendedRules)
-        {
-            // Union removes duplicates automatically - functional and idiomatic
-            var mergedRules = FizzBuzzRules.StandardGame().Union(extendedRules);
-            return new(mergedRules);
-        }
+
 
         public static CupidFizzBuzzEngine NewSet(List<IRule> extendedRules)
         {

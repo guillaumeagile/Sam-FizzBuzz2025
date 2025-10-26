@@ -10,6 +10,6 @@ namespace FizzBuzz.Engine.Rules.Concretes
     public record DefaultRule : RuleBase
     {
         public override RuleResult Evaluate(int number) => 
-            RuleResult.ContinueWith(number.ToString());
+           throw new System.NotImplementedException();
     }
 }
