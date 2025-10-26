@@ -226,117 +226,448 @@ This is Deconstruction in Pattern Matching:
 ## 🛠️ C3: CONCRETE PRACTICE (Hands-On Activities)
 **Goal**: Apply concepts through deliberate practice
 
-### Practice Session 1: CUPID Refactoring (45-60 min)
-**Objective**: Transform SOLID violations into CUPID-compliant code
 
-#### Exercise 1: Extract Single Responsibilities (15 min)
-**Task**: Refactor BaseRule to follow Unix Philosophy
-- Remove domain-specific methods (IsFizz, IsBuzz, IsBang)
-- Create specific rule classes (FizzRule, BuzzRule)
-- Each class should have ONE clear purpose
-
-**Success Criteria**:
-- ✅ Each class has single responsibility
-- ✅ No hardcoded domain knowledge in base class
-- ✅ Tests pass
-
-#### Exercise 2: Make Rules Composable (15 min)
-**Task**: Create DivisibilityRule with configurable parameters
-- Replace hardcoded divisors with constructor parameters
-- Create rules for divisibility by 13 ("Lucky") and 11 ("Eleven")
-- Implement ExactMatchRule for exact number matches (like 42)
-
-**Success Criteria**:
-- ✅ Can create any divisibility rule without modifying code
-- ✅ Custom rules work correctly
-- ✅ Tests pass
-
-#### Exercise 3: Simplify Priority System (15 min)
-**Task**: Replace priority system with insertion order
-- Remove _priority property
-- Use List instead of SortedSet
-- Process rules in insertion order
-
-**Success Criteria**:
-- ✅ No priority property exists
-- ✅ Order is obvious (insertion order)
-- ✅ Tests pass
+### Practice Session 2: Journey to Pure Functional Programming (90-120 min)
+**Objective**: Transform imperative code into pure functional style using monadic operations
+**Goal**: Achieve "No imperative control flow - just function composition"
 
 ---
 
-### Practice Session 2: Functional Programming (60-90 min)
-**Objective**: Transform OOP code into functional style
+#### Exercise 4: Implement the Either/Result Monad (20 min)
+**Task**: Create `RuleResult` type with Continue and Final cases
+- Define abstract record `RuleResult` with nested records
+- Implement `Continue(string Output)` for accumulating results
+- Implement `Final(string Output)` for short-circuit results
+- Add factory methods: `ContinueWith()`, `StopWith()`, `Empty`
 
-#### Exercise 4: Implement Result Monad (20 min)
-**Task**: Create RuleResult type and refactor IRule interface
-- Define RuleResult abstract record with Continue and Final nested records
-- Change IRule.Evaluate to return RuleResult
-- Update existing rules to return RuleResult
+**Code to Write** (in `RuleResult.cs`):
+```csharp
+public abstract record RuleResult
+{
+    public record Continue(string Output) : RuleResult;
+    public record Final(string Output) : RuleResult;
+    
+    public static RuleResult ContinueWith(string output) => new Continue(output);
+    public static RuleResult StopWith(string output) => new Final(output);
+    public static readonly RuleResult Empty = new Continue("");
+}
+```
+
+**Why This Matters**: 
+- Replaces two separate concerns (string + bool) with single type
+- Either monad: result is **either** Continue **or** Final
+- Type system enforces handling both cases
 
 **Success Criteria**:
-- ✅ RuleResult type correctly models Result monad
+- ✅ RuleResult defined as discriminated union pattern
+- ✅ Immutable by default (records)
+- ✅ Factory methods work
+- ✅ Basic tests pass
+
+**Reference**: `RuleResult.cs`, `A_RuleResultTests.cs`
+
+---
+
+#### Exercise 5: Implement Monadic Operations (35 min)
+**Task**: Build the functional toolkit - Map, Bind, and collection operations
+
+**Step 5.1: Map (Functor) - 10 min**
+Transform the value while preserving the context:
+```csharp
+public static RuleResult Map(this RuleResult result, Func<string, string> f)
+{
+    return result switch
+    {
+        RuleResult.Continue(var output) => RuleResult.ContinueWith(f(output)),
+        RuleResult.Final(var output) => RuleResult.StopWith(output), // Unchanged
+        _ => result
+    };
+}
+```
+
+**Key Insight**: Map on Final does nothing - preserves short-circuit!
+
+**Step 5.2: Bind (Monad) - 10 min**
+Chain operations that return new RuleResult:
+```csharp
+public static RuleResult Bind(this RuleResult result, Func<string, RuleResult> f)
+{
+    return result switch
+    {
+        RuleResult.Continue(var output) => f(output),
+        RuleResult.Final(var output) => RuleResult.StopWith(output), // Short-circuits
+        _ => result
+    };
+}
+```
+
+**Key Insight**: Bind can change from Continue to Final (or vice versa)
+
+**Step 5.3: TakeUntilFinal - 10 min**
+Process collection until hitting Final:
+```csharp
+public static IEnumerable<RuleResult> TakeUntilFinal(this IEnumerable<RuleResult> results)
+{
+    foreach (var result in results)
+    {
+        yield return result;
+        if (result is RuleResult.Final)
+            yield break; // Stop processing
+    }
+}
+```
+
+**Key Insight**: Replaces imperative `if (final) return` with functional operation
+
+**Step 5.4: CombineResults - 5 min**
+The main composition - handle both Continue and Final:
+```csharp
+public static string CombineResults(this IEnumerable<RuleResult> results, string fallback)
+{
+    var resultsList = results.ToList();
+    
+    // Check for Final (escape hatch)
+    var finalOutput = resultsList.ExtractFinalOutput();
+    if (finalOutput != null)
+        return finalOutput;
+    
+    // Fold all Continue results
+    var accumulated = resultsList
+        .TakeWhile(r => r is not RuleResult.Final)
+        .FoldOutputs();
+    
+    return string.IsNullOrEmpty(accumulated) ? fallback : accumulated;
+}
+```
+
+**Success Criteria**:
+- ✅ Map transforms Continue, bypasses Final
+- ✅ Bind can switch between Continue/Final
+- ✅ TakeUntilFinal stops at first Final
+- ✅ CombineResults handles both cases
+- ✅ All helper methods implemented (ExtractFinalOutput, FoldOutputs)
+
+**Reference**: `RuleResultExtensions.cs`
+
+---
+
+#### Exercise 6: Refactor Rules to Return RuleResult (20 min)
+**Task**: Update all rules to use the new monadic type
+
+**Before** (Old interface):
+```csharp
+public interface IRule
+{
+    string Evaluate(int number);
+    bool Final { get; }
+}
+```
+
+**After** (Monadic interface):
+```csharp
+public interface IRule
+{
+    RuleResult Evaluate(int number); // Single function!
+}
+```
+
+**Update Each Rule**:
+1. **DivisibilityRule**: Returns `Continue` with output or `Empty`
+2. **ExactMatchRule**: Returns `Final` (stops processing)
+3. **Other rules**: Follow the pattern
+
+**Example - DivisibilityRule**:
+```csharp
+public RuleResult Evaluate(int number)
+{
+    return number % Divisor == 0
+        ? RuleResult.ContinueWith(Output)
+        : RuleResult.Empty;
+}
+```
+
+**Success Criteria**:
 - ✅ All rules return RuleResult
-- ✅ Tests pass
-
-#### Exercise 5: Pattern Matching Refactor (15 min)
-**Task**: Replace switch/case with pattern matching in engine
-- Open FizzBuzzEngine.Evaluate method
-- Replace old switch statement with modern pattern matching expression
-- Handle all RuleResult cases
-
-**Success Criteria**:
-- ✅ Uses pattern matching expression (switch expression)
-- ✅ All cases handled
-- ✅ Tests pass
-
-#### Exercise 6: Ensure Immutability (15 min)
-**Task**: Make all data structures immutable
-- Convert mutable properties to read-only
-- Use records where appropriate
-- Ensure no state can change after creation
-
-**Success Criteria**:
-- ✅ No mutable properties
-- ✅ Records used for data structures
-- ✅ Tests pass
-
-#### Exercise 7: Create Pure Functions (20 min)
-**Task**: Eliminate side effects from all rules
-- Remove any mutable state from rule classes
-- Ensure Evaluate methods are pure functions
-- Verify same input always produces same output
-
-**Success Criteria**:
-- ✅ No side effects in any rule
-- ✅ All functions are pure
-- ✅ Tests demonstrate referential transparency
+- ✅ No more separate Final property
+- ✅ Single responsibility: one function
+- ✅ Tests updated and passing
 
 ---
 
-### Practice Session 3: Integration & Extension (30-45 min)
-**Objective**: Apply learning to new scenarios
+#### Exercise 7: Transform Engine - Imperative → Functional (25 min)
+**Task**: This is the key transformation - removing ALL imperative control flow
 
-#### Exercise 8: Create Custom Rules (20 min)
-**Task**: Implement new rules using learned principles
-- Create a rule for prime numbers
-- Create a rule for perfect squares
-- Combine multiple rules in interesting ways
+**Level 0: Starting Point (Imperative)**
+```csharp
+public string Evaluate(int number)
+{
+    var result = string.Empty;  // ❌ Mutable state
+    
+    foreach (var rule in _rules)  // ❌ Imperative loop
+    {
+        var ruleResult = rule.Evaluate(number);
+        
+        if (ruleResult is RuleResult.Final final)  // ❌ Nested if
+            return final.Output;
+        
+        if (ruleResult is RuleResult.Continue cont && !string.IsNullOrEmpty(cont.Output))
+            result += cont.Output;
+    }
+    
+    return string.IsNullOrEmpty(result) ? number.ToString() : result;  // ❌ Ternary
+}
+```
+
+**Problems**: Mutable state, loops, nested ifs, hard to test
+
+---
+
+**Level 1: Extract to LINQ (Better)**
+```csharp
+public string Evaluate(int number)
+{
+    var results = _rules
+        .Select(rule => rule.Evaluate(number))  // ✅ LINQ instead of loop
+        .ToList();
+    
+    // Still imperative after this...
+    var finalResult = results.FirstOrDefault(r => r is RuleResult.Final);
+    if (finalResult is RuleResult.Final final)
+        return final.Output;
+    
+    var output = string.Join("", results
+        .OfType<RuleResult.Continue>()
+        .Select(c => c.Output));
+    
+    return string.IsNullOrEmpty(output) ? number.ToString() : output;
+}
+```
+
+**Better**: No loop, but still has imperative if statements
+
+---
+
+**Level 2: Use Pattern Matching (Good)**
+```csharp
+public string Evaluate(int number)
+{
+    var results = _rules
+        .Select(rule => rule.Evaluate(number))
+        .TakeWhile(r => r is not RuleResult.Final)  // ✅ Functional short-circuit
+        .ToList();
+    
+    var finalResult = _rules
+        .Select(rule => rule.Evaluate(number))
+        .OfType<RuleResult.Final>()
+        .FirstOrDefault();
+    
+    if (finalResult != null)  // ❌ Still has if
+        return finalResult.Output;
+    
+    var output = results
+        .OfType<RuleResult.Continue>()
+        .Select(c => c.Output)
+        .Aggregate("", (acc, o) => acc + o);
+    
+    return string.IsNullOrEmpty(output) ? number.ToString() : output;
+}
+```
+
+**Good**: More functional, but duplicates Select and still has if
+
+---
+
+**Level 3: Pure Functional with Monadic Operations (Best!)**
+```csharp
+public string Evaluate(int number)
+{
+    // Pure functional pipeline:
+    // 1. MAP: Evaluate all rules (lazy evaluation with LINQ)
+    // 2. TakeUntilFinal: Short-circuit on Final (monadic)
+    // 3. CombineResults: Fold Continue or extract Final (monadic)
+    
+    return _rules
+        .Select(rule => rule.Evaluate(number))  // Map: Apply each rule
+        .TakeUntilFinal()                       // Short-circuit: Stop at Final
+        .CombineResults(fallback: number.ToString()); // Reduce: Combine or fallback
+}
+```
+
+**Perfect**: 
+- ✅ No mutable state
+- ✅ No imperative control flow (no if, no loops, no return)
+- ✅ Just function composition
+- ✅ Single expression
+- ✅ Declarative - describes WHAT not HOW
 
 **Success Criteria**:
-- ✅ New rules follow CUPID principles
-- ✅ New rules are composable
-- ✅ Tests demonstrate correctness
+- ✅ Engine.Evaluate is single expression
+- ✅ No mutable variables
+- ✅ No if statements
+- ✅ No explicit loops
+- ✅ All tests pass
+- ✅ FizzBuzz works correctly
 
-#### Exercise 9: Refactor Your Own Code (25 min)
-**Task**: Apply CUPID principles to your own codebase
-- Identify a class with SOLID violations
-- Apply one CUPID principle to improve it
-- Share your refactoring with the group
+**Reference**: `CupidFizzBuzzEngine.cs`
+
+---
+
+#### Exercise 8: Comprehensive Testing (20 min)
+**Task**: Write tests demonstrating monadic properties
+
+**Test Categories**:
+
+1. **Functor Laws (Map)**:
+```csharp
+[Test]
+public void Map_OnContinue_TransformsOutput()
+{
+    var result = RuleResult.ContinueWith("fizz");
+    var mapped = result.Map(s => s.ToUpper());
+    
+    ((RuleResult.Continue)mapped).Output.Should().Be("FIZZ");
+}
+```
+
+2. **Monad Laws (Bind)**:
+```csharp
+[Test]
+public void Bind_OnFinal_ShortCircuits()
+{
+    var result = RuleResult.StopWith("42");
+    var wasExecuted = false;
+    
+    var bound = result.Bind(output => {
+        wasExecuted = true;
+        return RuleResult.ContinueWith("IGNORED");
+    });
+    
+    wasExecuted.Should().BeFalse(); // Not executed!
+}
+```
+
+3. **Collection Operations**:
+```csharp
+[Test]
+public void TakeUntilFinal_StopsAtFirstFinal()
+{
+    var results = new[]
+    {
+        RuleResult.ContinueWith("Fizz"),
+        RuleResult.StopWith("42"),
+        RuleResult.ContinueWith("Never seen"),
+    };
+    
+    var taken = results.TakeUntilFinal().ToList();
+    taken.Should().HaveCount(2); // Stops after Final
+}
+```
+
+4. **Real FizzBuzz Scenarios**:
+```csharp
+[Test]
+public void RealScenario_FizzBuzz_Number15()
+{
+    var results = new[]
+    {
+        RuleResult.ContinueWith("Fizz"),
+        RuleResult.ContinueWith("Buzz"),
+    };
+    
+    var output = results.CombineResults(fallback: "15");
+    output.Should().Be("FizzBuzz");
+}
+```
 
 **Success Criteria**:
-- ✅ Applied at least one CUPID principle
-- ✅ Code is measurably improved
-- ✅ Can explain the improvement
+- ✅ Map tests verify functor behavior
+- ✅ Bind tests verify monad behavior
+- ✅ Collection tests verify short-circuit
+- ✅ Integration tests verify FizzBuzz scenarios
+- ✅ 15+ tests passing
+
+**Reference**: `RuleResultMonadicTests.cs`
+
+---
+
+#### Exercise 9: Documentation Study (10 min)
+**Task**: Understand the functional programming concepts
+- Read `MONADIC-OPERATIONS.md` - Complete guide
+- Study the progression from imperative to functional
+- Understand Map vs Bind
+- See real FizzBuzz examples with monadic operations
+
+**Key Concepts to Master**:
+- 🎯 **Either Monad**: Continue or Final (two possible states)
+- 🔄 **Functor (Map)**: Transform while preserving context
+- 🔗 **Monad (Bind)**: Chain operations that return new context
+- 📉 **Fold/Reduce**: Combine collection into single value
+- 🚫 **Short-circuit**: Stop early when condition met
+
+**Success Criteria**:
+- ✅ Can explain what a monad is
+- ✅ Can explain Map vs Bind difference
+- ✅ Understand short-circuit evaluation
+- ✅ Can draw data flow diagram
+
+**Reference**: `MONADIC-OPERATIONS.md`
+
+---
+
+#### 🎓 Key Learning Outcomes
+
+By completing this session, you will have achieved:
+
+**The Transformation**:
+```
+Imperative (Before)          →  Functional (After)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mutable variables            →  Immutable data
+Loops (foreach)              →  LINQ (Select, Where)
+If statements                →  Pattern matching in monads
+Early returns                →  Short-circuit operations
+Multiple responsibilities    →  Single expression
+Hard to test                 →  Each operation testable
+Imperative control flow      →  Function composition
+```
+
+**Achieved**:
+1. ✅ **No Mutable State**: Everything is immutable
+2. ✅ **No Imperative Control**: No if, no loops, no return
+3. ✅ **Just Composition**: Functions composed into pipeline
+4. ✅ **Monadic Operations**: Map, Bind, Fold working
+5. ✅ **Short-Circuit**: Final stops processing automatically
+6. ✅ **Pure Functions**: Same input → same output
+
+**CUPID Compliance**:
+- 🏠 **Composable**: Monadic operations chain naturally
+- 🔧 **Unix Philosophy**: Each operation does ONE thing
+- 🔮 **Predictable**: Pure functions, no side effects
+- 🆔 **Idiomatic**: Modern C# functional features
+- 🚀 **Domain-Based**: Types model domain (Continue/Final)
+
+---
+
+#### 💡 Key Insights
+
+**The Power of Monads**:
+- Hide complexity in well-tested operations (Map, Bind)
+- Expose simplicity in domain code (single pipeline)
+- Automatic short-circuit (no manual if checks)
+- Composability (chain operations freely)
+
+**The Functional Mindset**:
+- Think in transformations, not mutations
+- Think in pipelines, not procedures
+- Think in data flow, not control flow
+- Think in expressions, not statements
+
+**Success Criteria**:
+- ✅ Achieved pure functional evaluation
+- ✅ No imperative control flow
+- ✅ Just function composition
+- ✅ Understanding of monadic operations
+
 
 ---
 
