@@ -1,13 +1,27 @@
-using FizzBuzz.Engine.Rules.Result;
-
 namespace FizzBuzz.Engine.Rules.Abstractions
 {
 	/// <summary>
-	/// A rule is simply a function that returns either a continuation or a final result
-	/// This eliminates the need for separate Evaluate and Final properties
+	/// Basic interface for FizzBuzz rules
+	/// Simplified version - no Priority (removed for CUPID compliance)
 	/// </summary>
 	public interface IRule
 	{
-		RuleResult Evaluate(int number);
+		string Evaluate(int number);
+		bool Final { get; }
 	}
 }
+
+
+/* reminder: the full "ugly" SOLID version had:
+
+/// <summary>
+   /// Basic interface for FizzBuzz rules
+   /// </summary>
+   public interface IRule : IComparable<IRule>
+   {
+   	string Evaluate(int number);
+   	int Priority { get; }  // <-- Removed for predictability
+   	bool Final { get; }
+   }
+
+   */

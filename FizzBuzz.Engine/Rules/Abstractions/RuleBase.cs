@@ -1,13 +1,14 @@
-using FizzBuzz.Engine.Rules.Result;
-
 namespace FizzBuzz.Engine.Rules.Abstractions
 {
     /// <summary>
     /// Base class that provides common functionality for rules
-    /// Now much simpler with the Either monad pattern
+    /// Simplified for CUPID learning path
     /// </summary>
-    public abstract record RuleBase : IRule
+    public abstract class RuleBase : IRule
     {
-        public abstract RuleResult Evaluate(int number);
+        public abstract string Evaluate(int number);
+        
+        // Most rules continue processing, only specific rules (like ExactMatchRule) will stop
+        public virtual bool Final => false;
     }
 }

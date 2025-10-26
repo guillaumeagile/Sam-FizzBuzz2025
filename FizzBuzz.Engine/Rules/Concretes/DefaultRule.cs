@@ -1,15 +1,13 @@
 using FizzBuzz.Engine.Rules.Abstractions;
-using FizzBuzz.Engine.Rules.Result;
 
 namespace FizzBuzz.Engine.Rules.Concretes
 {
     /// <summary>
-    /// Default rule that returns the number as string - always continues
-    /// Using record for value-based equality (functional programming)
+    /// Default rule that returns empty string - always continues
+    /// (In a real implementation, this might return the number as string)
     /// </summary>
-    public record DefaultRule : RuleBase
+    public class DefaultRule : RuleBase
     {
-        public override RuleResult Evaluate(int number) => 
-           throw new System.NotImplementedException();
+        public override string Evaluate(int number) => string.Empty;
     }
 }
