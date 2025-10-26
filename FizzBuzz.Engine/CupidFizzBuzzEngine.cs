@@ -22,41 +22,20 @@ namespace FizzBuzz.Engine
 
 
         /// <summary>
-        /// Functional version using filter/map/reduce pattern
-        /// Demonstrates pure functional programming approach
+        /// Pure functional evaluation using monadic operations
+        /// No imperative control flow - just function composition
         /// </summary>
         public string Evaluate(int number)
         {
-            // Step 1: COLLECT - Evaluate all rules and collect results
-            var results = _rules
-                .Select(rule => rule.Evaluate(number))
-                .ToList();
-
-            // Step 2: TAKE UNTIL Final - Stop collecting when we hit a Final result
-            var resultsUntilFinal = results
-                .TakeWhile(r => r is not RuleResult.Final)
-                .ToList();
-
-            // Check if we found a Final result
-            var finalResult = results
-                .FirstOrDefault(r => r is RuleResult.Final);
-
-            //  "FILTER-LIKE" If we have a Final result, return only that
-            if (finalResult is RuleResult.Final final)
-                return final.Output;
-
-            // Step 3: MAP to Output - Keep only Continue results
-            var outputs = resultsUntilFinal
-                .OfType<RuleResult.Continue>()
-                .Select(c => c.Output);
-
-            // Step 4: REDUCE - Aggregate all outputs into single string
-            var result = outputs.Aggregate(
-                seed: string.Empty,
-                func: (acc, output) => acc + output);
-
-            // Fallback to number if no output produced
-            return string.IsNullOrEmpty(result) ? number.ToString() : result;
+            // Pure functional pipeline:
+            // 1. MAP: Evaluate all rules (lazy evaluation with LINQ)
+            // 2. TakeUntilFinal: Short-circuit on Final (monadic)
+            // 3. CombineResults: Fold Continue or extract Final (monadic)
+            
+            return _rules
+                .Select(rule => rule.Evaluate(number))  // Map: Apply each rule
+                .TakeUntilFinal()                       // Short-circuit: Stop at Final
+                .CombineResults(fallback: number.ToString()); // Reduce: Combine or fallback
         }
 
         /// <summary>
