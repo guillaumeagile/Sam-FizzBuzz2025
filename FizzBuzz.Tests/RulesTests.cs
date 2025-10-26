@@ -1,3 +1,4 @@
+using FizzBuzz.Engine.Rules.Abstractions;
 using FizzBuzz.Engine.Rules.Concretes;
 using FizzBuzz.Engine.Rules.Result;
 using FluentAssertions;
@@ -28,6 +29,17 @@ public class RulesTests
         result.Should().BeOfType<RuleResult.Continue>();
         result.Output.Should().Be("99");
     }
+
+    [Test]
+    public void TheRuleThatPrintsLucky()
+    {
+        var rule = new LuckyRule();
+        var result = rule.Evaluate(13);
+
+        result.Should().BeOfType<RuleResult.Continue>();
+        result.Output.Should().Be("lucky");
+    }
+
 
     [Test]
     public void TheRuleThatDividesBy3PrintsFizz()
@@ -67,4 +79,12 @@ public class RulesTests
         result.Output.Should().Be(expectedOutput);
     }
 
+}
+
+public record LuckyRule :  RuleBase
+{
+    public override RuleResult Evaluate(int number)
+    {
+        throw new NotImplementedException();
+    }
 }
