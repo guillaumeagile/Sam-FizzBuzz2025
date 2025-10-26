@@ -1,4 +1,6 @@
-namespace FizzBuzz.Engine
+using FizzBuzz.Engine.Rules.Result;
+
+namespace FizzBuzz.Engine.Rules.Abstractions
 {
 	/// <summary>
 	/// A rule is simply a function that returns either a continuation or a final result

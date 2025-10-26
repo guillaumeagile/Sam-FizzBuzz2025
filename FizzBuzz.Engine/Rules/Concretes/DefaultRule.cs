@@ -1,4 +1,7 @@
-namespace FizzBuzz.Engine
+using FizzBuzz.Engine.Rules.Abstractions;
+using FizzBuzz.Engine.Rules.Result;
+
+namespace FizzBuzz.Engine.Rules.Concretes
 {
     /// <summary>
     /// Default rule that returns the number as string - always continues

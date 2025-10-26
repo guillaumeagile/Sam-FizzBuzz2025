@@ -1,4 +1,4 @@
-namespace FizzBuzz.Engine
+namespace FizzBuzz.Engine.Rules.Result
 {
     //TODO: test this as UnitOfWork
 

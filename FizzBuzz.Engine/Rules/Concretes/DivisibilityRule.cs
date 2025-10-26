@@ -1,4 +1,7 @@
-namespace FizzBuzz.Engine
+using FizzBuzz.Engine.Rules.Abstractions;
+using FizzBuzz.Engine.Rules.Result;
+
+namespace FizzBuzz.Engine.Rules.Concretes
 {
     /// <summary>
     /// A rule that outputs text when a number is divisible by a specific divisor

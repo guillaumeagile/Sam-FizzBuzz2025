@@ -1,4 +1,6 @@
-namespace FizzBuzz.Engine
+using FizzBuzz.Engine.Rules.Result;
+
+namespace FizzBuzz.Engine.Rules.Abstractions
 {
     /// <summary>
     /// Base class that provides common functionality for rules

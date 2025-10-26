@@ -1,6 +1,7 @@
-using System.Collections.Immutable;
+using FizzBuzz.Engine.Rules.Abstractions;
+using FizzBuzz.Engine.Rules.Concretes;
 
-namespace FizzBuzz.Engine
+namespace FizzBuzz.Engine.Rules
 {
     /// <summary>
     /// Factory for creating common FizzBuzz rules using domain language
