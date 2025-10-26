@@ -245,8 +245,8 @@ namespace FizzBuzz.Tests
 
             // Act & Assert - Final case
             var finalResult = finalRule.Evaluate(42);
-            finalResult.Should().BeOfType<RuleResult.Final>();
-            ((RuleResult.Final)finalResult).Output.Should().Be("Final Answer");
+           var subject = finalResult.Should().BeOfType<RuleResult.Final>().Subject;
+         subject.Output.Should().Be("Final Answer");
 
             var noMatchResult = finalRule.Evaluate(43);
             noMatchResult.Should().BeOfType<RuleResult.Continue>();
