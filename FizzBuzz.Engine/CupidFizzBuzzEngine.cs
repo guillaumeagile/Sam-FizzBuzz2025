@@ -22,20 +22,26 @@ namespace FizzBuzz.Engine
 
 
         /// <summary>
-        /// Pure functional evaluation using monadic operations
+        /// Pure functional evaluation using Railway Oriented Programming
+        /// Based on Scott Wlaschin's railway pattern
+        /// 
+        /// Railway metaphor:
+        /// - Success track (Continue): Keep evaluating rules, accumulate output
+        /// - Final track (Terminal): Stop immediately with final output
+        /// 
         /// No imperative control flow - just function composition
         /// </summary>
         public string Evaluate(int number)
         {
-            // Pure functional pipeline:
-            // 1. MAP: Evaluate all rules (lazy evaluation with LINQ)
-            // 2. TakeUntilFinal: Short-circuit on Final (monadic)
-            // 3. CombineResults: Fold Continue or extract Final (monadic)
+            // Railway-Oriented Programming pipeline:
+            // 1. MAP: Evaluate all rules → creates RuleResult collection
+            // 2. FollowTrainUntilTerminal: Process until Final (short-circuit)
+            // 3. CompleteJourney: Handle both tracks (Final or accumulated Continue)
             
             return _rules
-                .Select(rule => rule.Evaluate(number))  // Map: Apply each rule
-                .TakeUntilFinal()                       // Short-circuit: Stop at Final
-                .CombineResults(fallback: number.ToString()); // Reduce: Combine or fallback
+                .Select(rule => rule.Evaluate(number))      // Map each rule
+                .FollowTrainUntilTerminal()                 // Stop at terminal station
+                .CompleteJourney(defaultDestination: number.ToString()); // Final or accumulated
         }
 
         /// <summary>
