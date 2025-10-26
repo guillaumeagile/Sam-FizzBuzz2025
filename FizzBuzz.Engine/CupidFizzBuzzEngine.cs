@@ -27,7 +27,7 @@ namespace FizzBuzz.Engine
         /// </summary>
         public string Evaluate(int number)
         {
-            // Step 1: MAP - Evaluate all rules and collect results
+            // Step 1: COLLECT - Evaluate all rules and collect results
             var results = _rules
                 .Select(rule => rule.Evaluate(number))
                 .ToList();
@@ -41,7 +41,7 @@ namespace FizzBuzz.Engine
             var finalResult = results
                 .FirstOrDefault(r => r is RuleResult.Final);
 
-            // If we have a Final result, return only that
+            //  "FILTER-LIKE" If we have a Final result, return only that
             if (finalResult is RuleResult.Final final)
                 return final.Output;
 
