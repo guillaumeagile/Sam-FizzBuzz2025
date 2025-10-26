@@ -20,40 +20,42 @@ namespace FizzBuzz.Engine
 
         public IReadOnlyList<IRule> Rules => _rules;
 
+
         /// <summary>
-        /// Evaluates a number against all rules and returns the result
-        /// Rules are processed in the order they were added
-        /// Uses modern pattern matching on the Either monad (RuleResult)
+        /// Functional version using filter/map/reduce pattern
+        /// Demonstrates pure functional programming approach
         /// </summary>
         public string Evaluate(int number)
         {
-            var result = string.Empty;
-            
-            foreach (var rule in _rules)
-            {
-                var ruleResult = rule.Evaluate(number);
-                
-                // Modern pattern matching - much cleaner!
-                // it's here where the engine decides to stop (on Final) or to continue when the result is not empty
-                // we use  pattern matching with deconstruction here, because we want to keep the result of the previous rule
-                result = ruleResult switch
-                {
-                    RuleResult.Final(var output) => output, // we keep the output, because after that we exit immediately
+            // Step 1: MAP - Evaluate all rules and collect results
+            var results = _rules
+                .Select(rule => rule.Evaluate(number))
+                .ToList();
 
-                    RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => result + output,
+            // Step 2: TAKE UNTIL Final - Stop collecting when we hit a Final result
+            var resultsUntilFinal = results
+                .TakeWhile(r => r is not RuleResult.Final)
+                .ToList();
 
-                    RuleResult.Continue => result, // Empty output, just continue with the current result
+            // Check if we found a Final result
+            var finalResult = results
+                .FirstOrDefault(r => r is RuleResult.Final);
 
-                    _ => result // Should never happen with sealed record hierarchy
-                    //but the compiler needs it to be exhaustive (C#14 is not fully FP language)
-                };
+            // If we have a Final result, return only that
+            if (finalResult is RuleResult.Final final)
+                return final.Output;
 
-                // If we got a Final result, we exit immediately
-                if (ruleResult is RuleResult.Final)
-                    return result;
-            }
-            
-            // Only return number.ToString() if no rules produced output
+            // Step 3: FILTER - Keep only non-empty Continue results
+            var outputs = resultsUntilFinal
+                .OfType<RuleResult.Continue>()
+                .Select(c => c.Output);
+
+            // Step 4: REDUCE - Aggregate all outputs into single string
+            var result = outputs.Aggregate(
+                seed: string.Empty,
+                func: (acc, output) => acc + output);
+
+            // Fallback to number if no output produced
             return string.IsNullOrEmpty(result) ? number.ToString() : result;
         }
 
