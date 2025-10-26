@@ -7,7 +7,7 @@ namespace FizzBuzz.Engine.Rules.Abstractions
 	public interface IRule
 	{
 		string Evaluate(int number);
-		bool Final { get; }
+		bool? Final { get; }
 	}
 }
 

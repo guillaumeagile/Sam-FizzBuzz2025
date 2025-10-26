@@ -7,8 +7,8 @@ namespace FizzBuzz.Engine.Rules.Concretes
     /// </summary>
     public class DivisibilityRule : RuleBase
     {
-        public int Divisor { get; }
-        public string Output { get; }
+        private int Divisor { get; }
+        private string Output { get; }
 
         public DivisibilityRule(int divisor, string output)
         {
@@ -16,7 +16,6 @@ namespace FizzBuzz.Engine.Rules.Concretes
             Output = output;
         }
 
-        public override string Evaluate(int number) => 
-            number % Divisor == 0 ? Output : string.Empty;
+        public override string Evaluate(int number) =>  throw new System.NotImplementedException();
     }
 }

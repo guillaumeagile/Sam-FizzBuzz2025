@@ -7,8 +7,8 @@ namespace FizzBuzz.Engine.Rules.Concretes
     /// </summary>
     public class ExactMatchRule : RuleBase
     {
-        public int TargetNumber { get; }
-        public string Output { get; }
+        private int TargetNumber { get; }
+        private string Output { get; }
 
         public ExactMatchRule(int targetNumber, string output)
         {
@@ -16,10 +16,9 @@ namespace FizzBuzz.Engine.Rules.Concretes
             Output = output;
         }
 
-        public override string Evaluate(int number) => 
-            number == TargetNumber ? Output : string.Empty;
+        public override string Evaluate(int number) => throw new System.NotImplementedException();
 
         // This rule stops processing when it matches
-        public override bool Final => true;
+        public new bool? Final => true ;
     }
 }

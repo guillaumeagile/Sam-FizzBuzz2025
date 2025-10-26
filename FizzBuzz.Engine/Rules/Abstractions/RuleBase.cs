@@ -9,6 +9,6 @@ namespace FizzBuzz.Engine.Rules.Abstractions
         public abstract string Evaluate(int number);
         
         // Most rules continue processing, only specific rules (like ExactMatchRule) will stop
-        public virtual bool Final => false;
+        public virtual bool? Final => null;  // I hope you see the problem 🤔
     }
 }

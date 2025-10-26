@@ -38,7 +38,7 @@ namespace FizzBuzz.Engine
                     result = result + output;
                     
                     // If this is a final rule, stop processing and return immediately
-                    if (rule.Final)
+                    if ((bool)rule.Final!)
                     {
                         return result;
                     }
