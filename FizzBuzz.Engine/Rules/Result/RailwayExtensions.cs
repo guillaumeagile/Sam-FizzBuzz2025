@@ -123,6 +123,7 @@ namespace FizzBuzz.Engine.Rules.Result
 
         /// <summary>
         /// Get the final output if train reached terminal, otherwise null
+        /// unfortunately, C# doesn't have other possibility than null
         /// Railway analogy: Check if train reached terminal station
         /// </summary>
         private static string? GetTerminalOutput(this IEnumerable<RuleResult> results)
@@ -140,9 +141,9 @@ namespace FizzBuzz.Engine.Rules.Result
             var resultsList = results.ToList();
             
             // Did we reach a terminal station?
-            var terminal = resultsList.GetTerminalOutput();
-            if (terminal != null)
-                return terminal;
+            var terminalOutput = resultsList.GetTerminalOutput();
+            if (terminalOutput != null)
+                return terminalOutput;
 
             // Otherwise, collect all outputs from Success track
             var collected = resultsList

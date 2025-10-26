@@ -1,6 +1,5 @@
 namespace FizzBuzz.Engine.Rules.Result
 {
-    //TODO: test this as UnitOfWork
 
     /// <summary>
     /// Represents the result of a rule evaluation - either continue or stop processing
