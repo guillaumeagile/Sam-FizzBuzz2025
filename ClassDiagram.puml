@@ -1,0 +1,126 @@
+@startuml FizzBuzz_Class_Diagram
+
+title FizzBuzz Engine - CUPID-Compliant Architecture
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+skinparam roundcorner 10
+
+' Core Abstractions
+interface IRule {
+    +Evaluate(number: int): RuleResult
+}
+
+abstract class RuleBase <<record>> {
+    {abstract} +Evaluate(number: int): RuleResult
+}
+
+abstract class RuleResult <<record>> {
+    {static} +ContinueWith(output: string): RuleResult
+    {static} +StopWith(output: string): RuleResult
+    {static} +Empty: RuleResult
+}
+
+class Continue <<record>> {
+    +Output: string
+}
+
+class Final <<record>> {
+    +Output: string
+}
+
+' Concrete Rule Implementations
+class DivisibilityRule <<record>> {
+    +Divisor: int
+    +Output: string
+    +Evaluate(number: int): RuleResult
+}
+
+class ExactMatchRule <<record>> {
+    +TargetNumber: int
+    +Output: string
+    +Evaluate(number: int): RuleResult
+}
+
+class DefaultRule <<record>> {
+    +Evaluate(number: int): RuleResult
+}
+
+' Engine
+class CupidFizzBuzzEngine {
+    -_rules: IReadOnlyList<IRule>
+    +Rules: IReadOnlyList<IRule>
+    +CupidFizzBuzzEngine(rules: IEnumerable<IRule>)
+    +Evaluate(number: int): string
+    {static} +Standard(): CupidFizzBuzzEngine
+    {static} +Extended(extendedRules: List<IRule>): CupidFizzBuzzEngine
+    {static} +NewSet(extendedRules: List<IRule>): CupidFizzBuzzEngine
+}
+
+' Factory
+class FizzBuzzRules <<static factory>> {
+    {static} +Fizz(): DivisibilityRule
+    {static} +Buzz(): DivisibilityRule
+    {static} +Bang(): DivisibilityRule
+    {static} +Meeeh(): DivisibilityRule
+    {static} +TheAnswer(): ExactMatchRule
+    {static} +Default(): DefaultRule
+    {static} +StandardGame(): IEnumerable<IRule>
+    {static} +Divisible(by: int, output: string): DivisibilityRule
+}
+
+' Inheritance Relationships
+RuleBase ..|> IRule
+DivisibilityRule --|> RuleBase
+ExactMatchRule --|> RuleBase
+DefaultRule --|> RuleBase
+
+' Either Monad Pattern
+Continue --|> RuleResult
+Final --|> RuleResult
+
+' Dependencies
+CupidFizzBuzzEngine o-- "1..*" IRule : contains
+CupidFizzBuzzEngine ..> RuleResult : uses
+IRule ..> RuleResult : returns
+CupidFizzBuzzEngine ..> FizzBuzzRules : uses factory
+FizzBuzzRules ..> DivisibilityRule : creates
+FizzBuzzRules ..> ExactMatchRule : creates
+FizzBuzzRules ..> DefaultRule : creates
+
+' Notes
+note right of RuleResult
+    **Either monad pattern:**
+    Either<Continue, Final>
+    
+    Enables functional
+    control flow with
+    pattern matching
+end note
+
+note bottom of RuleBase
+    Abstract base for all rules.
+    Provides common functionality.
+    Uses record for value equality.
+end note
+
+note bottom of CupidFizzBuzzEngine
+    **CUPID-compliant engine:**
+    ✓ Composable - Rules compose naturally
+    ✓ Unix Philosophy - Do one thing well
+    ✓ Predictable - Immutable, pure functions
+    ✓ Idiomatic - Modern C# features
+    ✓ Domain-based - Business language
+end note
+
+note top of FizzBuzzRules
+    Domain-specific factory
+    for creating rules with
+    expressive, fluent API
+end note
+
+' Layout hints
+RuleResult -[hidden]down- Continue
+RuleResult -[hidden]down- Final
+
+@enduml
