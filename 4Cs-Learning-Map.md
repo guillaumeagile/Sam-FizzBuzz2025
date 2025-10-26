@@ -161,182 +161,226 @@ public class DivisibilityRule : RuleBase
 **Discussion**: What bugs can immutability prevent?
 
 ---
-
-#### Concept 2.3: Imperative → 🆔 Pattern Matching (15 min)
-**"Declarative code is more readable than imperative"**
-
-##### Mini-Lecture (5 min)
-- **Problem**: Old-fashioned switch/case statements
-- **FP Principle**: Pattern matching is more expressive
-- **Solution**: Modern C# pattern matching expressions
-
-##### Code Comparison (5 min)
-**Before** (Imperative):
-```csharp
-switch (ruleResult)
-{
-    case RuleResult.Final(var output):
-        return output;
-    case RuleResult.Continue(var output) when !string.IsNullOrEmpty(output):
-        result += output;
-        break;
-    case RuleResult.Continue:
-        break;
-}
-```
-
-**After** (Declarative and functional like):
-```csharp
-result = ruleResult switch
-{
-    RuleResult.Final(var output) => output,
-    RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => result + output,
-    RuleResult.Continue => result,
-    _ => result
-};
-```
-
-Hints to read that code better:
-- **Switch**:  upon `ruleResult` a pattern type is trying to be matched
-- **Pattern Type**: `RuleResult.Final(var output)` or `RuleResult.Continue(var output)`
-- **Deconstruction**: `var output` 
-This is Deconstruction in Pattern Matching:
-  The pattern ```RuleResult.Final(var output)``` extracts the Output property from the Final record
-  and captures the deconstructed value.
-  
-  - It's similar to:  ```if (ruleResult is RuleResult.Final final) { var output = final.Output; }```
-- **Guard**: `when !string.IsNullOrEmpty(output)`
-- **Default**: `_ => result`
-- **Result Expression**: is what you read on the right-hand side of the `=>` (the value to return) . 
-   - Sometimes called the **Arm body** - The body of the switch arm
-
-
-
-
-##### Quick Activity (5 min)
-**Compare**: Which version is easier to read? Why?
-
----
-
-
-
-
 ---
 
 ## 🛠️ C3: CONCRETE PRACTICE (Hands-On Activities)
 **Goal**: Apply concepts through deliberate practice
 
-### Practice Session 1: CUPID Refactoring (45-60 min)
-**Objective**: Transform SOLID violations into CUPID-compliant code
 
-#### Exercise 1: Extract Single Responsibilities (15 min)
-**Task**: Refactor BaseRule to follow Unix Philosophy
-- Remove domain-specific methods (IsFizz, IsBuzz, IsBang)
-- Create specific rule classes (FizzRule, BuzzRule)
-- Each class should have ONE clear purpose
+### Practice Session 2: Railway Oriented Programming (90-120 min)
 
-**Success Criteria**:
-- ✅ Each class has single responsibility
-- ✅ No hardcoded domain knowledge in base class
-- ✅ Tests pass
+**Objective**: Transform OOP code into Railway-style functional programming
+**Based on**: Scott Wlaschin's Railway Oriented Programming pattern
 
-#### Exercise 2: Make Rules Composable (15 min)
-**Task**: Create DivisibilityRule with configurable parameters
-- Replace hardcoded divisors with constructor parameters
-- Create rules for divisibility by 13 ("Lucky") and 11 ("Eleven")
-- Implement ExactMatchRule for exact number matches (like 42)
-
-**Success Criteria**:
-- ✅ Can create any divisibility rule without modifying code
-- ✅ Custom rules work correctly
-- ✅ Tests pass
-
-#### Exercise 3: Simplify Priority System (15 min)
-**Task**: Replace priority system with insertion order
-- Remove _priority property
-- Use List instead of SortedSet
-- Process rules in insertion order
-
-**Success Criteria**:
-- ✅ No priority property exists
-- ✅ Order is obvious (insertion order)
-- ✅ Tests pass
-
----
-
-### Practice Session 2: Functional Programming (60-90 min)
-**Objective**: Transform OOP code into functional style
-
-#### Exercise 4: Implement Result Monad (20 min)
-**Task**: Create RuleResult type and refactor IRule interface
+#### Exercise 4: Implement Either Monad / Result Type (20 min)
+**Task**: Create RuleResult type and understand the Railway metaphor
 - Define RuleResult abstract record with Continue and Final nested records
 - Change IRule.Evaluate to return RuleResult
 - Update existing rules to return RuleResult
+- Understand the two-track system: Success (Continue) vs Terminal (Final)
+
+**Railway Metaphor**:
+- **Continue** = Success track (train keeps going, accumulating cargo)
+- **Final** = Terminal station (train stops, returns final output)
 
 **Success Criteria**:
-- ✅ RuleResult type correctly models Result monad
+- ✅ RuleResult type models Either monad (Continue/Final)
 - ✅ All rules return RuleResult
+- ✅ Understand two-track railway system
 - ✅ Tests pass
 
-#### Exercise 5: Pattern Matching Refactor (15 min)
-**Task**: Replace switch/case with pattern matching in engine
-- Open FizzBuzzEngine.Evaluate method
-- Replace old switch statement with modern pattern matching expression
-- Handle all RuleResult cases
+**Reference**: `RuleResult.cs`
+
+---
+
+#### Exercise 5: Implement Railway Operations (30 min)
+**Task**: Create monadic operations for the Railway pattern
+- **Map**: Transform output while staying on same track
+- **Bind**: Chain operations that can switch tracks
+- **Tee**: Observe without modification (logging)
+- **FollowTrainUntilTerminal**: Process until hitting Final
+- **CompleteJourney**: Handle both outcomes (Final or accumulated Continue)
+
+**Code to Write** (in `RailwayExtensions.cs`):
+```csharp
+public static RuleResult Map(this RuleResult input, Func<string, string> transform)
+public static RuleResult Bind(this RuleResult input, Func<string, RuleResult> switchFunction)
+public static RuleResult Tee(this RuleResult input, Action<string> sideEffect)
+public static IEnumerable<RuleResult> FollowTrainUntilTerminal(this IEnumerable<RuleResult> results)
+public static string CompleteJourney(this IEnumerable<RuleResult> results, string defaultDestination)
+```
 
 **Success Criteria**:
-- ✅ Uses pattern matching expression (switch expression)
-- ✅ All cases handled
+- ✅ Map transforms Continue, bypasses Final
+- ✅ Bind can switch between tracks
+- ✅ Tee executes side effects on Continue only
+- ✅ FollowTrainUntilTerminal stops at first Final
+- ✅ CompleteJourney returns Final output or accumulated Continue
+- ✅ All operations tested
+
+**Reference**: `RailwayExtensions.cs`
+
+---
+
+#### Exercise 6: Refactor Engine to Railway Style (20 min)
+**Task**: Transform imperative evaluation into Railway pipeline
+- Replace imperative loops and if statements
+- Use railway operations in functional pipeline
+- Make evaluation a pure function composition
+
+**Before** (Imperative):
+```csharp
+var result = string.Empty;
+foreach (var rule in _rules)
+{
+    var ruleResult = rule.Evaluate(number);
+    if (ruleResult is RuleResult.Final final)
+        return final.Output;
+    if (ruleResult is RuleResult.Continue cont)
+        result += cont.Output;
+}
+return string.IsNullOrEmpty(result) ? number.ToString() : result;
+```
+
+**After** (Railway-Oriented):
+```csharp
+return _rules
+    .Select(rule => rule.Evaluate(number))      // Map each rule
+    .FollowTrainUntilTerminal()                 // Stop at terminal
+    .CompleteJourney(defaultDestination: number.ToString()); // Handle outcome
+```
+
+**Success Criteria**:
+- ✅ No mutable state
+- ✅ No imperative loops or if statements
+- ✅ Single pipeline expression
 - ✅ Tests pass
 
-#### Exercise 6: Ensure Immutability (15 min)
-**Task**: Make all data structures immutable
-- Convert mutable properties to read-only
-- Use records where appropriate
-- Ensure no state can change after creation
+**Reference**: `CupidFizzBuzzEngine.cs`
+
+---
+
+#### Exercise 7: Test Railway Properties (30 min)
+**Task**: Write comprehensive tests demonstrating Railway pattern
+- Test two-track system (Continue vs Final)
+- Test Map/Bind/Tee operations
+- Test short-circuit behavior
+- Test real FizzBuzz scenarios with railway metaphor
+
+**Tests to Write** (in `RailwayOrientedProgrammingTests.cs`):
+1. **Railway Basics**: Success track vs Final track
+2. **Map**: Transforms on Continue, bypasses Final
+3. **Bind**: Can switch tracks, short-circuits on Final
+4. **Tee**: Side effects on Continue only
+5. **Journey**: FollowTrainUntilTerminal stops correctly
+6. **Real Scenarios**: FizzBuzz(15), ExactMatch(42), NoMatch(7)
+
+**Example Test**:
+```csharp
+[Test]
+public void Railway_SwitchToFinalTrack_StopsProcessing()
+{
+    var train = RuleResult.ContinueWith("Fizz")
+        .Map(s => s.ToUpper())                      // Applied: "FIZZ"
+        .Bind(s => RuleResult.StopWith("STOP!"))    // Switch to Final
+        .Map(s => s + " IGNORED");                   // BYPASSED!
+    
+    ((RuleResult.Final)train).Output.Should().Be("STOP!");
+}
+```
 
 **Success Criteria**:
-- ✅ No mutable properties
-- ✅ Records used for data structures
-- ✅ Tests pass
+- ✅ Tests demonstrate two-track behavior
+- ✅ Tests show short-circuit on Final
+- ✅ Tests cover all railway operations
+- ✅ Real FizzBuzz scenarios tested
+- ✅ 20+ tests passing
 
-#### Exercise 7: Create Pure Functions (20 min)
-**Task**: Eliminate side effects from all rules
-- Remove any mutable state from rule classes
-- Ensure Evaluate methods are pure functions
-- Verify same input always produces same output
+**Reference**: `RailwayOrientedProgrammingTests.cs`
+
+---
+
+#### Exercise 8: Documentation Study (10 min)
+**Task**: Review Railway pattern documentation
+- Read `RAILWAY-ORIENTED-PROGRAMMING.md` - Complete guide to ROP
+- Study `RAILWAY-FIZZBUZZ-IMPLEMENTATION.md` - Our specific implementation
+- Understand Scott Wlaschin's original F# pattern
+- See railway diagrams and visual representations
+
+**Key Concepts to Grasp**:
+- 🚂 Two-track system (Success/Continue vs Failure/Terminal)
+- 🔄 Automatic error propagation via Final track
+- 🔗 Composability through monadic operations
+- 📊 Railway diagrams showing data flow
+- 🎯 Benefits over traditional error handling
 
 **Success Criteria**:
-- ✅ No side effects in any rule
-- ✅ All functions are pure
-- ✅ Tests demonstrate referential transparency
+- ✅ Understand railway metaphor clearly
+- ✅ Can explain Map vs Bind
+- ✅ Can draw railway diagram for FizzBuzz scenario
+- ✅ Know when to use railway pattern
+
+**Reference**: `RAILWAY-ORIENTED-PROGRAMMING.md`, `RAILWAY-FIZZBUZZ-IMPLEMENTATION.md`
+
+---
+
+#### 🎓 Key Learning Outcomes
+
+By completing this session, you will:
+
+1. **Understand Railway Pattern**: Scott Wlaschin's functional error handling
+2. **Master Monadic Operations**: Map, Bind, Tee and their purposes
+3. **Write Composable Pipelines**: Flat, linear code without nesting
+4. **Eliminate Imperative Code**: No loops, no if statements, no mutable state
+5. **Test Functional Properties**: Demonstrate short-circuits, transformations
+6. **Apply to Real Domain**: FizzBuzz as a railway journey
+
+**CUPID Compliance Achieved**:
+- 🏠 **Composable**: Railway operations chain naturally
+- 🔧 **Unix Philosophy**: Each operation does ONE thing
+- 🔮 **Predictable**: Pure functions, no side effects
+- 🆔 **Idiomatic**: Modern C# functional style
+- 🚀 **Domain-based**: Railway metaphor models control flow perfectly
+
+---
+
+#### 💡 Pro Tips for Railway Success
+
+1. **Think in Tracks**: Always know which track (Continue/Final) you're on
+2. **Map for Simple**: Use Map for simple transformations
+3. **Bind for Decisions**: Use Bind when you need to switch tracks
+4. **Tee for Observation**: Use Tee for logging/debugging without changing result
+5. **Trust Short-Circuit**: Once on Final track, everything bypasses automatically
+
+**Common Pitfall**: Don't overthink it! The railway pattern makes complex control flow simple by hiding it in well-tested operations.
 
 ---
 
 ### Practice Session 3: Integration & Extension (30-45 min)
 **Objective**: Apply learning to new scenarios
 
-#### Exercise 8: Create Custom Rules (20 min)
-**Task**: Implement new rules using learned principles
-- Create a rule for prime numbers
-- Create a rule for perfect squares
-- Combine multiple rules in interesting ways
+#### Exercise 9: Create Custom Rules with Railway Pattern (20 min)
+**Task**: Implement new rules using Railway principles
+- Create a rule for prime numbers (returns Final if prime)
+- Create a rule for perfect squares (returns Continue with "Square")
+- Combine multiple rules in interesting railway journeys
 
 **Success Criteria**:
-- ✅ New rules follow CUPID principles
-- ✅ New rules are composable
-- ✅ Tests demonstrate correctness
+- ✅ New rules follow Railway/CUPID principles
+- ✅ New rules are composable with existing ones
+- ✅ Tests demonstrate railway behavior
+- ✅ Can explain which track (Continue/Final) each rule uses
 
-#### Exercise 9: Refactor Your Own Code (25 min)
-**Task**: Apply CUPID principles to your own codebase
-- Identify a class with SOLID violations
-- Apply one CUPID principle to improve it
+#### Exercise 10: Refactor Your Own Code (25 min)
+**Task**: Apply Railway pattern to your own codebase
+- Identify code with nested if/else or try/catch
+- Apply Railway pattern to flatten control flow
 - Share your refactoring with the group
 
 **Success Criteria**:
-- ✅ Applied at least one CUPID principle
-- ✅ Code is measurably improved
-- ✅ Can explain the improvement
+- ✅ Applied Railway pattern successfully
+- ✅ Code is measurably simpler
+- ✅ Can explain the improvement using railway metaphor
 
 ---
 
@@ -410,14 +454,24 @@ You've learned to transform "TERRIBLE OO DESIGN" into elegant, functional code t
 - ✅ Complex Priority → Predictable
 - ✅ Old Syntax → Idiomatic
 
-**SHIFT 2: OOP → Functional Programming**
-- ✅ Two Concerns → Single Function (Result monad)
+**SHIFT 2: OOP → Railway Oriented Programming**
+- ✅ Two Concerns → Single Function (Either/Result monad)
 - ✅ Mutable State → Immutable Data
-- ✅ Imperative → Pattern Matching
-- ✅ Object Methods → Pure Functions
+- ✅ Imperative Control Flow → Railway Pattern (Map, Bind, Tee)
+- ✅ Nested If/Else → Functional Pipeline
+- ✅ Object Methods → Pure Functions on Two Tracks
+
+**Railway Operations Mastered**:
+- 🚂 **Map**: Transform while staying on track
+- 🔀 **Bind**: Switch between tracks (Continue ↔ Final)
+- 👁️ **Tee**: Observe without changing
+- 🚉 **FollowTrainUntilTerminal**: Short-circuit on Final
+- 🎯 **CompleteJourney**: Handle both outcomes elegantly
 
 #### Final Thought
-**Remember**: Code is not just about making computers work - it's about making it easy for humans to understand, modify, and extend. CUPID principles + Functional Programming help you write code that's a joy to work with! 🎯
+**Remember**: Code is not just about making computers work - it's about making it easy for humans to understand, modify, and extend. CUPID principles + Railway Oriented Programming help you write code that's a joy to work with! 🎯🚂
+
+**The Railway Insight**: Complex control flow becomes simple data flow when you model it as a railway journey. Welcome aboard! 🚂
 
 ---
 
@@ -466,14 +520,17 @@ You've learned to transform "TERRIBLE OO DESIGN" into elegant, functional code t
 #### Full-Day Workshop (8 hours)
 - C1: 15 min
 - C2: Both shifts (120 min)
-- C3: All exercises (150 min)
+- C3: All exercises with Railway (180 min)
+  - Practice Session 1: 45-60 min
+  - Practice Session 2 (Railway): 90-120 min
+  - Practice Session 3: 30-45 min
 - C4: 30 min
 - Breaks: 45 min total
 
 #### Multi-Day Course (2-3 days)
 - Day 1: Shift 1 (SOLID → CUPID)
-- Day 2: Shift 2 (OOP → FP)
-- Day 3: Integration & advanced topics
+- Day 2: Shift 2 (OOP → Railway Oriented Programming)
+- Day 3: Integration & advanced Railway patterns
 
 ---
 
@@ -487,24 +544,33 @@ After completing this learning path, you should be able to:
 - [ ] Describe the difference between CUPID and SOLID
 - [ ] Define what makes a function "pure"
 - [ ] Explain the Either/Result monad pattern
+- [ ] Understand Railway Oriented Programming (Scott Wlaschin's pattern)
+- [ ] Explain the two-track system (Continue/Final)
+- [ ] Describe Map vs Bind operations
 
 **Application** (Skills):
 - [ ] Refactor a class to follow Unix Philosophy
 - [ ] Create composable rules with parameters
 - [ ] Implement immutable data structures
 - [ ] Write pure functions without side effects
+- [ ] Implement Railway operations (Map, Bind, Tee)
+- [ ] Build functional pipelines using railway pattern
+- [ ] Transform imperative code into railway-style
 
 **Analysis** (Critical Thinking):
 - [ ] Identify SOLID violations in code
-- [ ] Recognize opportunities for functional refactoring
+- [ ] Recognize opportunities for Railway refactoring
 - [ ] Evaluate code against CUPID principles
-- [ ] Compare OOP vs FP approaches
+- [ ] Compare imperative vs Railway approaches
+- [ ] Identify when to use Continue vs Final
+- [ ] Draw railway diagrams for control flow
 
 **Creation** (Mastery):
-- [ ] Design new features using CUPID principles
-- [ ] Build composable, functional systems
-- [ ] Create custom rules following learned patterns
-- [ ] Apply learning to your own codebase
+- [ ] Design new features using CUPID + Railway principles
+- [ ] Build composable, functional systems with two-track pattern
+- [ ] Create custom rules following Railway patterns
+- [ ] Apply Railway pattern to your own codebase
+- [ ] Flatten nested control flow using Railway operations
 
 ---
 
@@ -513,10 +579,21 @@ After completing this learning path, you should be able to:
 
 ## 📚 Resources
 
-### on Discriminated Unions
+### Railway Oriented Programming
+- [Railway Oriented Programming (Blog)](https://fsharpforfunandprofit.com/rop/) - Scott Wlaschin's original article
+- [Railway Oriented Programming (Video)](https://vimeo.com/97344498) - Scott Wlaschin's NDC presentation
+- [Domain Modeling Made Functional](https://pragprog.com/titles/swdddf/) - Book by Scott Wlaschin
+- `RAILWAY-ORIENTED-PROGRAMMING.md` - Complete guide in this repository
+- `RAILWAY-FIZZBUZZ-IMPLEMENTATION.md` - Our FizzBuzz implementation guide
+- `MONADIC-OPERATIONS.md` - Detailed explanation of monadic operations
 
+### Discriminated Unions
 - https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/discriminated-unions
 - https://fsharpforfunandprofit.com/posts/discriminated-unions/
+
+### Functional Programming in C#
+- [Functional Programming in C#](https://www.manning.com/books/functional-programming-in-c-sharp) - Enrico Buonanno
+- [F# for Fun and Profit](https://fsharpforfunandprofit.com/) - Scott Wlaschin's blog
 
 ## 👣 Foot notes
 
