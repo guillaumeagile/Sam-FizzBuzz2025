@@ -9,9 +9,9 @@ namespace FizzBuzz.Engine.Rules.Concretes
     /// </summary>
     public record DivisibilityRule(int Divisor, string Output) : RuleBase
     {
-        public override RuleResult Evaluate(int number) => 
+        public override RuleResult Evaluate(int number) =>
             number % Divisor == 0 
-                ? RuleResult.ContinueWith(Output) 
+                ? RuleResult.ContinueWith(Output)
                 : RuleResult.Empty;
     }
 }

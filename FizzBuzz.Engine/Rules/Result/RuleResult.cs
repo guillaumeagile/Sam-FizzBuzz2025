@@ -21,16 +21,16 @@ namespace FizzBuzz.Engine.Rules.Result
         /// <summary>
         /// Helper to create a Continue result
         /// </summary>
-        public static RuleResult ContinueWith(string output) => new Continue(output);
+        public static RuleResult ContinueWith(string output) =>  throw new System.NotImplementedException();
 
         /// <summary>
         /// Helper to create a Final result
         /// </summary>
-        public static RuleResult StopWith(string output) => new Final(output);
+        public static RuleResult StopWith(string output) =>  throw new System.NotImplementedException();
 
         /// <summary>
         /// Helper for empty continue (no output, keep processing)
         /// </summary>
-        public static RuleResult Empty => new Continue(string.Empty);
+        public static RuleResult Empty => throw new System.NotImplementedException() ;
     }
 }

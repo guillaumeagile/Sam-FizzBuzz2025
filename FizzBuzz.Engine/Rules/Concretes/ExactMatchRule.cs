@@ -9,9 +9,9 @@ namespace FizzBuzz.Engine.Rules.Concretes
     /// </summary>
     public record ExactMatchRule(int TargetNumber, string Output) : RuleBase
     {
-        public override RuleResult Evaluate(int number) => 
+        public override RuleResult Evaluate(int number) =>
             number == TargetNumber 
-                ? RuleResult.StopWith(Output) 
+                ? RuleResult.StopWith(Output)
                 : RuleResult.Empty;
     }
 }

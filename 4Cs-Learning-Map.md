@@ -218,40 +218,7 @@ This is Deconstruction in Pattern Matching:
 
 ---
 
-#### Concept 2.4: Object Methods → 🏠 Pure Functions ( quickie, 5 min)
-**"Pure functions are predictable, testable, and composable"**
 
-##### Mini-Lecture (2 min)
-- **Problem**: Methods with side effects are unpredictable
-- **FP Principle**: Pure functions = same input → same output, no side effects
-- **Solution**: Eliminate mutable state and side effects
-
-##### Code Comparison (3 min)
-**Before** (Impure - side effects):
-```csharp
-public class BuzzRule : BaseRule
-{
-    private int callCount = 0;  // Mutable state!
-    
-    public override string Evaluate(int number)
-    {
-        callCount++;  // Side effect!
-        return number % 5 == 0 ? "Buzz" : "";
-    }
-}
-```
-
-**After** (Pure function):
-```csharp
-public class DivisibilityRule : RuleBase
-{
-    public override RuleResult Evaluate(int number) => 
-        number % Divisor == 0 
-            ? RuleResult.ContinueWith(Output) 
-            : RuleResult.Empty;
-    // No side effects, no mutable state, completely predictable
-}
-```
 
 
 ---
