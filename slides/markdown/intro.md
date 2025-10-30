@@ -29,3 +29,4 @@ L'atelier démontre qu'au-delà des principes SOLID traditionnels, d'autres appr
 # Code to follow along
 
 ![jpg](./img/qrcode_repo_FizzBuzz2025.png)
+
