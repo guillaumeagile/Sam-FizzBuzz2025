@@ -51,11 +51,12 @@
 		/// <param name="number">Number.</param>
 		public object Say(int number)
 		{
+			if (Rules.Count == 0)
+				return number;
+
 			var finalAnswer = "";
 			foreach(var rule in Rules)
 			{
-				if (rule is null)
-					continue;
 				var answer = rule.Evaluate (number);
 				if (answer != string.Empty && rule.Final) {
 					finalAnswer = answer;
