@@ -10,16 +10,63 @@ namespace FizzBuzz.Engine
     /// </summary>
     public class CupidFizzBuzzEngine
     {
-        private readonly IReadOnlyList<IRule> _rules;
-
         public CupidFizzBuzzEngine(IEnumerable<IRule> rules)
         {
-            _rules = (rules ?? throw new ArgumentNullException(nameof(rules)))
+            Rules = (rules ?? throw new ArgumentNullException(nameof(rules)))
                 .ToList();
         }
 
-        public IReadOnlyList<IRule> Rules => _rules;
+        public IReadOnlyList<IRule> Rules { get; }
 
+        public string Evaluate(int number)
+        {
+            var result = string.Empty;
+
+            foreach (var rule in Rules)
+            {
+                var ruleResult = rule.Evaluate(number);
+                // Legacy, OOP-style type checking
+                if (ruleResult is RuleResult.Final final)
+                {  // Stop immediately on final
+                    return final.Output;
+                }
+
+                if (ruleResult is RuleResult.Continue cont && !string.IsNullOrEmpty(cont.Output))
+                {  // Accumulate non-empty outputs
+                    result += cont.Output;
+                }
+            }
+
+            // Only return number.ToString() if no rules produced output
+            return string.IsNullOrEmpty(result) ? number.ToString() : result;
+        }
+        // ## Which SOLID rule is violated and why
+        // ### Open/Closed Principle (OCP)  — primary violation
+        // The engine ( CupidFizzBuzzEngine.Evaluate ) is a high-level module that should depend on abstractions only.
+
+        // By type-checking against concrete nested classes
+        // RuleResult.Final
+        //  and
+        // RuleResult.Continue
+        // , it depends on low-level details of the result representation.
+        // Any internal representation change of the result leaks into the engine, coupling them tightly.
+
+        // ### Why it can drift into LSP problems
+
+        // If the abstraction’s contract is underspecified and clients assume concrete shapes:
+        // Example: you later introduce a new RuleResult subtype (e.g., Error) without changing the IRule/
+        // RuleResult contract that callers rely on.
+        // Then existing clients (like your engine) that only handle
+        // Continue / Final   will misbehave.
+
+        // This is primarily an OCP problem, but it also manifests as an LSP break
+        // because a valid “subtype” of the abstract result can no longer be substituted without breaking clients’ expectations.
+
+
+
+
+
+/*
         /// <summary>
         /// Evaluates a number against all rules and returns the result
         /// Rules are processed in the order they were added
@@ -28,7 +75,7 @@ namespace FizzBuzz.Engine
         public string Evaluate(int number)
         {
             var result = string.Empty;
-            
+
             foreach (var rule in _rules)
             {
                 var ruleResult = rule.Evaluate(number);
@@ -51,10 +98,11 @@ namespace FizzBuzz.Engine
                 if (ruleResult is RuleResult.Final)
                     return result;
             }
-            
+
             // Only return number.ToString() if no rules produced output
             return string.IsNullOrEmpty(result) ? number.ToString() : result;
         }
+        */
 
         /*  Why pattern matching shines with records (and deconstruction)
 
