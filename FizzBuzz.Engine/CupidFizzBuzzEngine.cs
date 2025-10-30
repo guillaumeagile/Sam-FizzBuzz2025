@@ -32,7 +32,6 @@ namespace FizzBuzz.Engine
             foreach (var rule in _rules)
             {
                 var ruleResult = rule.Evaluate(number);
-                
                 // Modern pattern matching - much cleaner!
                 // it's here where the engine decides to stop (on Final) or to continue when the result is not empty
                 // we use  pattern matching with deconstruction here, because we want to keep the result of the previous rule
@@ -56,6 +55,27 @@ namespace FizzBuzz.Engine
             // Only return number.ToString() if no rules produced output
             return string.IsNullOrEmpty(result) ? number.ToString() : result;
         }
+
+        /*  Why pattern matching shines with records (and deconstruction)
+
+           Immutable, data-first shape
+           Records are immutable by default and model “just data.”
+           Pattern matching works best on stable shapes; no side effects, no mutation surprises.
+
+           Positional records synthesize a Deconstruct(out …) automatically.
+
+           => uses the positional “deconstruct” to bind output.
+
+           With legacy classes, you don’t get auto-deconstruction;
+                     => you’d need to add Deconstruct manually or write more verbose property access.
+
+           Now, you can write Concise and expressive switch expressions
+
+         */
+
+
+
+
 
         /// <summary>
         /// Creates a standard FizzBuzz engine
