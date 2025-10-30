@@ -1,3 +1,12 @@
+
+## Code to follow along
+
+
+<img src="img/qrcode_repo_FizzBuzz2025.png" alt="Alt text" style="width: 50%; height: auto;">
+
+
+--
+
 # SOLID Principles    
 
 --
