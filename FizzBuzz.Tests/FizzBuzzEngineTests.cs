@@ -11,13 +11,7 @@ namespace FizzBuzz.Tests
         [SetUp]
         public void setUp()
         {
-            List<IRule>? _rules = new List<IRule>();
-            _rules.Add(new FizzRule());
-            _rules.Add(new BuzzRule());
-            _rules.Add(new BangRule());
-            _rules.Add(new TheAnswerRule());
-
-            engine = new FizzBuzzEngine(_rules);
+            engine = new FizzBuzzEngine();
         }
 
         [Test]
@@ -71,22 +65,11 @@ namespace FizzBuzz.Tests
         }
 
         [Test]
-        public void WillExplodeWhenNoRules()
-        {
-            // Arrange
-            engine = new FizzBuzzEngine(null); // too much complexity
-
-            // Act
-
-            Action act = () => engine.Say(15);
-
-            act.Should().Throw<NoDefinedeRulesException>();
-            ;
-        }
-
-        [Test]
         public void CanSayBang()
         {
+            // Arrange
+            engine.AddRule(new BangRule());
+            
             // Act
             var bang = engine.Say(7);
 
@@ -97,6 +80,9 @@ namespace FizzBuzz.Tests
         [Test]
         public void CanSayFizzBang()
         {
+            // Arrange
+            engine.AddRule(new BangRule());
+            
             // Act
             var fizzBang = engine.Say(21);
 
@@ -107,6 +93,9 @@ namespace FizzBuzz.Tests
         [Test]
         public void CanSayFizzBuzzBang()
         {
+            // Arrange
+            engine.AddRule(new BangRule());
+            
             // Act
             var fizzBuzzBang = engine.Say(105);
 
@@ -154,6 +143,9 @@ namespace FizzBuzz.Tests
         [Test]
         public void CanSayTheAnswerTo42()
         {
+            // Arrange
+            engine.AddRule(new TheAnswerRule());
+            
             // Act
             var theAnswer = engine.Say(42);
 
