@@ -72,7 +72,6 @@ namespace FizzBuzz.Tests
             engine.Evaluate(15).Should().Be("FizzBuzz");
             engine.Evaluate(21).Should().Be("FizzBang");
             engine.Evaluate(105).Should().Be("FizzBuzzBang");
-//            engine.Evaluate(42).Should().Be("The answer to the meaning of life, the universe, and everything");
         }
 
         [Test]
@@ -94,7 +93,6 @@ namespace FizzBuzz.Tests
             engine.Evaluate(15).Should().Be("FizzBuzz");
             engine.Evaluate(21).Should().Be("FizzBang");
             engine.Evaluate(105).Should().Be("FizzBuzzBang");
-//            engine.Evaluate(42).Should().Be("The answer to the meaning of life, the universe, and everything");
         }
 
 
@@ -116,15 +114,14 @@ namespace FizzBuzz.Tests
             engine.Evaluate(21).Should().Be("FizzBang");
             engine.Evaluate(105).Should().Be("FizzBuzzBang");
 
-       engine.Evaluate(42).Should().Be("The answer to the meaning of life, the universe, and everything");
+            engine.Evaluate(42).Should().Be("The answer to the meaning of life, the universe, and everything");
         }
 
         [Test]
         [Category("ExtendedEngine")]
-        public void ExtendedEngine_ShouldHandleBasicNumbers_OrderOfRulesMatters()
+        public void ExtendedEngine_ShouldHandleBasicNumbers_NewSet_OrderOfRulesMatters()
         {
             // Arrange
-
             var extendedRules = new List<IRule>()
             {
                 FizzBuzzRules.Bang() ,
@@ -137,7 +134,7 @@ namespace FizzBuzz.Tests
 
         [Test]
         [Category("CustomEngine")]
-        public void CustomEngine_ShouldHandleBasicNumbers_OrderOfRulesMatters()
+        public void CustomEngine_ShouldHandleBasicNumbers_NewSet_OrderOfRulesMatters()
         {
             // Arrange
 
@@ -221,10 +218,6 @@ namespace FizzBuzz.Tests
             engine.Evaluate(3).Should().Be("Special Three"); // Not "Fizz"
             engine.Evaluate(6).Should().Be("Fizz"); // Normal fizz rule
         }
-
-
-
-
 
 
         [Test]
