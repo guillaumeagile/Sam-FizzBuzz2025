@@ -23,3 +23,9 @@
 - Améliorer l'expression du domaine
 
 L'atelier démontre qu'au-delà des principes SOLID traditionnels, d'autres approches peuvent mieux servir la clarté et la maintenabilité du code, particulièrement dans un contexte orienté DDD.
+
+-- 
+
+# Code to follow along
+
+![jpg](./img/qrcode_repo_FizzBuzz2025.png)
