@@ -38,20 +38,39 @@ public interface IRule
     RuleResult Evaluate(int number); // One function, clear semantics
 }
 
-// Result monad: two possible states
-public abstract record RuleResult
+// Result of Rules : two possible states
+public abstract class RuleResult
 {
-    public record Continue(string Output) : RuleResult;  // Keep going
-    public record Final(string Output) : RuleResult;    // Stop here
+    public class Continue : RuleResult
+    {
+        public string Output { get; }
+        
+        public Continue(string output)
+        {
+            Output = output;
+        }
+    }
+    
+    public class Final : RuleResult
+    {
+        public string Output { get; }
+        
+        public Final(string output)
+        {
+            Output = output;
+        }
+    }
 }
 
 // Usage:
-// RuleResult.Final("42")
-// RuleResult.Continue("Fizz")
+// new RuleResult.Final("42")
+// new RuleResult.Continue("Fizz")
 ```
 
 ##### Quick Activity (5 min)
 **Think-Pair-Share**: How does this design eliminate the need for two separate properties?
+
+--
 
 #### Concept 2.4: Old Syntax → 🆔 Idiomatic (10 min)
 **"Code should feel natural in the language"**
