@@ -152,5 +152,24 @@ namespace FizzBuzz.Tests
             // Assert
             theAnswer.Should().Be("The answer to the meaning of life, the universe, and everything");
         }
+
+        [Test]
+        public void RuleInjectionAcceptsNulls()
+        {
+            // Arrange
+            var rules = new List<IRule?>();
+            rules.Add(new BangRule());
+            rules.Add(null);
+            rules.Add(new FizzRule());
+
+
+            engine = new FizzBuzzEngine(rules);
+
+            // Act
+            var fizzBang = engine.Say(21);
+
+            // Assert
+            fizzBang.Should().Be("FizzBang");
+        }
     }
 }

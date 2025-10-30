@@ -29,7 +29,7 @@
 		/// </summary>
 		/// <returns>The to.</returns>
 		/// <param name="other">Other.</param>
-		public int CompareTo(IRule other)   // here we need nullable !
+		public int CompareTo(IRule? other)   // here we need nullable !
 		{
 			return this.Priority.CompareTo (other.Priority);
 		}

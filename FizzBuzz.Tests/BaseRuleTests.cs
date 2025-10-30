@@ -71,26 +71,25 @@ public class BaseRuleTests
         var rule = new TestRule();
 
         // Act
-        var result = rule.CompareTo(null);
-        //shall we accept null or not ?
-        //we must be explicit about it, if we accept null, we must return 1
 
-        // Assert
-        result.Should().Be(1);
+        //shall we accept null or not ?
+        //we must be explicit about it, if we accept null, we must
+        // A => throw an Exception
+         Assert.Throws<ArgumentNullException>(() => rule.CompareTo(null));
+
+        // B => return 0
+       // var result = rule.CompareTo(null);
+       //  result.Should().Be(0);
+
+       // C => return 0
+       // result.Should().Be(1);
+
 
         // WE NEED A DISCUSSION HERE TO START THE WORKSHOP
 
-        // do we have to raise an exception ?
-        //
 
-
-
-
-
-
-
-        // SHORT ANSWER: NO, because we are comparing two objects, and C# standards say
-        // Standard .NET Behavior: According to .NET conventions, any object is considered greater than null.
+        // SHORT ANSWER: NO EXCEPTIONS, because we are comparing two objects, and C# standards say
+        //  According to .NET conventions, any object is considered greater than null.
         // When comparing with null, the method should return 1 (or any positive number).
         // with NULLABLES we can be explicit about it, if we not raise an exception, we must return 1
 

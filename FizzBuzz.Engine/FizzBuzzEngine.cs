@@ -18,8 +18,12 @@
 		public FizzBuzzEngine(IEnumerable<IRule>? rules)
 		{
 			_rules = new SortedSet<IRule> { new FizzRule(), new BuzzRule() };
-			if (rules != null) {  
-				_rules.Concat(rules).ToList().ForEach(rule => _rules.Add(rule));
+
+			if (rules != null) {
+				_rules.Concat(rules)
+					.OrderBy(rule => rule.Priority)
+					.ToList()
+					.ForEach(rule => _rules.Add(rule));
 			}
 		}
 
@@ -50,6 +54,8 @@
 			var finalAnswer = "";
 			foreach(var rule in Rules)
 			{
+				if (rule is null)
+					continue;
 				var answer = rule.Evaluate (number);
 				if (answer != string.Empty && rule.Final) {
 					finalAnswer = answer;
