@@ -1,3 +1,12 @@
+
+![Slide Sponsors pour orateurs 2025.png](./img/Slide%20Sponsors%20pour%20orateurs%202025.png)
+
+--
+
+![Slide forum 2025.png](./img/Slide%20forum%202025.png)
+
+---
+
 # Guillaume & Sam show
 ## SOLID > CUPID > CUTE DDD
 
