@@ -23,7 +23,7 @@ code should have only one reason to change
 
 # Open/Closed principle
 code should be open for extension but 
-clossed for modification
+closed for modification
 
 --
 
