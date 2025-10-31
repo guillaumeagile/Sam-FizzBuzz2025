@@ -18,6 +18,7 @@ namespace FizzBuzz.Engine
 
         public IReadOnlyList<IRule> Rules { get; }
 
+        /*
         public string Evaluate(int number)
         {
             var result = string.Empty;
@@ -25,15 +26,13 @@ namespace FizzBuzz.Engine
             foreach (var rule in Rules)
             {
                 var ruleResult = rule.Evaluate(number);
-                // Legacy, OOP-style type checking
-                if (ruleResult is RuleResult.Final final)
-                {  // Stop immediately on final
-                    return final.Output;
-                }
-
-                if (ruleResult is RuleResult.Continue cont && !string.IsNullOrEmpty(cont.Output))
-                {  // Accumulate non-empty outputs
-                    result += cont.Output;
+                switch (ruleResult)
+                {
+                    case RuleResult.Final final: // Stop immediately on final
+                        return final.Output;
+                    case RuleResult.Continue cont when !string.IsNullOrEmpty(cont.Output): // Accumulate non-empty outputs
+                        result += cont.Output;
+                        break;
                 }
             }
 
@@ -62,11 +61,8 @@ namespace FizzBuzz.Engine
         // This is primarily an OCP problem, but it also manifests as an LSP break
         // because a valid “subtype” of the abstract result can no longer be substituted without breaking clients’ expectations.
 
+*/
 
-
-
-
-/*
         /// <summary>
         /// Evaluates a number against all rules and returns the result
         /// Rules are processed in the order they were added
@@ -76,23 +72,13 @@ namespace FizzBuzz.Engine
         {
             var result = string.Empty;
 
-            foreach (var rule in _rules)
+            foreach (var rule in Rules)
             {
                 var ruleResult = rule.Evaluate(number);
                 // Modern pattern matching - much cleaner!
                 // it's here where the engine decides to stop (on Final) or to continue when the result is not empty
                 // we use  pattern matching with deconstruction here, because we want to keep the result of the previous rule
-                result = ruleResult switch
-                {
-                    RuleResult.Final(var output) => output, // we keep the output, because after that we exit immediately
-
-                    RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => result + output,
-
-                    RuleResult.Continue => result, // Empty output, just continue with the current result
-
-                    _ => result // Should never happen with sealed record hierarchy
-                    //but the compiler needs it to be exhaustive (C#14 is not fully FP language)
-                };
+                result = OutputBordeaux(ruleResult, result);
 
                 // If we got a Final result, we exit immediately
                 if (ruleResult is RuleResult.Final)
@@ -102,7 +88,22 @@ namespace FizzBuzz.Engine
             // Only return number.ToString() if no rules produced output
             return string.IsNullOrEmpty(result) ? number.ToString() : result;
         }
-        */
+
+        private static string OutputBordeaux(RuleResult ruleResult, string result)
+        {
+            return ruleResult switch
+            {
+                RuleResult.Final(var output) => output, // we keep the output, because after that we exit immediately
+
+               // RuleResult.Continue(var output) when !string.IsNullOrEmpty(output) => result + output,
+
+                RuleResult.Continue(var output) => result + output,
+
+                _ => result // Should never happen with sealed record hierarchy
+                //but the compiler needs it to be exhaustive (C#14 is not fully FP language)
+            };
+        }
+
 
         /*  Why pattern matching shines with records (and deconstruction)
 

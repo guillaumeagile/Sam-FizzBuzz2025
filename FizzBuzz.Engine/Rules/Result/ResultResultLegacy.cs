@@ -1,7 +1,7 @@
 namespace FizzBuzz.Engine.Rules.Result;
 
 
-
+/*
 public abstract class RuleResult //deactivate when using RuleResult2
 {
     public class Continue : RuleResult
@@ -27,4 +27,4 @@ public abstract class RuleResult //deactivate when using RuleResult2
    public static RuleResult ContinueWith(string output) => new Continue(output) ;
    public static RuleResult StopWith(string output) => new Final(output);
    public static RuleResult Empty => new Continue("");
-}
+}*/
