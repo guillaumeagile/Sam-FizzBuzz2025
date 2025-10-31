@@ -20,6 +20,10 @@ namespace FizzBuzz.Tests
             // Arrange: Compose multiple rules that work together
             var rules = new List<IRule>
             {
+                new ExactMatchRule(42, "the answer to everything"),
+            new DivisibilityRule(3, "Fizz"),
+            new DivisibilityRule(5, "Buzz"),
+            new DivisibilityRule(7, "Bang"),
 
             };
 
@@ -34,14 +38,18 @@ namespace FizzBuzz.Tests
             // 2. Two rules compose (15 = 3×5)
             engine.Evaluate(15).Should().Be("FizzBuzz",
                 "divisible by both 3 and 5, outputs should concatenate");
-            
-            // 3. Three rules compose (105 = 3×5×7)
-            engine.Evaluate(105).Should().Be("FizzBuzzBang",
-                "divisible by 3, 5, and 7 - all three rules compose");
-            
-            // 4. Final rule stops composition (30 = 3×5)
-            engine.Evaluate(30).Should().Be("Special!",
-                "exact match rule is final, stops before Fizz/Buzz can accumulate");
+
+            engine.Evaluate(42).Should().Be("the answer to everything",
+                "exact match rule should take precedence");
+
+            // 3. Three rules compose (13 = 3×5×7)
+            engine.Evaluate(13).Should().Be("FizzBang",
+                "divisible by both 3 and 7, outputs should concatenate");
+
+            // 4. Four rules compose (29 = 3×5×7×11)
+            engine.Evaluate(29).Should().Be("FizzBuzzBang",
+                "divisible by both 3 and 11, outputs should concatenate");
+
             
             // 5. No rules match - returns number
             engine.Evaluate(1).Should().Be("1",

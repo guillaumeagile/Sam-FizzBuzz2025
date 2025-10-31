@@ -16,6 +16,8 @@ namespace FizzBuzz.Engine.Rules.Concretes
             Output = output;
         }
 
-        public override string Evaluate(int number) =>  throw new System.NotImplementedException();
+
+        public override string Evaluate(int number) => (number % Divisor == 0) ? Output : string.Empty  ;
+
     }
 }

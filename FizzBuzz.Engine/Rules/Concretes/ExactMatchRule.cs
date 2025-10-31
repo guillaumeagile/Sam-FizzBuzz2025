@@ -16,9 +16,9 @@ namespace FizzBuzz.Engine.Rules.Concretes
             Output = output;
         }
 
-        public override string Evaluate(int number) => throw new System.NotImplementedException();
+        public override string Evaluate(int number) => (number == TargetNumber) ? Output : string.Empty ;
 
         // This rule stops processing when it matches
-        public new bool? Final => true ;
+        public override bool Final => true ;
     }
 }

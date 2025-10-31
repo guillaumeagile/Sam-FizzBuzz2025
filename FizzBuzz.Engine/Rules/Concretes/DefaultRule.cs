@@ -8,6 +8,8 @@ namespace FizzBuzz.Engine.Rules.Concretes
     /// </summary>
     public class DefaultRule : RuleBase
     {
-        public override string Evaluate(int number) => string.Empty;
+        public override string Evaluate(int number) => number.ToString();
+
+
     }
 }

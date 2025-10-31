@@ -8,15 +8,6 @@ namespace FizzBuzz.Tests;
 public class RulesTests
 {
 
-    [Test]
-    public void TheSimplestRuleEver()
-    {
-        var rule = new DefaultRule();
-        var result = rule.Evaluate(99);
-
-        result.Should().BeEmpty();
-        rule.Final.Should().BeFalse();
-    }
 
     [Test]
     public void TheRuleThatPrintsOutTheNumber()
@@ -37,7 +28,12 @@ public class RulesTests
         var result = rule.Evaluate(13);
 
         result.Should().Be("lucky");
-        rule.Final.Should().BeFalse();
+        rule.Final.Should().BeTrue();
+
+        result = rule.Evaluate(26);
+
+        result.Should().BeEmpty();
+
     }
 
 
@@ -82,5 +78,6 @@ public class RulesTests
 
 public class LuckyRule : RuleBase
 {
-    public override string Evaluate(int number) => throw new NotImplementedException();
+    public override string Evaluate(int number) => (number == 13 ) ? "lucky" : string.Empty;
+    public override bool Final => true;
 }
