@@ -29,7 +29,7 @@ After completing this workshop, participants will:
 - Understand how to evolve design through collaborative iteration
 
 ## Workshop Format
-This is a hands-on workshop with approximately 80% practical coding exercises. Participants will work in pairs or small groups to refactor a real codebase, following a structured learning path that introduces one concept at a time.
+This is a hands-on workshop with approximately 70% practical coding exercises. All Participants will be engaged in a collaborative, interactive session (Mob Programming)
 
 The workshop will be structured in two major shifts:
 
@@ -43,13 +43,13 @@ The workshop will be structured in two major shifts:
 - Multiple Concerns → Single Function (Clear domain-focused functions)
 - Mutable State → Immutable Data (Data that preserves domain invariants)
 - Imperative Logic → Declarative Expressions (Domain logic that reads like domain language)
-- Object Methods → Pure Functions (Predictable behaviors for domain reasoning)
+- Primitive Obsession → Practical Algebraic Data Types (Domain concepts that are explicit in code)
 
 ## Prerequisites
 - Intermediate level programming experience
-- Basic familiarity with software design concepts
-- Some experience with any modern programming language
-- Laptop with a development environment (any modern IDE will work)
+- Basic familiarity with Object Oriented  design concepts
+- Some experience with any modern programming language (C#, Java, Kotlin, Scala,  TS, etc.)
+- No Laptop needed, it's a mob programming experience
 
 ## Target Audience
 This workshop is designed for experienced software developers, architects, and technical leads who want to improve their domain modeling and code design skills. It's particularly relevant for those working with complex domains or looking to modernize their approach to software design.
