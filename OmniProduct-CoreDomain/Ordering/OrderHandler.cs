@@ -16,7 +16,7 @@ public abstract class OrderHandler
 
         Process(context);
 
-        if (context.CanContinue && _next != null)
+        if (context.CanContinue )
             _next.Handle(context);
     }
 
