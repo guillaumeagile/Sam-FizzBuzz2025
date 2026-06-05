@@ -11,9 +11,6 @@
       <Content Include="..\4Cs-Learning-Map.md">
         <Link>4Cs-Learning-Map.md</Link>
       </Content>
-      <Content Include="..\CUPID-Learning-Path.md">
-        <Link>CUPID-Learning-Path.md</Link>
-      </Content>
     </ItemGroup>
 
 </Project>
