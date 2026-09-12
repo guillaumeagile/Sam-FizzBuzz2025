@@ -20,5 +20,5 @@ public class Warehouse
     public string Region { get; set; }
 
     [NotMapped]
-    public List<Product> Products { get; set; } = new();
+    public List<ActiveProduct> Products { get; set; } = new();
 }

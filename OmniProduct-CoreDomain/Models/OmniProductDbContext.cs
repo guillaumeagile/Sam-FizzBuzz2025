@@ -8,7 +8,7 @@ namespace OmniProduct_CoreDomain.Models;
 // that was faster than wiring up configuration for a "temporary" prototype three years ago.
 public class OmniProductDbContext : DbContext
 {
-    public DbSet<Product> Products { get; set; }
+    public DbSet<ActiveProduct> Products { get; set; }
     public DbSet<Supplier> Suppliers { get; set; }
     public DbSet<Warehouse> Warehouses { get; set; }
     public DbSet<Notification> Notifications { get; set; }
@@ -26,7 +26,7 @@ public class OmniProductDbContext : DbContext
     {
         // Re-declares in fluent config almost everything the data annotations above already say,
         // because whoever wrote this didn't trust attributes (or forgot they were there).
-        modelBuilder.Entity<Product>(e =>
+        modelBuilder.Entity<ActiveProduct>(e =>
         {
             e.ToTable("Products");
             e.HasKey(p => p.Id);

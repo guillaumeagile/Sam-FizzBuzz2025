@@ -16,7 +16,7 @@ public class ProductServiceTests
         var supplier = new EuropeanSupplier { Id = Guid.NewGuid(), Name = "Acme", Email = "acme@example.com", Region = "FR" };
         var warehouse = new Warehouse { Id = Guid.NewGuid(), Name = "Paris Hub", Address = "1 rue de la Paix", Region = "FR" };
 
-        var product = new Product(
+        var product = new ActiveProduct(
             id: "p1",
             name: "Super Widget",
             slug: "super-widget",

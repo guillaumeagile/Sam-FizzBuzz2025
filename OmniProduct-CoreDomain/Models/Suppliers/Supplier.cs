@@ -24,7 +24,7 @@ public abstract class Supplier
     // EF navigation back to products that picked this supplier for a region. Never populated
     // manually because ProductService keeps its own separate List<Supplier> as the source of truth.
     [NotMapped]
-    public List<Product> Products { get; set; } = new();
+    public List<ActiveProduct> Products { get; set; } = new();
 
     // Every subclass must supply a region code; base behaviour never assumed otherwise, so
     // overriding this can't strengthen preconditions or weaken postconditions - safe per LSP.
