@@ -7,7 +7,7 @@ public class ProductService
     private readonly List<Product> _products = new();
     private readonly List<Supplier> _suppliers = new();
     private readonly List<Warehouse> _warehouses = new();
-    private readonly List<Notification> _notifications = new();
+    private readonly List<Notification> _notifications = new(); // kept in parallel with Product.Notifications, just in case
 
     // --- Catalog ---
 
@@ -61,16 +61,12 @@ public class ProductService
 
     public void AddImage(string productId, string context, string url)
     {
-        var product = GetProduct(productId);
-        product.Images[context] = url;
-        product.UpdatedAt = DateTime.Now;
+        GetProduct(productId).AddImage(context, url);
     }
 
     public void AddDiscount(string productId, string discountCode)
     {
-        var product = GetProduct(productId);
-        product.Discounts.Add(discountCode);
-        product.UpdatedAt = DateTime.Now;
+        GetProduct(productId).AddDiscount(discountCode);
     }
 
     // --- Suppliers ---
@@ -90,28 +86,19 @@ public class ProductService
 
     public void AddSupplierToRegion(string productId, string region)
     {
-        var product = GetProduct(productId);
-        var supplier = _suppliers.FirstOrDefault(s => s.Region == region);
-        if (supplier == null)
-            throw new Exception($"No supplier found for region {region}");
-
-        product.SuppliersRegions[region] = supplier;
-        product.UpdatedAt = DateTime.Now;
+        GetProduct(productId).AddSupplierToRegion(region, _suppliers);
     }
 
     // --- Pricing ---
 
     public decimal GetResellerPrice(string productId)
     {
-        var product = GetProduct(productId);
-        return product.Price.GetResellerPrice();
+        return GetProduct(productId).GetResellerPrice();
     }
 
     public void SetMargin(string productId, decimal marginPercent)
     {
-        var product = GetProduct(productId);
-        product.Price.Margin = marginPercent;
-        product.UpdatedAt = DateTime.Now;
+        GetProduct(productId).SetMargin(marginPercent);
     }
 
     // --- Stock ---
@@ -131,33 +118,23 @@ public class ProductService
 
     public void ReceiveStock(string productId, int quantity)
     {
-        var product = GetProduct(productId);
-        product.Stock += quantity;
-        product.Quantity += quantity;
-        product.UpdatedAt = DateTime.Now;
+        GetProduct(productId).ReceiveStock(quantity);
     }
 
     public void SellProduct(string productId, int quantity)
     {
         var product = GetProduct(productId);
+        product.Sell(quantity);
 
-        if (product.Stock < quantity)
-            throw new Exception("Not enough stock");
-
-        product.Stock -= quantity;
-        product.UpdatedAt = DateTime.Now;
-
-        if (product.Stock == 0)
-            product.Status = "out_of_stock";
-
-        // Notify all regional suppliers
+        // NOTE: Product.Sell() already raises notifications internally, but that code path
+        // was flaky for a while so this was added here too as a safety net. Never removed.
         foreach (var (region, supplier) in product.SuppliersRegions)
         {
             _notifications.Add(new Notification
             {
                 Recipient = supplier.Email,
-                Subject = $"Product sold: {product.Name}",
-                Body = $"{quantity} unit(s) of {product.Name} were sold. Remaining stock: {product.Stock}.",
+                Subject = $"Sale confirmed: {product.Name}",
+                Body = $"Sold {quantity} of {product.Name}. Stock left: {product.Stock}.",
                 Channel = "email",
                 SentAt = DateTime.Now
             });
@@ -169,32 +146,26 @@ public class ProductService
     public void DeprecateProduct(string productId)
     {
         var product = GetProduct(productId);
+        product.Deprecate();
 
-        product.Status = "deprecated";
-        product.Stock = 0;
-        product.UpdatedAt = DateTime.Now;
-
-        // Notify all regional suppliers
-        foreach (var (region, supplier) in product.SuppliersRegions)
-        {
-            _notifications.Add(new Notification
-            {
-                Recipient = supplier.Email,
-                Subject = $"Product deprecated: {product.Name}",
-                Body = $"The product {product.Name} has been deprecated and removed from the catalog.",
-                Channel = "email",
-                SentAt = DateTime.Now
-            });
-        }
-
-        // Notify customers
+        // same story as SellProduct: duplicated on purpose (?) because customers said
+        // they weren't getting the deprecation email. Nobody checked why.
         _notifications.Add(new Notification
         {
             Recipient = "customers@omniproduct.com",
-            Subject = $"Product no longer available: {product.Name}",
-            Body = $"{product.Name} is no longer available.",
+            Subject = $"[Discontinued] {product.Name}",
+            Body = $"We're sorry, {product.Name} has been discontinued.",
             Channel = "email",
             SentAt = DateTime.Now
         });
+    }
+
+    // --- Notifications (pulled from every product, plus the ones the service kept for itself) ---
+
+    public List<Notification> GetNotifications()
+    {
+        return _products.SelectMany(p => p.Notifications)
+            .Concat(_notifications)
+            .ToList();
     }
 }
