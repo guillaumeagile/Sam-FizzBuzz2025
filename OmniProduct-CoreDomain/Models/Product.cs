@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using OmniProduct_CoreDomain.Abstractions;
 
 namespace OmniProduct_CoreDomain.Models;
 
 [Table("Products")]
-public class Product
+public class Product : ICatalogItem, IPriceable, IStockable, IDiscountable, IHasImages,
+    ISupplierAssignable, IDeprecable, INotificationSource, IEfSyncable
 {
     [Key]
     [Column("ProductId")]
