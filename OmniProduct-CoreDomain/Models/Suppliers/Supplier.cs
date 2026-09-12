@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace OmniProduct_CoreDomain.Models;
+namespace OmniProduct_CoreDomain.Models.Suppliers;
 
 [Table("Suppliers")]
-public class Supplier
+public abstract class Supplier
 {
     [Key]
     public Guid Id { get; set; }
@@ -25,4 +25,12 @@ public class Supplier
     // manually because ProductService keeps its own separate List<Supplier> as the source of truth.
     [NotMapped]
     public List<Product> Products { get; set; } = new();
+
+    // Every subclass must supply a region code; base behaviour never assumed otherwise, so
+    // overriding this can't strengthen preconditions or weaken postconditions - safe per LSP.
+    public abstract string RegionCode { get; }
+
+    // Default label callers can already rely on; subclasses only ever narrow it to a more
+    // specific (still non-null, still a string) label, never break the base contract.
+    public virtual string GetComplianceLabel() => "N/A";
 }

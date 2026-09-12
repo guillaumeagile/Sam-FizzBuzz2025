@@ -1,4 +1,4 @@
-using OmniProduct_CoreDomain.Models;
+using OmniProduct_CoreDomain.Models.Suppliers;
 
 namespace OmniProduct_CoreDomain.Abstractions;
 

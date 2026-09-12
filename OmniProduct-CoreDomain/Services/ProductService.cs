@@ -1,4 +1,5 @@
 using OmniProduct_CoreDomain.Models;
+using OmniProduct_CoreDomain.Models.Suppliers;
 
 namespace OmniProduct_CoreDomain.Services;
 
@@ -73,13 +74,19 @@ public class ProductService
 
     public Supplier AddSupplier(string name, string email, string region)
     {
-        var supplier = new Supplier
+        Supplier supplier = region switch
         {
-            Id = Guid.NewGuid(),
-            Name = name,
-            Email = email,
-            Region = region
+            "UK" => new UkSupplier(),
+            "ASIA" => new AsiaSupplier(),
+            "AMERICAS" => new AmericasSupplier(),
+            _ => new EuropeanSupplier()
         };
+
+        supplier.Id = Guid.NewGuid();
+        supplier.Name = name;
+        supplier.Email = email;
+        supplier.Region = region;
+
         _suppliers.Add(supplier);
         return supplier;
     }

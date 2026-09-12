@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OmniProduct_CoreDomain.Models.Suppliers;
 
 namespace OmniProduct_CoreDomain.Models;
 
@@ -48,6 +49,11 @@ public class OmniProductDbContext : DbContext
             e.HasKey(s => s.Id);
             e.Property(s => s.Email).IsRequired().HasMaxLength(256);
             e.Ignore(s => s.Products);
+            e.HasDiscriminator<string>("SupplierType")
+                .HasValue<EuropeanSupplier>("European")
+                .HasValue<UkSupplier>("Uk")
+                .HasValue<AsiaSupplier>("Asia")
+                .HasValue<AmericasSupplier>("Americas");
         });
 
         modelBuilder.Entity<Warehouse>(e =>
