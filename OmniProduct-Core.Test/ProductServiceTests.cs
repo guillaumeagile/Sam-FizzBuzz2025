@@ -84,4 +84,77 @@ public class ProductServiceTests
         var catalog = service.GetCatalog("FR");
         catalog.Should().NotContain(p => p.Id == product.Id);
     }
+
+    // Dirty state test #1: asserts the runtime type name as a string, because the "state
+    // hierarchy" (ActiveProduct/OutOfStockProduct/DeprecatedProduct/EmbargoProduct) exists
+    // but nothing ever actually switches an instance's type - Sell()/Deprecate() just mutate
+    // the Status string in place on whatever concrete type it started as.
+    [Fact]
+    public void NewProduct_IsAlwaysActiveProductType_RegardlessOfStatusString()
+    {
+        var service = new ProductService();
+        service.AddSupplier("Acme", "acme@example.com", "FR");
+        service.AddWarehouse("Paris Hub", "1 rue de la Paix", "FR");
+
+        var product = service.AddProduct("Widget", "FR", 10m, "EUR");
+
+        // "Proves" the state hierarchy is decorative: driving Status to "out_of_stock" or
+        // "deprecated" never produces an OutOfStockProduct/DeprecatedProduct instance.
+        product.GetType().Name.Should().Be(nameof(ActiveProduct));
+
+        service.SellProduct(product.Id, 0); // no-op sell, stock stays 0-ish, still ActiveProduct
+        product.GetType().Name.Should().Be(nameof(ActiveProduct));
+    }
+
+    // Dirty state test #2: string-compares Status after a transition that "should" have
+    // produced an OutOfStockProduct per the hierarchy's own naming, but didn't.
+    [Fact]
+    public void SellingLastUnit_SetsStatusString_ButLeavesTypeAsActiveProduct()
+    {
+        var service = new ProductService();
+        service.AddSupplier("Acme", "acme@example.com", "FR");
+        service.AddWarehouse("Paris Hub", "1 rue de la Paix", "FR");
+        var product = service.AddProduct("Widget", "FR", 10m, "EUR");
+        service.ReceiveStock(product.Id, 1);
+
+        service.SellProduct(product.Id, 1);
+
+        product.Status.Should().Be("out_of_stock");
+        product.GetType().Name.Should().NotBe(nameof(OutOfStockProduct));
+        product.Should().BeOfType<ActiveProduct>();
+    }
+
+    // Dirty state test #3: same story for Deprecate() vs DeprecatedProduct.
+    [Fact]
+    public void Deprecate_SetsStatusString_ButLeavesTypeAsActiveProduct()
+    {
+        var service = new ProductService();
+        service.AddSupplier("Acme", "acme@example.com", "FR");
+        service.AddWarehouse("Paris Hub", "1 rue de la Paix", "FR");
+        var product = service.AddProduct("Widget", "FR", 10m, "EUR");
+
+        service.DeprecateProduct(product.Id);
+
+        product.Status.Should().Be("deprecated");
+        product.Should().NotBeOfType<DeprecatedProduct>();
+        product.Should().BeOfType<ActiveProduct>();
+    }
+
+    // Dirty state test #4: exercises the never-instantiated branches of the hierarchy directly,
+    // by hand, just to prove they compile and carry their own hardcoded Status default that
+    // has nothing to do with how any real Status value ever gets set elsewhere.
+    [Fact]
+    public void OrphanStateSubclasses_DefaultToOwnHardcodedStatus_NeverWiredToAnything()
+    {
+        var outOfStock = new OutOfStockProduct();
+        var deprecated = new DeprecatedProduct();
+        var embargo = new EmbargoProduct();
+
+        outOfStock.Status.Should().Be("out_of_stock");
+        deprecated.Status.Should().Be("deprecated");
+        embargo.Status.Should().Be("UnderEmbargo"); // inconsistent casing vs every other Status literal
+
+        // Nothing in ProductService or ProductBase ever new()s these three - dead branches
+        // kept alive only by this test.
+    }
 }
