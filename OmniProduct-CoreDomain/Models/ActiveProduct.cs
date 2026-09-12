@@ -29,7 +29,8 @@ public class ActiveProduct : ProductBase, ICatalogItem, IPriceable, IStockable, 
 
     public ActiveProduct(string id, string name, string slug, Price price, List<string> discounts,
                    Dictionary<string, string> images, Dictionary<string, Supplier> suppliersRegions,
-                   double weight, string dimensions, int quantity, int stock, Warehouse warehouse) : base(id, name, slug, price, discounts, images, suppliersRegions, weight, dimensions, quantity, stock, warehouse)
+                   double weight, string dimensions, int quantity, int stock ) :
+        base(id, name, slug, price, discounts, images, suppliersRegions, weight, dimensions, quantity, stock)
     {
     }
 

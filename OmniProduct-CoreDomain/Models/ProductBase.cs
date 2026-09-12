@@ -13,8 +13,9 @@ public abstract class ProductBase
 
     protected ProductBase(string id, string name, string slug, Price price, List<string> discounts,
         Dictionary<string, string> images, Dictionary<string, Supplier> suppliersRegions,
-        double weight, string dimensions, int quantity, int stock, Warehouse warehouse)
+        double weight, string dimensions, int quantity, int stock)
     {
+        var warehouse = new Warehouse();
         Id = id;
         Name = name;
         Slug = slug;

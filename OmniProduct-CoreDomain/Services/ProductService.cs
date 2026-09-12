@@ -37,8 +37,7 @@ public class ProductService
             weight: 0,
             dimensions: "",
             quantity: 0,
-            stock: 0,
-            warehouse: warehouse
+            stock: 0
         );
 
         _products.Add(product);

@@ -14,7 +14,7 @@ public class ProductServiceTests
     {
         var price = new Price(100m, "EUR");
         var supplier = new EuropeanSupplier { Id = Guid.NewGuid(), Name = "Acme", Email = "acme@example.com", Region = "FR" };
-        var warehouse = new Warehouse { Id = Guid.NewGuid(), Name = "Paris Hub", Address = "1 rue de la Paix", Region = "FR" };
+
 
         var product = new ActiveProduct(
             id: "p1",
@@ -27,8 +27,7 @@ public class ProductServiceTests
             weight: 0.5,
             dimensions: "10x5x3",
             quantity: 0,
-            stock: 0,
-            warehouse: warehouse
+            stock: 0
         );
 
         product.Name.Should().Be("Super Widget");
