@@ -1,12 +1,4 @@
 
-![Slide Sponsors pour orateurs 2025.png](./img/Slide%20Sponsors%20pour%20orateurs%202025.png)
-
---
-
-![Slide forum 2025.png](./img/Slide%20forum%202025.png)
-
----
-
 # Guillaume & Sam show
 ## SOLID > CUPID > CUTE DDD
 
@@ -15,13 +7,13 @@
 
 --
 
-# Objectifs
+# Objectives
 
-- Transformer du code violant SOLID vers les principes CUPID
-- Maîtriser les idiomes C# modernes et les structures immuables
-- Améliorer l'expression du domaine
+- Tranform a code base that violates SOLID priciples to CUPID compliant
+- Master modern C# idioms, immutable data structures, and algebraic patterns
+- Improve the domain expression
 
-L'atelier démontre qu'au-delà des principes SOLID traditionnels, d'autres approches peuvent mieux servir la clarté et la maintenabilité du code, particulièrement dans un contexte orienté DDD.
+The workshop will show, beyond traditional SOLID principles, other approaches can lead to clearer and more maintainable code, particularly in a Domain-Driven context
 
 
 
