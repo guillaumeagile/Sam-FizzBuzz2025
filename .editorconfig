@@ -1,0 +1,36 @@
+root = true
+
+[*.cs]
+
+# HA1 - C# idioms: enforce modern C# style via the built-in Roslyn analyzers (the FxCop-successor
+# rule set that ships with the SDK), turned into build errors so the harness gets a deterministic
+# pass/fail instead of a text report to eyeball.
+
+# Prefer expression-bodied members
+csharp_style_expression_bodied_methods = when_on_single_line:warning
+csharp_style_expression_bodied_properties = true:warning
+csharp_style_expression_bodied_accessors = true:warning
+
+# Prefer 'var' when the type is apparent
+csharp_style_var_when_type_is_apparent = true:warning
+
+# Pattern matching / modern control flow
+csharp_style_pattern_matching_over_is_with_cast_check = true:warning
+csharp_style_pattern_matching_over_as_with_null_check = true:warning
+csharp_style_prefer_switch_expression = true:warning
+
+# File-scoped namespaces (C# 10+ idiom)
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Prefer primary constructors / target-typed new where applicable
+csharp_style_implicit_object_creation_when_type_is_apparent = true:warning
+
+# Null-checking idioms
+csharp_style_throw_expression = true:warning
+csharp_style_conditional_delegate_call = true:warning
+
+# Unused code is not idiomatic
+dotnet_diagnostic.IDE0051.severity = error  # unused private member
+dotnet_diagnostic.IDE0052.severity = error  # unused private member (never read)
+dotnet_diagnostic.CS0168.severity = error   # unused variable
+dotnet_diagnostic.CS0219.severity = error   # unused variable, assigned but never used
