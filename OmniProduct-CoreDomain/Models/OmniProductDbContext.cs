@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OmniProduct_CoreDomain.Models.Storage;
 
 namespace OmniProduct_CoreDomain.Models;
 
@@ -12,6 +13,7 @@ public class OmniProductDbContext : DbContext
     public DbSet<Warehouse> Warehouses { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Price> Prices { get; set; } // unused, Price is flattened onto Product, but the DbSet stayed
+    public DbSet<StoredProduct> StoredProducts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -38,7 +40,6 @@ public class OmniProductDbContext : DbContext
             e.Ignore(p => p.Discounts);
             e.Ignore(p => p.Images);
             e.Ignore(p => p.SuppliersRegions);
-            e.Ignore(p => p.Warehouse);
             e.Ignore(p => p.Notifications);
         });
 
@@ -54,7 +55,13 @@ public class OmniProductDbContext : DbContext
         {
             e.ToTable("Warehouses");
             e.HasKey(w => w.Id);
-            e.Ignore(w => w.Products);
+            e.Ignore(w => w.StoredProducts);
+        });
+
+        modelBuilder.Entity<StoredProduct>(e =>
+        {
+            e.ToTable("StoredProducts");
+            e.HasKey(sp => sp.ProductId);
         });
 
         modelBuilder.Entity<Notification>(e =>

@@ -1,4 +1,5 @@
 using OmniProduct_CoreDomain.Models;
+using OmniProduct_CoreDomain.Models.Storage;
 
 namespace OmniProduct_CoreDomain.Services;
 
@@ -7,6 +8,7 @@ public class ProductService
     private readonly List<Product> _products = new();
     private readonly List<Supplier> _suppliers = new();
     private readonly List<Warehouse> _warehouses = new();
+    private readonly List<StoredProduct> _storedProducts = new();
     private readonly List<Notification> _notifications = new(); // kept in parallel with Product.Notifications, just in case
 
     // --- Catalog ---
@@ -32,16 +34,28 @@ public class ProductService
             price: price,
             discounts: new List<string>(),
             images: new Dictionary<string, string>(),
-            suppliersRegions: suppliersRegions,
-            weight: 0,
-            dimensions: "",
-            quantity: 0,
-            stock: 0,
-            warehouse: warehouse
+            suppliersRegions: suppliersRegions
         );
 
         _products.Add(product);
+
+        _storedProducts.Add(new StoredProduct(
+            productId: product.Id,
+            weight: 0,
+            dimensions: "",
+            stock: 0,
+            warehouseId: warehouse.Id
+        ));
+
         return product;
+    }
+
+    public StoredProduct GetStoredProduct(string productId)
+    {
+        var storedProduct = _storedProducts.FirstOrDefault(sp => sp.ProductId == productId);
+        if (storedProduct == null)
+            throw new Exception($"No stock record found for product {productId}");
+        return storedProduct;
     }
 
     public Product GetProduct(string id)
@@ -118,13 +132,16 @@ public class ProductService
 
     public void ReceiveStock(string productId, int quantity)
     {
-        GetProduct(productId).ReceiveStock(quantity);
+        GetStoredProduct(productId).Receive(quantity);
     }
 
     public void SellProduct(string productId, int quantity)
     {
         var product = GetProduct(productId);
-        product.Sell(quantity);
+        var storedProduct = GetStoredProduct(productId);
+
+        storedProduct.Withdraw(quantity);
+        product.Sell(quantity, storedProduct.Stock);
 
         // NOTE: Product.Sell() already raises notifications internally, but that code path
         // was flaky for a while so this was added here too as a safety net. Never removed.
@@ -134,7 +151,7 @@ public class ProductService
             {
                 Recipient = supplier.Email,
                 Subject = $"Sale confirmed: {product.Name}",
-                Body = $"Sold {quantity} of {product.Name}. Stock left: {product.Stock}.",
+                Body = $"Sold {quantity} of {product.Name}. Stock left: {storedProduct.Stock}.",
                 Channel = "email",
                 SentAt = DateTime.Now
             });

@@ -13,7 +13,6 @@ public class ProductServiceTests
     {
         var price = new Price(100m, "EUR");
         var supplier = new Supplier { Id = Guid.NewGuid(), Name = "Acme", Email = "acme@example.com", Region = "FR" };
-        var warehouse = new Warehouse { Id = Guid.NewGuid(), Name = "Paris Hub", Address = "1 rue de la Paix", Region = "FR" };
 
         var product = new Product(
             id: "p1",
@@ -22,12 +21,7 @@ public class ProductServiceTests
             price: price,
             discounts: new List<string>(),
             images: new Dictionary<string, string>(),
-            suppliersRegions: new Dictionary<string, Supplier> { { "FR", supplier } },
-            weight: 0.5,
-            dimensions: "10x5x3",
-            quantity: 0,
-            stock: 0,
-            warehouse: warehouse
+            suppliersRegions: new Dictionary<string, Supplier> { { "FR", supplier } }
         );
 
         product.Name.Should().Be("Super Widget");
@@ -56,21 +50,22 @@ public class ProductServiceTests
         var warehouse = service.AddWarehouse("Paris Hub", "1 rue de la Paix", "FR");
 
         var product = service.AddProduct("Super Widget", "FR", 100m, "EUR");
+        var storedProduct = service.GetStoredProduct(product.Id);
 
         product.Should().NotBeNull();
         product.Name.Should().Be("Super Widget");
-        product.Stock.Should().Be(0);
+        storedProduct.Stock.Should().Be(0);
         product.Status.Should().Be("active");
 
         service.ReceiveStock(product.Id, 50);
-        product.Stock.Should().Be(50);
+        storedProduct.Stock.Should().Be(50);
 
         service.SellProduct(product.Id, 10);
-        product.Stock.Should().Be(40);
+        storedProduct.Stock.Should().Be(40);
         product.Status.Should().Be("active");
 
         service.SellProduct(product.Id, 40);
-        product.Stock.Should().Be(0);
+        storedProduct.Stock.Should().Be(0);
         product.Status.Should().Be("out_of_stock");
 
         var resellerPrice = service.GetResellerPrice(product.Id);
@@ -78,7 +73,7 @@ public class ProductServiceTests
 
         service.DeprecateProduct(product.Id);
         product.Status.Should().Be("deprecated");
-        product.Stock.Should().Be(0);
+        storedProduct.Stock.Should().Be(0);
 
         var catalog = service.GetCatalog("FR");
         catalog.Should().NotContain(p => p.Id == product.Id);

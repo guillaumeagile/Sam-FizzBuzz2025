@@ -15,7 +15,7 @@ pass the harness verification
 
 -> invoquer   cupid-step-1-2.harness.sh =>  code review + mutation testing + analyser roslyn + linter
 
-## Harness
+## Harness (HA)
 
 ### HA1 - C# idioms
 

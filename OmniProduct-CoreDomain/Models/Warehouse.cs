@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OmniProduct_CoreDomain.Models.Storage;
 
 namespace OmniProduct_CoreDomain.Models;
 
@@ -20,5 +21,5 @@ public class Warehouse
     public string Region { get; set; }
 
     [NotMapped]
-    public List<Product> Products { get; set; } = new();
+    public List<StoredProduct> StoredProducts { get; set; } = new();
 }

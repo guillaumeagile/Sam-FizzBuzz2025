@@ -46,19 +46,6 @@ public class Product
     [NotMapped]
     public Dictionary<string, Supplier> SuppliersRegions { get; set; } // key = region, value = supplier
 
-    public double Weight { get; set; }
-
-    [MaxLength(64)]
-    public string Dimensions { get; set; }
-
-    public int Quantity { get; set; }
-    public int Stock { get; set; }
-
-    public Guid? WarehouseId { get; set; }
-
-    [NotMapped]
-    public Warehouse Warehouse { get; set; }
-
     // added over time, not in the original constructor
     [MaxLength(32)]
     public string Status { get; set; }
@@ -77,8 +64,7 @@ public class Product
     }
 
     public Product(string id, string name, string slug, Price price, List<string> discounts,
-                   Dictionary<string, string> images, Dictionary<string, Supplier> suppliersRegions,
-                   double weight, string dimensions, int quantity, int stock, Warehouse warehouse)
+                   Dictionary<string, string> images, Dictionary<string, Supplier> suppliersRegions)
     {
         Id = id;
         Name = name;
@@ -87,12 +73,6 @@ public class Product
         Discounts = discounts;
         Images = images;
         SuppliersRegions = suppliersRegions;
-        Weight = weight;
-        Dimensions = dimensions;
-        Quantity = quantity;
-        Stock = stock;
-        Warehouse = warehouse;
-        WarehouseId = warehouse?.Id;
         Status = "active";
         CreatedAt = DateTime.Now;
         UpdatedAt = DateTime.Now;
@@ -137,11 +117,11 @@ public class Product
         SuppliersRegions ??= new Dictionary<string, Supplier>();
     }
 
-    public string GetDisplayLabel()
+    public string GetDisplayLabel(int stock)
     {
         if (Status == "deprecated")
             return $"[DISCONTINUED] {Name}";
-        if (Stock == 0)
+        if (stock == 0)
             return $"[OUT OF STOCK] {Name}";
         return Name;
     }
@@ -189,24 +169,15 @@ public class Product
         SyncEfColumns();
     }
 
-    // --- Stock ---
+    // --- Sales ---
 
-    public void ReceiveStock(int quantity)
+    // Storage owns the actual stock decrement (see StoredProduct.Withdraw); this only
+    // records the sale's effect on the catalog side: status flip and notifications.
+    public void Sell(int quantity, int remainingStock)
     {
-        Stock += quantity;
-        Quantity += quantity;
-        UpdatedAt = DateTime.Now;
-    }
-
-    public void Sell(int quantity)
-    {
-        if (Stock < quantity)
-            throw new Exception("Not enough stock");
-
-        Stock -= quantity;
         UpdatedAt = DateTime.Now;
 
-        if (Stock == 0)
+        if (remainingStock == 0)
             Status = "out_of_stock";
 
         // Notify all regional suppliers
@@ -216,7 +187,7 @@ public class Product
             {
                 Recipient = supplier.Email,
                 Subject = $"Product sold: {Name}",
-                Body = $"{quantity} unit(s) of {Name} were sold. Remaining stock: {Stock}.",
+                Body = $"{quantity} unit(s) of {Name} were sold. Remaining stock: {remainingStock}.",
                 Channel = "email",
                 SentAt = DateTime.Now
             });
@@ -228,7 +199,6 @@ public class Product
     public void Deprecate()
     {
         Status = "deprecated";
-        Stock = 0;
         UpdatedAt = DateTime.Now;
 
         // Notify all regional suppliers
