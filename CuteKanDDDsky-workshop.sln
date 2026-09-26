@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmniProduct-CoreDomain", "O
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmniProduct-Core.Test", "OmniProduct-Core.Test\OmniProduct-Core.Test.csproj", "{2767F5CE-481A-4C65-8CAE-16DFF3DC6EA1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cupid.Harness", "Cupid.Harness\Cupid.Harness.csproj", "{69C765FC-D180-4648-AA68-B5FDA1E3362C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cupid.Harness.Test", "Cupid.Harness.Test\Cupid.Harness.Test.csproj", "{EE365647-C249-4DBD-AF68-D7F07276375D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{2767F5CE-481A-4C65-8CAE-16DFF3DC6EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2767F5CE-481A-4C65-8CAE-16DFF3DC6EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2767F5CE-481A-4C65-8CAE-16DFF3DC6EA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69C765FC-D180-4648-AA68-B5FDA1E3362C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69C765FC-D180-4648-AA68-B5FDA1E3362C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69C765FC-D180-4648-AA68-B5FDA1E3362C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69C765FC-D180-4648-AA68-B5FDA1E3362C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE365647-C249-4DBD-AF68-D7F07276375D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE365647-C249-4DBD-AF68-D7F07276375D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE365647-C249-4DBD-AF68-D7F07276375D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE365647-C249-4DBD-AF68-D7F07276375D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

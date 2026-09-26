@@ -1,0 +1,13 @@
+{
+  "//": "Ubiquitous language map used by HA6 (Single Concern). Each bounded context lists the verbs/nouns its methods are expected to use. A method name is matched to a concern if it STARTS WITH one of the given keywords (case-insensitive). Extend this file as new bounded contexts are carved out - do not add cross-cutting keywords here, that defeats the point.",
+  "concerns": {
+    "Catalog": ["AddImage", "AddDiscount", "GetCatalog", "GetDisplayLabel", "AddCatalog"],
+    "Pricing": ["GetResellerPrice", "SetMargin", "GetPrice", "SetPrice", "ApplyVat", "ApplyMargin"],
+    "Storage": ["ReceiveStock", "Withdraw", "GetStoredProduct", "Receive"],
+    "Supplier": ["AddSupplier", "AddSupplierToRegion", "GetSupplier", "RemoveSupplier"],
+    "Sales": ["Sell", "SellProduct", "Reserve", "Cancel"],
+    "Lifecycle": ["Deprecate", "DeprecateProduct", "Activate", "Archive", "Embargo"],
+    "Notification": ["GetNotifications", "Notify", "SendNotification"],
+    "Transport": ["Ship", "GetTransportationFee", "Deliver", "Dispatch"]
+  }
+}
