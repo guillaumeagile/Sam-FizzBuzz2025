@@ -54,6 +54,9 @@ This is the same journey we took with FizzBuzz — but applied to a real, messie
 - Extract each concern into its own class with a single focus
 - Use the domain vocabulary to name each class (not `ProductCatalogManager` — just `Catalog`)
 
+**Exercise**
+Model the Warehouse context Product class with the product attributes that apply only to Warehouse
+
 **Learning Objective**: Domain concerns are not technical layers. Each concern should map to a word the business actually uses.
 
 ---
