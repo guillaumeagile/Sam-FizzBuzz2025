@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using OmniProduct_CoreDomain.Models.Shared;
 
 namespace OmniProduct_CoreDomain.Models;
 

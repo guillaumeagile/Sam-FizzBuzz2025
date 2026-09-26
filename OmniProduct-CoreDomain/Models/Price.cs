@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace OmniProduct_CoreDomain.Models.Shared;
+namespace OmniProduct_CoreDomain.Models;
 
 // Not a real EF entity (it's [NotMapped] on Product, flattened into PriceAmount/PriceCurrency/...)
 // but it kept its data annotations from when someone tried to map it directly and gave up.
