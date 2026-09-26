@@ -1,4 +1,5 @@
 using OmniProduct_CoreDomain.Models;
+using OmniProduct_CoreDomain.Models.Shared;
 
 namespace OmniProduct_CoreDomain.Services;
 

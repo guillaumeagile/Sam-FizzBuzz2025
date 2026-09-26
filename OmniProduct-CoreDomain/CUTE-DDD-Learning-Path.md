@@ -64,9 +64,13 @@ This is the same journey we took with FizzBuzz — but applied to a real, messie
 **Problem**: Adding a new supplier or a new pricing region requires modifying existing classes. Pricing rules, regions, and supplier logic are all hardcoded.
 
 **Plan**:
-- Identify every place where adding a new business rule requires modifying existing code
-- Replace hardcoded logic with configurable, injectable collaborators
-- Design so that a new region or a new pricing rule is added without touching existing classes
+- A) Identify every place where adding a new business rule requires modifying existing code
+- B) Replace hardcoded logic with configurable, injectable collaborators
+- C) Design so that a new region or a new pricing rule could be added without touching existing classes
+
+
+
+
 
 **Learning Objective**: Composability is a prerequisite for working with a complex domain. If you can't add a supplier without breaking existing suppliers, the design is wrong.
 
@@ -78,10 +82,15 @@ This is the same journey we took with FizzBuzz — but applied to a real, messie
 **Problem**: The legacy code is full of implicit rules — status transitions happen silently, notifications fire as side effects of unrelated operations, ORM lazy-loading triggers unexpected queries.
 
 **Plan**:
-- Map every implicit behavior (side effects, hidden state transitions, magic flags)
-- Make each one explicit: named method, clear precondition, visible consequence
-- Replace implicit null checks with explicit absence modeling
+- A) Map every implicit behavior (side effects, hidden state transitions, magic flags)
+- B) Make each one explicit: named method, clear precondition, visible consequence
+- C) Replace implicit null checks with explicit absence modeling
 
+ A)  exemple
+    - margin , ne peut pas etre négatif ou supérieur à 100
+    - on ne peut pas vendre à perte 
+
+``
 **Learning Objective**: Predictable code is code you can reason about without running it. The domain model should make the business rules visible.
 
 ---

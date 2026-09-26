@@ -10,8 +10,13 @@
 
 
 
-** Exercise **
+## ** Exercise **
 
-extract a Product smallest entity that fits the Warehouse BC
+extract a Product smallest entity that fits the Storage BC
 
 keep only properties that are usefull for stocking the merchandise in a Warehouse
+
+
+## Assesment
+
+run your code through our harness (AI guided evalution) to verify you succeed this part

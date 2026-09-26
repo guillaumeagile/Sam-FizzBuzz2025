@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using OmniProduct_CoreDomain.Models.Shared;
 
 namespace OmniProduct_CoreDomain.Models;
 

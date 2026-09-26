@@ -1,5 +1,6 @@
 using AwesomeAssertions;
 using OmniProduct_CoreDomain.Models;
+using OmniProduct_CoreDomain.Models.Shared;
 using OmniProduct_CoreDomain.Services;
 
 namespace OmniProduct_Core.Test;
