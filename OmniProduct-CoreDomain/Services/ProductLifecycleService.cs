@@ -1,5 +1,6 @@
 using OmniProduct_CoreDomain.Events;
 using OmniProduct_CoreDomain.Models;
+using OmniProduct_CoreDomain.ValueObjects;
 
 namespace OmniProduct_CoreDomain.Services;
 

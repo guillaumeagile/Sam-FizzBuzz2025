@@ -1,4 +1,5 @@
 using OmniProduct_CoreDomain.Abstractions;
+using OmniProduct_CoreDomain.ValueObjects;
 
 namespace OmniProduct_CoreDomain.Models;
 
@@ -20,11 +21,7 @@ public class ProductPricing : IDentifiable
         return Price.GetResellerPrice();
     }
 
-    public void SetMargin(decimal marginPercent)
-    {
-        Price.Margin = marginPercent;
-        // use immutability here
-    }
+    public void SetMargin(decimal marginPercent) => Price = Price with { Margin = marginPercent };
 
     public string Id { get; set; }
 }

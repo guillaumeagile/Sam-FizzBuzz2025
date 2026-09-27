@@ -1,4 +1,4 @@
-namespace OmniProduct_CoreDomain.Models;
+namespace OmniProduct_CoreDomain.ValueObjects;
 
 public record Price
 {
@@ -6,7 +6,7 @@ public record Price
 
     public string Currency { get;  }
 
-    public decimal Margin { get;   }     // percentage
+    public decimal Margin { get; internal init; }     // percentage
 
     public decimal Vat { get;   }        // percentage, applied on margin only
 

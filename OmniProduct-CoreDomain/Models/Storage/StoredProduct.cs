@@ -1,9 +1,12 @@
+using OmniProduct_CoreDomain.Abstractions;
+
 namespace OmniProduct_CoreDomain.Models.Storage;
 
 // Storage BC: the smallest slice of Product needed to stock merchandise in a Warehouse.
 // No price, discounts, images, suppliers, or notifications - that's Catalog/Pricing/Sales concerns.
-public class StoredProduct
+public class StoredProduct : IDentifiable
 {
+    public string Id { get; set; }
     public string ProductId { get; set; }
 
     public double Weight { get; set; }
