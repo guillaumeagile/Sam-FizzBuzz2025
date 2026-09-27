@@ -114,7 +114,6 @@ public class Product
                 Recipient = supplier.Email,
                 Subject = $"Product sold: {Name}",
                 Body = $"{quantity} unit(s) of {Name} were sold. Remaining stock: {remainingStock}.",
-                Channel = "email",
                 SentAt = DateTime.Now
             });
         }
@@ -135,7 +134,6 @@ public class Product
                 Recipient = supplier.Email,
                 Subject = $"Product deprecated: {Name}",
                 Body = $"The product {Name} has been deprecated and removed from the catalog.",
-                Channel = "email",
                 SentAt = DateTime.Now
             });
         }
@@ -146,7 +144,6 @@ public class Product
             Recipient = "customers@omniproduct.com",
             Subject = $"Product no longer available: {Name}",
             Body = $"{Name} is no longer available.",
-            Channel = "email",
             SentAt = DateTime.Now
         });
     }

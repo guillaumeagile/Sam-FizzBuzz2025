@@ -10,8 +10,6 @@ public class Notification
 
     public string Body { get; set; }
 
-    public string Channel { get; set; }         // "email", "sms", "push"
-
     public DateTime SentAt { get; set; }
 
     public string ProductId { get; set; }
