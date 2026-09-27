@@ -2,23 +2,11 @@ namespace OmniProduct_CoreDomain.Models;
 
 public class Product
 {
-
     public string Id { get; set; }
-
 
     public string Name { get; set; }
 
-
     public string Slug { get; set; }
-
-    public Price Price { get; set; }
-
-    public List<string> Discounts { get; set; }
-
-    public Dictionary<string, string> Images { get; set; }          // key = context (e.g. "thumbnail", "hero"), value = url
-
-    public Dictionary<string, Supplier> SuppliersRegions { get; set; } // key = region, value = supplier
-
 
     public string Status { get; set; }
 
@@ -32,66 +20,13 @@ public class Product
     {
     }
 
-    public Product(string id, string name, string slug, Price price, List<string> discounts,
-                   Dictionary<string, string> images, Dictionary<string, Supplier> suppliersRegions)
+    public Product(string id, string name, string slug)
     {
         Id = id;
         Name = name;
         Slug = slug;
-        Price = price;
-        Discounts = discounts;
-        Images = images;
-        SuppliersRegions = suppliersRegions;
         Status = "active";
         CreatedAt = DateTime.Now;
-        UpdatedAt = DateTime.Now;
-    }
-
-    public string GetDisplayLabel(int stock)
-    {
-        if (Status == "deprecated")
-            return $"[DISCONTINUED] {Name}";
-        if (stock == 0)
-            return $"[OUT OF STOCK] {Name}";
-        return Name;
-    }
-
-    // --- Catalog / images / discounts ---
-
-    public void AddImage(string context, string url)
-    {
-        Images[context] = url;
-        UpdatedAt = DateTime.Now;
-    }
-
-    public void AddDiscount(string discountCode)
-    {
-        Discounts.Add(discountCode);
-        UpdatedAt = DateTime.Now;
-    }
-
-    // --- Suppliers ---
-
-    public void AddSupplierToRegion(string region, List<Supplier> suppliers)
-    {
-        var supplier = suppliers.FirstOrDefault(s => s.Region == region);
-        if (supplier == null)
-            throw new Exception($"No supplier found for region {region}");
-
-        SuppliersRegions[region] = supplier;
-        UpdatedAt = DateTime.Now;
-    }
-
-    // --- Pricing ---
-
-    public decimal GetResellerPrice()
-    {
-        return Price.GetResellerPrice();
-    }
-
-    public void SetMargin(decimal marginPercent)
-    {
-        Price.Margin = marginPercent;
         UpdatedAt = DateTime.Now;
     }
 
@@ -99,7 +34,7 @@ public class Product
 
     // Storage owns the actual stock decrement (see StoredProduct.Withdraw); this only
     // records the sale's effect on the catalog side: status flip and notifications.
-    public void Sell(int quantity, int remainingStock)
+    public void Sell(int quantity, int remainingStock, Dictionary<string, Supplier> suppliersRegions)
     {
         UpdatedAt = DateTime.Now;
 
@@ -107,7 +42,7 @@ public class Product
             Status = "out_of_stock";
 
         // Notify all regional suppliers
-        foreach (var (region, supplier) in SuppliersRegions)
+        foreach (var (region, supplier) in suppliersRegions)
         {
             Notifications.Add(new Notification
             {
@@ -121,13 +56,13 @@ public class Product
 
     // --- Lifecycle ---
 
-    public void Deprecate()
+    public void Deprecate(Dictionary<string, Supplier> suppliersRegions)
     {
         Status = "deprecated";
         UpdatedAt = DateTime.Now;
 
         // Notify all regional suppliers
-        foreach (var (region, supplier) in SuppliersRegions)
+        foreach (var (region, supplier) in suppliersRegions)
         {
             Notifications.Add(new Notification
             {

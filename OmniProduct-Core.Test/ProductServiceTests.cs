@@ -11,17 +11,10 @@ public class ProductServiceTests
     [Fact]
     public void Product_Name_ShouldBeSet()
     {
-        var price = new Price(100m, "EUR");
-        var supplier = new Supplier { Id = Guid.NewGuid(), Name = "Acme", Email = "acme@example.com", Region = "FR" };
-
         var product = new Product(
             id: "p1",
             name: "Super Widget",
-            slug: "super-widget",
-            price: price,
-            discounts: new List<string>(),
-            images: new Dictionary<string, string>(),
-            suppliersRegions: new Dictionary<string, Supplier> { { "FR", supplier } }
+            slug: "super-widget"
         );
 
         product.Name.Should().Be("Super Widget");
