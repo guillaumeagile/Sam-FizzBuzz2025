@@ -152,7 +152,6 @@ public class ProductService
                 Recipient = supplier.Email,
                 Subject = $"Sale confirmed: {product.Name}",
                 Body = $"Sold {quantity} of {product.Name}. Stock left: {storedProduct.Stock}.",
-                Channel = "email",
                 SentAt = DateTime.Now
             });
         }
@@ -172,7 +171,6 @@ public class ProductService
             Recipient = "customers@omniproduct.com",
             Subject = $"[Discontinued] {product.Name}",
             Body = $"We're sorry, {product.Name} has been discontinued.",
-            Channel = "email",
             SentAt = DateTime.Now
         });
     }
