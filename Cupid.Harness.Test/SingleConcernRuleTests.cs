@@ -11,9 +11,9 @@ public class SingleConcernRuleTests
         File.WriteAllText(path, """
             {
               "concerns": {
-                "Catalog": ["AddImage", "GetCatalog"],
-                "Pricing": ["GetResellerPrice", "SetMargin"],
-                "Storage": ["ReceiveStock"]
+                "Catalog": ["Image", "Catalog"],
+                "Pricing": ["ResellerPrice", "Margin"],
+                "Storage": ["Stock"]
               }
             }
             """);
@@ -58,8 +58,8 @@ public class SingleConcernRuleTests
             namespace Sample;
             public class CatalogService
             {
-                public void AddImage(string url) { }
-                public void GetCatalog() { }
+                public void ImagePost(string url) { }
+                public void ReadCatalog() { }
             }
             """);
 

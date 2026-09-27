@@ -31,6 +31,11 @@ pass/fail out, every time. Rule implementations and their pinning tests live in
 `Cupid.Harness/Rules/` and `Cupid.Harness.Test/`.
 
 
+### HA1 - C# idioms
+
+use FxCop to enforce C#14 style
+
+
 ### HA5 - no god class
 
 no class shall have more than 6 public properties

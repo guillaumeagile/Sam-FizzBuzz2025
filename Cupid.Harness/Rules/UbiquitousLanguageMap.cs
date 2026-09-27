@@ -36,7 +36,7 @@ public sealed class UbiquitousLanguageMap
     public IReadOnlyList<string> ConcernsFor(string methodName)
     {
         return _concerns
-            .Where(kv => kv.Value.Any(keyword => methodName.StartsWith(keyword, StringComparison.OrdinalIgnoreCase)))
+            .Where(kv => kv.Value.Any(keyword => methodName.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
             .Select(kv => kv.Key)
             .ToList();
     }
