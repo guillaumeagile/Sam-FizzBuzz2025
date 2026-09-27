@@ -4,9 +4,17 @@
     "Catalog": ["Image", "Discount", "Catalog", "DisplayLabel", "Slug"],
     "Pricing": ["ResellerPrice", "Margin", "Price", "Vat"],
     "Storage": ["Stock", "StoredProduct"],
-    "Supplier": ["Supplier", "SupplierToRegion"],
+    "Supplier": ["Supplier", "Region"],
     "Lifecycle": ["Product"],
     "Notification": ["Notifications", "Notification"],
-    "Transport": ["TransportationFee"]
+    "Transport": ["Fee"]
+  },
+  "restrictions": {
+    "Product": ["Image", "Discount", "Catalog", "DisplayLabel", "Slug"],
+    "Pricing": ["Slug", "Notifications"],
+    "Storage": [ ],
+    "Supplier": [ ],
+    "Lifecycle": [],
+    "Transport": []
   }
 }

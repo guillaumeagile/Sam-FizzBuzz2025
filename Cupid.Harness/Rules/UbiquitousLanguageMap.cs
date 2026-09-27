@@ -8,10 +8,14 @@ namespace Cupid.Harness.Rules;
 public sealed class UbiquitousLanguageMap
 {
     private readonly IReadOnlyDictionary<string, IReadOnlyList<string>> _concerns;
+    private readonly IReadOnlyDictionary<string, IReadOnlyList<string>> _restrictions;
 
-    private UbiquitousLanguageMap(IReadOnlyDictionary<string, IReadOnlyList<string>> concerns)
+    private UbiquitousLanguageMap(
+        IReadOnlyDictionary<string, IReadOnlyList<string>> concerns,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> restrictions)
     {
         _concerns = concerns;
+        _restrictions = restrictions;
     }
 
     public static UbiquitousLanguageMap Load(string path)
@@ -27,7 +31,18 @@ public sealed class UbiquitousLanguageMap
             concerns[concern.Name] = keywords;
         }
 
-        return new UbiquitousLanguageMap(concerns);
+        var restrictions = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+
+        if (doc.RootElement.TryGetProperty("restrictions", out var restrictionsElement))
+        {
+            foreach (var restriction in restrictionsElement.EnumerateObject())
+            {
+                var keywords = restriction.Value.EnumerateArray().Select(v => v.GetString()!).ToList();
+                restrictions[restriction.Name] = keywords;
+            }
+        }
+
+        return new UbiquitousLanguageMap(concerns, restrictions);
     }
 
     // Returns every concern whose vocabulary contains a keyword that the method name starts with
@@ -38,6 +53,19 @@ public sealed class UbiquitousLanguageMap
         return _concerns
             .Where(kv => kv.Value.Any(keyword => methodName.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
             .Select(kv => kv.Key)
+            .ToList();
+    }
+
+    // Returns every restricted keyword that the given method name contains (case-insensitive) for
+    // the named type, keyed by class/type name in the "restrictions" section of the map. A type
+    // with no restrictions entry is unrestricted.
+    public IReadOnlyList<string> RestrictedKeywordsFor(string typeName, string methodName)
+    {
+        if (!_restrictions.TryGetValue(typeName, out var keywords))
+            return Array.Empty<string>();
+
+        return keywords
+            .Where(keyword => methodName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
             .ToList();
     }
 }
