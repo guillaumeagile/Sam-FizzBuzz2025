@@ -12,9 +12,9 @@
   "restrictions": {
     "Product": ["Image", "Discount", "Catalog", "DisplayLabel", "Slug"],
     "Pricing": ["Slug", "Notifications"],
-    "Storage": [ ],
-    "Supplier": [ ],
-    "Lifecycle": [],
-    "Transport": []
+    "Storage": [ "Notifications"],
+    "Supplier": ["Notifications" ],
+    "Lifecycle": ["Notifications" ],
+    "Transport": ["Notifications"]
   }
 }
