@@ -8,9 +8,12 @@ public class FanOutRuleTests
     private readonly FanOutRule _rule = new(maxDistinctDomainTypes: 3);
 
     private const string IDentifiable = """
-        public interface IDentifiable
+        namespace OmniProduct_CoreDomain.Abstractions
         {
-            string Id { get; set; }
+            public interface IDentifiable
+            {
+                string Id { get; set; }
+            }
         }
 
         """;
@@ -19,7 +22,8 @@ public class FanOutRuleTests
     public void ClassTouchingFourEntityTypes_ShouldBeFlagged()
     {
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
-            namespace Sample;
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
             public class Supplier : IDentifiable { public string Id { get; set; } }
             public class Warehouse : IDentifiable { public string Id { get; set; } }
             public class Price : IDentifiable { public string Id { get; set; } }
@@ -51,7 +55,8 @@ public class FanOutRuleTests
     public void ClassTouchingThreeEntityTypes_ShouldPass()
     {
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
-            namespace Sample;
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
             public class Supplier : IDentifiable { public string Id { get; set; } }
             public class Warehouse : IDentifiable { public string Id { get; set; } }
             public class Price : IDentifiable { public string Id { get; set; } }
@@ -82,7 +87,7 @@ public class FanOutRuleTests
         // Value objects / services that don't implement IDentifiable are not entities, so a class
         // may reference more than the cap of them without tripping HA7.
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
-            namespace Sample;
+            namespace OmniProduct_CoreDomain.Models;
             public class Money { }
             public class Slug { }
             public class TaxRate { }
@@ -111,10 +116,46 @@ public class FanOutRuleTests
     }
 
     [Fact]
+    public void IDentifiableTypesOutsideModelsNamespace_ShouldNotCountTowardFanOut()
+    {
+        // HA9 should already forbid an IDentifiable implementer outside Models.*, but HA7 doesn't
+        // rely on that - it only trusts entities declared under OmniProduct_CoreDomain.Models.*.
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace Sample;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+            public class Price : IDentifiable { public string Id { get; set; } }
+            public class Notification : IDentifiable { public string Id { get; set; } }
+
+            public class ProductService
+            {
+                private readonly Supplier _supplier;
+                private readonly Warehouse _warehouse;
+                private readonly Price _price;
+                private readonly Notification _notification;
+
+                public ProductService(Supplier supplier, Warehouse warehouse, Price price, Notification notification)
+                {
+                    _supplier = supplier;
+                    _warehouse = warehouse;
+                    _price = price;
+                    _notification = notification;
+                }
+            }
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().BeEmpty();
+    }
+
+    [Fact]
     public void SelfReferences_ShouldNotCountTowardOwnFanOut()
     {
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
-            namespace Sample;
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
             public class Node : IDentifiable
             {
                 public string Id { get; set; }
