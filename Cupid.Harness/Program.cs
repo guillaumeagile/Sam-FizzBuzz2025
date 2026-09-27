@@ -64,6 +64,8 @@ var step1Dot1Rules = new IHarnessRule[]
     new NoGodClassRule(),
     new SingleConcernRule(languageMap.Value),
     new FanOutRule(),
+    new EntityMustImplementIdentifiableRule(),
+    new NoServicesInEntityConstructorRule(),
     new NoPersistenceInDomainRule(),
 };
 

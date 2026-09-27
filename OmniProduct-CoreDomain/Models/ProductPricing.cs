@@ -1,7 +1,9 @@
+using OmniProduct_CoreDomain.Abstractions;
+
 namespace OmniProduct_CoreDomain.Models;
 
 // Pricing concern for a Product: the Price value and margin operations, keyed back to the product by ProductId.
-public class ProductPricing
+public class ProductPricing : IDentifiable
 {
     public string ProductId { get; set; }
 
@@ -21,5 +23,8 @@ public class ProductPricing
     public void SetMargin(decimal marginPercent)
     {
         Price.Margin = marginPercent;
+        // use immutability here
     }
+
+    public string Id { get; set; }
 }

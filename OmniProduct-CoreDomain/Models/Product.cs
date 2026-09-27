@@ -1,6 +1,8 @@
+using OmniProduct_CoreDomain.Abstractions;
+
 namespace OmniProduct_CoreDomain.Models;
 
-public class Product
+public class Product : IDentifiable
 {
     public string Id { get; set; }
 

@@ -12,7 +12,7 @@ public class StorageService
     {
         var warehouse = new Warehouse
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.NewGuid().ToString(),
             Name = name,
             Address = address,
             Region = region
@@ -29,7 +29,7 @@ public class StorageService
         return warehouse;
     }
 
-    public StoredProduct AddStock(string productId, Guid warehouseId)
+    public StoredProduct AddStock(string productId, string warehouseId)
     {
         var storedProduct = new StoredProduct(
             productId: productId,

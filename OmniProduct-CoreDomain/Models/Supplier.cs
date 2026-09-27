@@ -1,8 +1,10 @@
+using OmniProduct_CoreDomain.Abstractions;
+
 namespace OmniProduct_CoreDomain.Models;
 
-public class Supplier
+public class Supplier: IDentifiable
 {
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 
     public string Name { get; set; }
 

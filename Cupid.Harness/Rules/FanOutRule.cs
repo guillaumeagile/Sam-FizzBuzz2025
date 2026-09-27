@@ -3,15 +3,17 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA7 - Fan-out (Unix Philosophy proxy): counts the distinct ENTITY types (types declared in the
-// analyzed sources that implement IDentifiable, not every domain type, and not BCL/primitives)
-// that a class directly touches via fields, parameters, and local variables. A class wiring
-// together many unrelated entities is orchestrating too many concerns at once, even if HA5
-// (public property count) and HA6 (method-name vocabulary) don't catch it - e.g. a class with few
-// properties but a constructor pulling in five entity collaborators. Value objects, services, and
-// other non-entity domain types don't count - only types that opt into identity via IDentifiable.
+// HA7 - Fan-out (Unix Philosophy proxy): counts the distinct ENTITY types - types declared under
+// OmniProduct_CoreDomain.Models.* that implement IDentifiable (see HA9), not every domain type,
+// and not BCL/primitives - that a class directly touches via fields, parameters, and local
+// variables. A class wiring together many unrelated entities is orchestrating too many concerns
+// at once, even if HA5 (public property count) and HA6 (method-name vocabulary) don't catch it -
+// e.g. a class with few properties but a constructor pulling in five entity collaborators. Value
+// objects, services, and other non-entity types don't count, and neither does an IDentifiable
+// implementer living outside Models.* (HA9 should already forbid that; HA7 doesn't rely on it).
 public sealed class FanOutRule : IHarnessRule
 {
+    private const string EntityNamespacePrefix = "OmniProduct_CoreDomain.Models";
     private const string EntityMarkerInterfaceName = "IDentifiable";
 
     private readonly int _maxDistinctDomainTypes;
@@ -38,7 +40,7 @@ public sealed class FanOutRule : IHarnessRule
             {
                 var typeSymbol = model.GetDeclaredSymbol(typeDecl) as ITypeSymbol;
 
-                if (typeSymbol != null && ImplementsEntityMarker(typeSymbol))
+                if (typeSymbol != null && IsEntity(typeSymbol))
                 {
                     entityTypeNames.Add(typeDecl.Identifier.Text);
                 }
@@ -80,8 +82,15 @@ public sealed class FanOutRule : IHarnessRule
         return violations;
     }
 
-    private static bool ImplementsEntityMarker(ITypeSymbol typeSymbol)
+    private static bool IsEntity(ITypeSymbol typeSymbol)
     {
-        return typeSymbol.AllInterfaces.Any(i => i.Name == EntityMarkerInterfaceName);
+        return IsInEntityNamespace(typeSymbol) && typeSymbol.AllInterfaces.Any(i => i.Name == EntityMarkerInterfaceName);
+    }
+
+    private static bool IsInEntityNamespace(ITypeSymbol typeSymbol)
+    {
+        var ns = typeSymbol.ContainingNamespace?.ToDisplayString();
+        return ns != null
+               && (ns == EntityNamespacePrefix || ns.StartsWith(EntityNamespacePrefix + ".", StringComparison.Ordinal));
     }
 }

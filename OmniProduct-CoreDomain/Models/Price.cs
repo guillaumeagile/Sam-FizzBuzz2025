@@ -1,16 +1,14 @@
 namespace OmniProduct_CoreDomain.Models;
 
-public class Price
+public record Price
 {
-    public int Id { get; set; }
+    public decimal Amount { get;   }
 
-    public decimal Amount { get; set; }
+    public string Currency { get;  }
 
-    public string Currency { get; set; }
+    public decimal Margin { get;   }     // percentage
 
-    public decimal Margin { get; set; }     // percentage
-
-    public decimal Vat { get; set; }        // percentage, applied on margin only
+    public decimal Vat { get;   }        // percentage, applied on margin only
 
     public Price(decimal amount, string currency)
     {

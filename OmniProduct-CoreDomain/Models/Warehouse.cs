@@ -1,10 +1,11 @@
+using OmniProduct_CoreDomain.Abstractions;
 using OmniProduct_CoreDomain.Models.Storage;
 
 namespace OmniProduct_CoreDomain.Models;
 
-public class Warehouse
+public class Warehouse : IDentifiable
 {
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 
     public string Name { get; set; }
 

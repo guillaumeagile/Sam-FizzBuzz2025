@@ -1,8 +1,10 @@
-namespace OmniProduct_CoreDomain.Models;
+using OmniProduct_CoreDomain.Abstractions;
 
-public class Notification
+namespace OmniProduct_CoreDomain.Events;
+
+public class Notification : IDentifiable
 {
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 
     public string Recipient { get; set; }
 

@@ -1,3 +1,4 @@
+using OmniProduct_CoreDomain.Events;
 using OmniProduct_CoreDomain.Models;
 
 namespace OmniProduct_CoreDomain.Services;

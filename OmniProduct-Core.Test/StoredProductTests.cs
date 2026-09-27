@@ -13,7 +13,7 @@ public class StoredProductTests
             weight: 0.5,
             dimensions: "10x5x3",
             stock: stock,
-            warehouseId: Guid.NewGuid()
+            warehouseId: Guid.NewGuid().ToString()
         );
     }
 

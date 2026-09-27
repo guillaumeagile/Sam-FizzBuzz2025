@@ -1,7 +1,9 @@
+using OmniProduct_CoreDomain.Abstractions;
+
 namespace OmniProduct_CoreDomain.Models;
 
 // Supplier concern for a Product: which supplier serves which region, keyed back to the product by ProductId.
-public class ProductSuppliers
+public class ProductSuppliers : IDentifiable
 {
     public string ProductId { get; set; }
 
@@ -21,4 +23,6 @@ public class ProductSuppliers
 
         SuppliersRegions[region] = supplier;
     }
+
+    public string Id { get; set; }
 }

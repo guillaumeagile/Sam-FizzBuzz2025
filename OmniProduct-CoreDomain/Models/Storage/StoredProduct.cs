@@ -11,9 +11,9 @@ public class StoredProduct
 
     public int Stock { get; set; }
 
-    public Guid WarehouseId { get; set; }
+    public string WarehouseId { get; set; }
 
-    public StoredProduct(string productId, double weight, string dimensions, int stock, Guid warehouseId)
+    public StoredProduct(string productId, double weight, string dimensions, int stock, string warehouseId)
     {
         ProductId = productId;
         Weight = weight;

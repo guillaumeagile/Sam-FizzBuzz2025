@@ -11,7 +11,7 @@ public class SupplierService
     {
         var supplier = new Supplier
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.NewGuid().ToString(),
             Name = name,
             Email = email,
             Region = region

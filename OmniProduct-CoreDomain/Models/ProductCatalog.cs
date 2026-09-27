@@ -1,7 +1,9 @@
+using OmniProduct_CoreDomain.Abstractions;
+
 namespace OmniProduct_CoreDomain.Models;
 
 // Catalog concern for a Product: images and discounts, keyed back to the product by ProductId.
-public class ProductCatalog
+public class ProductCatalog : IDentifiable
 {
     public string ProductId { get; set; }
 
@@ -37,4 +39,6 @@ public class ProductCatalog
     {
         Discounts.Add(discountCode);
     }
+
+    public string Id { get; set; }
 }
