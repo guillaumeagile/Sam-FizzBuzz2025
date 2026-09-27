@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # CUPID step 1.2 harness.
 #
-# Deterministic, non-AI checks for the HA1-HA4 assessment criteria described in
+# Deterministic, non-AI checks for the HA1-HA4/HA11 assessment criteria described in
 # CUPID-step1-2.md:
-#   HA1 - C# idioms          -> built-in Roslyn analyzers via .editorconfig, enforced as build errors
-#   HA2 - immutable data     -> Cupid.Harness structural rule (records only, no setters, no mutable collections)
-#   HA3 - ADT / pseudo-union -> Cupid.Harness structural rule (abstract base + sealed leaves)
-#   HA4 - Composable         -> Cupid.Harness structural rule (no class/record inheritance)
+#   HA1  - C# idioms          -> built-in Roslyn analyzers via .editorconfig, enforced as build errors
+#   HA2  - immutable data     -> Cupid.Harness structural rule (records only, no setters, no mutable collections)
+#   HA3  - ADT / pseudo-union -> Cupid.Harness structural rule (abstract base + sealed leaves)
+#   HA4  - Composable         -> Cupid.Harness structural rule (no class/record inheritance)
+#   HA11 - Records are VOs    -> Cupid.Harness structural rule (records never implement IDentifiable; Price must be one)
 #
 # Exit code is 0 only if every layer passes. Safe to run repeatedly (no state, no network).
 
@@ -33,12 +34,12 @@ fi
 
 echo
 echo "=============================================="
-echo " HA2-HA4 - structural checks (Cupid.Harness)"
+echo " HA2-HA4, HA11 - structural checks (Cupid.Harness)"
 echo "=============================================="
 if dotnet run --project "$HARNESS_PROJECT" -c Release -- --step 1.2 "$TARGET_PROJECT"; then
-    echo "[PASS] HA2-HA4"
+    echo "[PASS] HA2-HA4, HA11"
 else
-    echo "[FAIL] HA2-HA4"
+    echo "[FAIL] HA2-HA4, HA11"
     overall_status=1
 fi
 

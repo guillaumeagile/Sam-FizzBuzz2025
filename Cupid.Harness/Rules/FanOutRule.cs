@@ -3,14 +3,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA7 - Fan-out (Unix Philosophy proxy): counts the distinct ENTITY types - types declared under
-// OmniProduct_CoreDomain.Models.* that implement IDentifiable (see HA9), not every domain type,
-// and not BCL/primitives - that a class directly touches via fields, parameters, and local
-// variables. A class wiring together many unrelated entities is orchestrating too many concerns
+// HA7 - Fan-out (Unix Philosophy proxy): applies only to ENTITIES - types declared under
+// OmniProduct_CoreDomain.Models.* that implement IDentifiable (see HA9) - and counts the distinct
+// entity types (same definition) that entity directly touches via fields, parameters, and local
+// variables. An entity wiring together many unrelated entities is orchestrating too many concerns
 // at once, even if HA5 (public property count) and HA6 (method-name vocabulary) don't catch it -
-// e.g. a class with few properties but a constructor pulling in five entity collaborators. Value
-// objects, services, and other non-entity types don't count, and neither does an IDentifiable
-// implementer living outside Models.* (HA9 should already forbid that; HA7 doesn't rely on it).
+// e.g. an entity with few properties but a constructor pulling in five entity collaborators.
+// Services, value objects, and any other non-entity class are out of scope for this rule entirely
+// - a service is expected to wire together many collaborators; that's HA10's concern, not HA7's.
 public sealed class FanOutRule : IHarnessRule
 {
     private const string EntityNamespacePrefix = "OmniProduct_CoreDomain.Models";
@@ -24,7 +24,7 @@ public sealed class FanOutRule : IHarnessRule
     }
 
     public string Id => "HA7";
-    public string Name => $"Fan-out (a class touches at most {_maxDistinctDomainTypes} distinct entity type(s))";
+    public string Name => $"Fan-out (an entity touches at most {_maxDistinctDomainTypes} distinct entity type(s))";
 
     public IReadOnlyList<Violation> Check(IReadOnlyList<SyntaxTree> trees, Compilation compilation)
     {
@@ -53,6 +53,9 @@ public sealed class FanOutRule : IHarnessRule
 
             foreach (var typeDecl in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
             {
+                if (!entityTypeNames.Contains(typeDecl.Identifier.Text))
+                    continue; // HA7 only applies to entities; services/value objects are out of scope.
+
                 var referencedTypeNames = new SortedSet<string>(StringComparer.Ordinal);
 
                 foreach (var identifier in typeDecl.DescendantNodes().OfType<IdentifierNameSyntax>())
@@ -74,7 +77,7 @@ public sealed class FanOutRule : IHarnessRule
                     violations.Add(new Violation(
                         tree.FilePath,
                         typeDecl.Identifier.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
-                        $"'{typeDecl.Identifier.Text}' directly references {referencedTypeNames.Count} distinct entity types: {string.Join(", ", referencedTypeNames)}. Split responsibilities so each class collaborates with fewer entities."));
+                        $"'{typeDecl.Identifier.Text}' directly references {referencedTypeNames.Count} distinct entity types: {string.Join(", ", referencedTypeNames)}. Split responsibilities so each entity collaborates with fewer entities."));
                 }
             }
         }

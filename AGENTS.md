@@ -39,7 +39,7 @@ directory:
 
 ```
 ./cupid-step-1-1.harness.sh   # HA1, HA5-HA10: idioms, god class, single concern, fan-out, no persistence in domain, entities implement IDentifiable, no services in entity ctors
-./cupid-step-1-2.harness.sh   # HA1-HA4: idioms, immutability, ADT, no inheritance (composable)
+./cupid-step-1-2.harness.sh   # HA1-HA4, HA11: idioms, immutability, ADT, no inheritance (composable), records are Value Objects
 ```
 
 These build the exercise project with Roslyn analyzers promoted to errors, then run
