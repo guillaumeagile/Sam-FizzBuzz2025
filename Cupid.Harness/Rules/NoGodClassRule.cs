@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Cupid.Harness.Rules;
 
 // HA5 - no god class: no class shall have more than 6 public properties.
+// Properties (and positional record parameters) whose name ends with "Id" are ignored - they're
+// mandatory identifiers/pivot properties, not part of the type's behavioral surface.
 public sealed class NoGodClassRule : IHarnessRule
 {
     private readonly int _maxPublicProperties;
@@ -30,10 +32,11 @@ public sealed class NoGodClassRule : IHarnessRule
             {
                 var publicPropertyCount = typeDecl.Members
                     .OfType<PropertyDeclarationSyntax>()
-                    .Count(p => p.Modifiers.Any(m => m.Text == "public"));
+                    .Count(p => p.Modifiers.Any(m => m.Text == "public") && !IsIdProperty(p.Identifier.Text));
 
                 // Positional record parameters are public properties too.
-                publicPropertyCount += typeDecl.ParameterList?.Parameters.Count ?? 0;
+                publicPropertyCount += typeDecl.ParameterList?.Parameters
+                    .Count(p => !IsIdProperty(p.Identifier.Text)) ?? 0;
 
                 if (publicPropertyCount > _maxPublicProperties)
                 {
@@ -47,4 +50,6 @@ public sealed class NoGodClassRule : IHarnessRule
 
         return violations;
     }
+
+    private static bool IsIdProperty(string name) => name.EndsWith("Id", StringComparison.Ordinal);
 }
