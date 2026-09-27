@@ -10,7 +10,7 @@ public sealed class NoGodClassRule : IHarnessRule
 {
     private readonly int _maxPublicProperties;
 
-    public NoGodClassRule(int maxPublicProperties = 6)
+    public NoGodClassRule(int maxPublicProperties = 4)
     {
         _maxPublicProperties = maxPublicProperties;
     }
