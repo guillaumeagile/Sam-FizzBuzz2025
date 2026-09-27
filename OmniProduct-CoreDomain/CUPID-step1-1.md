@@ -51,9 +51,11 @@ mixing responsibilities - the exact `ProductService`/`Product` smell this exerci
 ### HA7 - Fan-out
 
 a class may directly reference (via fields, constructor/method parameters, or local variables) at
-most 3 distinct domain types (types declared in this codebase, not BCL/framework types). A class
-wiring together many unrelated domain types is orchestrating too many concerns even if it stays
-under the HA5 property cap or doesn't trip HA6's vocabulary check.
+most 3 distinct entity types - types declared in this codebase that implement `IDentifiable`, not
+every domain type and not BCL/framework types. Value objects and services don't count toward the
+cap; only types that opt into identity via `IDentifiable` do. A class wiring together many
+unrelated entities is orchestrating too many concerns even if it stays under the HA5 property cap
+or doesn't trip HA6's vocabulary check.
 
 ### HA8 - No Persistence in Domain
 
@@ -72,3 +74,21 @@ map (which would only catch it as "one more concern among others"), HA8 makes it
 a domain type either stays free of ORM vocabulary entirely, or the harness fails, regardless of
 how many other concerns it mixes in. Move the mapping into the `DbContext` (fluent API) or a
 dedicated infrastructure/mapping type instead.
+
+### HA9 - Entities must implement `IDentifiable`
+
+closes a loophole HA7 would otherwise leave open: HA7 only counts fan-out toward types that
+implement `IDentifiable`, so a type could dodge the fan-out cap simply by not implementing the
+interface. HA9 makes the namespace/interface pairing mandatory - every class or record declared
+under `OmniProduct_CoreDomain.Models` (or a nested namespace under it) must implement
+`IDentifiable`. If a type in that namespace is really a value object or service, move it out of
+`Models`; if it's an entity, implement `IDentifiable`.
+
+### HA10 - No services in entity constructors
+
+an entity (a type implementing `IDentifiable`, see HA9) must not take a service - a type living
+under `OmniProduct_CoreDomain.Services.*` or simply named `*Service` - as a constructor parameter
+(including a record's primary constructor). An entity models data and identity; it should be
+constructible from plain values, value objects, or other entities. Accepting a service inverts the
+dependency direction the workshop is teaching - services depend on entities, never the other way
+round. Move the orchestration into the service layer instead.

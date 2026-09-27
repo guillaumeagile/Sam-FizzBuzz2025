@@ -7,15 +7,23 @@ public class FanOutRuleTests
 {
     private readonly FanOutRule _rule = new(maxDistinctDomainTypes: 3);
 
+    private const string IDentifiable = """
+        public interface IDentifiable
+        {
+            string Id { get; set; }
+        }
+
+        """;
+
     [Fact]
-    public void ClassTouchingFourDomainTypes_ShouldBeFlagged()
+    public void ClassTouchingFourEntityTypes_ShouldBeFlagged()
     {
-        var (trees, compilation) = RuleTestHarness.Compile("""
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             namespace Sample;
-            public class Supplier { }
-            public class Warehouse { }
-            public class Price { }
-            public class Notification { }
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+            public class Price : IDentifiable { public string Id { get; set; } }
+            public class Notification : IDentifiable { public string Id { get; set; } }
 
             public class ProductService
             {
@@ -36,17 +44,17 @@ public class FanOutRuleTests
 
         var violations = _rule.Check(trees, compilation);
 
-        violations.Should().ContainSingle(v => v.Message.Contains("ProductService") && v.Message.Contains("4 distinct domain types"));
+        violations.Should().ContainSingle(v => v.Message.Contains("ProductService") && v.Message.Contains("4 distinct entity types"));
     }
 
     [Fact]
-    public void ClassTouchingThreeDomainTypes_ShouldPass()
+    public void ClassTouchingThreeEntityTypes_ShouldPass()
     {
-        var (trees, compilation) = RuleTestHarness.Compile("""
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             namespace Sample;
-            public class Supplier { }
-            public class Warehouse { }
-            public class Price { }
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+            public class Price : IDentifiable { public string Id { get; set; } }
 
             public class ProductService
             {
@@ -69,12 +77,47 @@ public class FanOutRuleTests
     }
 
     [Fact]
+    public void NonEntityDomainTypes_ShouldNotCountTowardFanOut()
+    {
+        // Value objects / services that don't implement IDentifiable are not entities, so a class
+        // may reference more than the cap of them without tripping HA7.
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace Sample;
+            public class Money { }
+            public class Slug { }
+            public class TaxRate { }
+            public class Margin { }
+
+            public class PricingCalculator
+            {
+                private readonly Money _money;
+                private readonly Slug _slug;
+                private readonly TaxRate _taxRate;
+                private readonly Margin _margin;
+
+                public PricingCalculator(Money money, Slug slug, TaxRate taxRate, Margin margin)
+                {
+                    _money = money;
+                    _slug = slug;
+                    _taxRate = taxRate;
+                    _margin = margin;
+                }
+            }
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().BeEmpty();
+    }
+
+    [Fact]
     public void SelfReferences_ShouldNotCountTowardOwnFanOut()
     {
-        var (trees, compilation) = RuleTestHarness.Compile("""
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             namespace Sample;
-            public class Node
+            public class Node : IDentifiable
             {
+                public string Id { get; set; }
                 public Node? Next { get; set; }
             }
             """);
