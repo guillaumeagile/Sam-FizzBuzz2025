@@ -19,8 +19,77 @@ public class FanOutRuleTests
         """;
 
     [Fact]
-    public void ClassTouchingFourEntityTypes_ShouldBeFlagged()
+    public void EntityTouchingFourEntityTypes_ShouldBeFlagged()
     {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+            public class Price : IDentifiable { public string Id { get; set; } }
+            public class Notification : IDentifiable { public string Id { get; set; } }
+
+            public class Product : IDentifiable
+            {
+                public string Id { get; set; }
+
+                private readonly Supplier _supplier;
+                private readonly Warehouse _warehouse;
+                private readonly Price _price;
+                private readonly Notification _notification;
+
+                public Product(Supplier supplier, Warehouse warehouse, Price price, Notification notification)
+                {
+                    _supplier = supplier;
+                    _warehouse = warehouse;
+                    _price = price;
+                    _notification = notification;
+                }
+            }
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().ContainSingle(v => v.Message.Contains("Product") && v.Message.Contains("4 distinct entity types"));
+    }
+
+    [Fact]
+    public void EntityTouchingThreeEntityTypes_ShouldPass()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+            public class Price : IDentifiable { public string Id { get; set; } }
+
+            public class Product : IDentifiable
+            {
+                public string Id { get; set; }
+
+                private readonly Supplier _supplier;
+                private readonly Warehouse _warehouse;
+                private readonly Price _price;
+
+                public Product(Supplier supplier, Warehouse warehouse, Price price)
+                {
+                    _supplier = supplier;
+                    _warehouse = warehouse;
+                    _price = price;
+                }
+            }
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void NonEntityClassTouchingFourEntityTypes_ShouldNotBeFlagged()
+    {
+        // HA7 only applies to entities. A service wiring together many entities is expected -
+        // that's what services do - and is out of scope for this rule entirely.
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             namespace OmniProduct_CoreDomain.Models;
             using OmniProduct_CoreDomain.Abstractions;
@@ -48,59 +117,32 @@ public class FanOutRuleTests
 
         var violations = _rule.Check(trees, compilation);
 
-        violations.Should().ContainSingle(v => v.Message.Contains("ProductService") && v.Message.Contains("4 distinct entity types"));
-    }
-
-    [Fact]
-    public void ClassTouchingThreeEntityTypes_ShouldPass()
-    {
-        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
-            namespace OmniProduct_CoreDomain.Models;
-            using OmniProduct_CoreDomain.Abstractions;
-            public class Supplier : IDentifiable { public string Id { get; set; } }
-            public class Warehouse : IDentifiable { public string Id { get; set; } }
-            public class Price : IDentifiable { public string Id { get; set; } }
-
-            public class ProductService
-            {
-                private readonly Supplier _supplier;
-                private readonly Warehouse _warehouse;
-                private readonly Price _price;
-
-                public ProductService(Supplier supplier, Warehouse warehouse, Price price)
-                {
-                    _supplier = supplier;
-                    _warehouse = warehouse;
-                    _price = price;
-                }
-            }
-            """);
-
-        var violations = _rule.Check(trees, compilation);
-
         violations.Should().BeEmpty();
     }
 
     [Fact]
     public void NonEntityDomainTypes_ShouldNotCountTowardFanOut()
     {
-        // Value objects / services that don't implement IDentifiable are not entities, so a class
-        // may reference more than the cap of them without tripping HA7.
+        // Value objects that don't implement IDentifiable are not entities, so an entity may
+        // reference more than the cap of them without tripping HA7.
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
             public class Money { }
             public class Slug { }
             public class TaxRate { }
             public class Margin { }
 
-            public class PricingCalculator
+            public class Product : IDentifiable
             {
+                public string Id { get; set; }
+
                 private readonly Money _money;
                 private readonly Slug _slug;
                 private readonly TaxRate _taxRate;
                 private readonly Margin _margin;
 
-                public PricingCalculator(Money money, Slug slug, TaxRate taxRate, Margin margin)
+                public Product(Money money, Slug slug, TaxRate taxRate, Margin margin)
                 {
                     _money = money;
                     _slug = slug;
@@ -116,10 +158,11 @@ public class FanOutRuleTests
     }
 
     [Fact]
-    public void IDentifiableTypesOutsideModelsNamespace_ShouldNotCountTowardFanOut()
+    public void IDentifiableTypesOutsideModelsNamespace_ShouldNotCountTowardFanOutOrBeSubjectToIt()
     {
         // HA9 should already forbid an IDentifiable implementer outside Models.*, but HA7 doesn't
-        // rely on that - it only trusts entities declared under OmniProduct_CoreDomain.Models.*.
+        // rely on that - it only trusts entities declared under OmniProduct_CoreDomain.Models.*,
+        // both as the type under test and as what counts toward its fan-out.
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             namespace Sample;
             using OmniProduct_CoreDomain.Abstractions;
@@ -128,14 +171,16 @@ public class FanOutRuleTests
             public class Price : IDentifiable { public string Id { get; set; } }
             public class Notification : IDentifiable { public string Id { get; set; } }
 
-            public class ProductService
+            public class Product : IDentifiable
             {
+                public string Id { get; set; }
+
                 private readonly Supplier _supplier;
                 private readonly Warehouse _warehouse;
                 private readonly Price _price;
                 private readonly Notification _notification;
 
-                public ProductService(Supplier supplier, Warehouse warehouse, Price price, Notification notification)
+                public Product(Supplier supplier, Warehouse warehouse, Price price, Notification notification)
                 {
                     _supplier = supplier;
                     _warehouse = warehouse;
@@ -171,14 +216,17 @@ public class FanOutRuleTests
     [Fact]
     public void BclTypes_ShouldNotCountTowardFanOut()
     {
-        var (trees, compilation) = RuleTestHarness.Compile("""
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             using System;
             using System.Collections.Generic;
-            namespace Sample;
-            public class Widget
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Widget : IDentifiable
             {
+                public string Id { get; set; }
+
                 private readonly List<string> _tags = new();
-                private readonly Guid _id = Guid.NewGuid();
+                private readonly Guid _guid = Guid.NewGuid();
                 private readonly DateTime _createdAt = DateTime.Now;
                 private readonly Dictionary<string, string> _images = new();
             }

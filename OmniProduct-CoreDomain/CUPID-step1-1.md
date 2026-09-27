@@ -50,13 +50,16 @@ mixing responsibilities - the exact `ProductService`/`Product` smell this exerci
 
 ### HA7 - Fan-out
 
-a class may directly reference (via fields, constructor/method parameters, or local variables) at
-most 3 distinct entity types - types declared under `OmniProduct_CoreDomain.Models.*` that
-implement `IDentifiable` (see HA9), not every domain type and not BCL/framework types. Value
-objects and services don't count toward the cap, and neither does an `IDentifiable` implementer
-declared outside `Models.*` (HA9 should already forbid that; HA7 checks the namespace itself
-rather than relying on it). A class wiring together many unrelated entities is orchestrating too
-many concerns even if it stays under the HA5 property cap or doesn't trip HA6's vocabulary check.
+applies only to entities - types declared under `OmniProduct_CoreDomain.Models.*` that implement
+`IDentifiable` (see HA9). An entity may directly reference (via fields, constructor/method
+parameters, or local variables) at most 3 distinct entity types, using that same definition - not
+every domain type and not BCL/framework types. Value objects and services don't count toward the
+cap, and neither does an `IDentifiable` implementer declared outside `Models.*` (HA9 should
+already forbid that; HA7 checks the namespace itself rather than relying on it). Non-entity
+classes (services, value objects) are entirely out of scope for this rule - a service wiring
+together many entities is expected and is HA10's concern, not HA7's. An entity wiring together
+many unrelated entities is orchestrating too many concerns even if it stays under the HA5 property
+cap or doesn't trip HA6's vocabulary check.
 
 ### HA8 - No Persistence in Domain
 
