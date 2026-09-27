@@ -5,13 +5,16 @@ public class ProductCatalog
 {
     public string ProductId { get; set; }
 
+    public string Slug { get; set; }
+
     public Dictionary<string, string> Images { get; set; }          // key = context (e.g. "thumbnail", "hero"), value = url
 
     public List<string> Discounts { get; set; }
 
-    public ProductCatalog(string productId, Dictionary<string, string> images, List<string> discounts)
+    public ProductCatalog(string productId, string slug, Dictionary<string, string> images, List<string> discounts)
     {
         ProductId = productId;
+        Slug = slug;
         Images = images;
         Discounts = discounts;
     }

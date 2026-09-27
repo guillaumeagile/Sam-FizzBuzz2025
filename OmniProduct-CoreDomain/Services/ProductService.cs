@@ -37,7 +37,7 @@ public class ProductService
         );
 
         _products.Add(product);
-        _catalogs.Add(new ProductCatalog(product.Id, new Dictionary<string, string>(), new List<string>()));
+        _catalogs.Add(new ProductCatalog(product.Id, "sluguish", new Dictionary<string, string>(), new List<string>()));
         _pricings.Add(new ProductPricing(product.Id, price));
         _productSuppliers.Add(new ProductSuppliers(product.Id, suppliersRegions));
 
