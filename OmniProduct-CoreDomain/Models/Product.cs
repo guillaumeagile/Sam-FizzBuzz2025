@@ -28,53 +28,20 @@ public class Product
     // --- Sales ---
 
     // Storage owns the actual stock decrement (see StoredProduct.Withdraw); this only
-    // records the sale's effect on the catalog side: status flip and notifications.
-    public void Sell(int quantity, int remainingStock, Dictionary<string, Supplier> suppliersRegions)
+    // records the sale's effect on the catalog side: status flip.
+    public void Sell(int remainingStock)
     {
         UpdatedAt = DateTime.Now;
 
         if (remainingStock == 0)
             Status = "out_of_stock";
-
-        // Notify all regional suppliers
-        foreach (var (region, supplier) in suppliersRegions)
-        {
-            Notifications.Add(new Notification
-            {
-                Recipient = supplier.Email,
-                Subject = $"Product sold: {Name}",
-                Body = $"{quantity} unit(s) of {Name} were sold. Remaining stock: {remainingStock}.",
-                SentAt = DateTime.Now
-            });
-        }
     }
 
     // --- Lifecycle ---
 
-    public void Deprecate(Dictionary<string, Supplier> suppliersRegions)
+    public void Deprecate()
     {
         Status = "deprecated";
         UpdatedAt = DateTime.Now;
-
-        // Notify all regional suppliers
-        foreach (var (region, supplier) in suppliersRegions)
-        {
-            Notifications.Add(new Notification
-            {
-                Recipient = supplier.Email,
-                Subject = $"Product deprecated: {Name}",
-                Body = $"The product {Name} has been deprecated and removed from the catalog.",
-                SentAt = DateTime.Now
-            });
-        }
-
-        // Notify customers
-        Notifications.Add(new Notification
-        {
-            Recipient = "customers@omniproduct.com",
-            Subject = $"Product no longer available: {Name}",
-            Body = $"{Name} is no longer available.",
-            SentAt = DateTime.Now
-        });
     }
 }

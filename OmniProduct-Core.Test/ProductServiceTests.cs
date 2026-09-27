@@ -25,9 +25,9 @@ public class ProductServiceTests
     [Fact]
     public void AddSupplier_ShouldReturnSupplierWithCorrectRegion()
     {
-        var service = new ProductService();
+        var supplierService = new SupplierService();
 
-        var supplier = service.AddSupplier("Acme", "acme@example.com", "FR");
+        var supplier = supplierService.AddSupplier("Acme", "acme@example.com", "FR");
 
         supplier.Region.Should().Be("FR");
     }
@@ -37,38 +37,43 @@ public class ProductServiceTests
     [Fact]
     public void FullProductLifecycle_ShouldWork()
     {
-        var service = new ProductService();
+        var pricingService = new PricingService();
+        var supplierService = new SupplierService();
+        var storageService = new StorageService();
+        var notificationService = new NotificationService();
+        var productLifecycleService = new ProductLifecycleService(pricingService, supplierService, storageService, notificationService);
+        var catalogService = new CatalogService(productLifecycleService, supplierService);
 
-        var supplier = service.AddSupplier("Acme", "acme@example.com", "FR");
-        var warehouse = service.AddWarehouse("Paris Hub", "1 rue de la Paix", "FR");
+        var supplier = supplierService.AddSupplier("Acme", "acme@example.com", "FR");
+        var warehouse = storageService.AddWarehouse("Paris Hub", "1 rue de la Paix", "FR");
 
-        var product = service.AddProduct("Super Widget", "FR", 100m, "EUR");
-        var storedProduct = service.GetStoredProduct(product.Id);
+        var product = catalogService.CreateListing("Super Widget", "FR", 100m, "EUR");
+        var storedProduct = storageService.GetStock(product.Id);
 
         product.Should().NotBeNull();
         product.Name.Should().Be("Super Widget");
         storedProduct.Stock.Should().Be(0);
         product.Status.Should().Be("active");
 
-        service.ReceiveStock(product.Id, 50);
+        storageService.ReceiveStock(product.Id, 50);
         storedProduct.Stock.Should().Be(50);
 
-        service.SellProduct(product.Id, 10);
+        productLifecycleService.SellProduct(product.Id, 10);
         storedProduct.Stock.Should().Be(40);
         product.Status.Should().Be("active");
 
-        service.SellProduct(product.Id, 40);
+        productLifecycleService.SellProduct(product.Id, 40);
         storedProduct.Stock.Should().Be(0);
         product.Status.Should().Be("out_of_stock");
 
-        var resellerPrice = service.GetResellerPrice(product.Id);
+        var resellerPrice = pricingService.GetResellerPrice(product.Id);
         resellerPrice.Should().Be(124m); // 100 + 20% margin + 20% VAT on margin
 
-        service.DeprecateProduct(product.Id);
+        productLifecycleService.DeprecateProduct(product.Id);
         product.Status.Should().Be("deprecated");
         storedProduct.Stock.Should().Be(0);
 
-        var catalog = service.GetCatalog("FR");
+        var catalog = catalogService.GetCatalog("FR");
         catalog.Should().NotContain(p => p.Id == product.Id);
     }
 }
