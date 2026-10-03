@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using OmniProduct_CoreDomain.Abstractions;
+using OmniProduct_CoreDomain.Services;
 
 namespace OmniProduct_CoreDomain.Models;
 
 [Table("Products")]
-public class Product
+public class Product : IDentifiable
 {
     [Key]
     [Column("ProductId")]
@@ -78,10 +80,16 @@ public class Product
     {
     }
 
+    // Handed in by ProductService so the product can look itself up in the catalog later
+    // (e.g. "is my slug still unique?") without going back through the caller.
+    private readonly ProductService _productService;
+
     public Product(string id, string name, string slug, Price price, List<string> discounts,
                    Dictionary<string, string> images, Dictionary<string, Supplier> suppliersRegions,
-                   double weight, string dimensions, int quantity, int stock, Warehouse warehouse)
+                   double weight, string dimensions, int quantity, int stock, Warehouse warehouse,
+                   ProductService productService)
     {
+        _productService = productService;
         Id = id;
         Name = name;
         Slug = slug;

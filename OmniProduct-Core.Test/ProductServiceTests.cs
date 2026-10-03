@@ -27,7 +27,8 @@ public class ProductServiceTests
             dimensions: "10x5x3",
             quantity: 0,
             stock: 0,
-            warehouse: warehouse
+            warehouse: warehouse,
+            productService: new ProductService()
         );
 
         product.Name.Should().Be("Super Widget");
