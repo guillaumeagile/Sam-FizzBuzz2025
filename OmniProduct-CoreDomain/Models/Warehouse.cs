@@ -1,17 +1,24 @@
-using OmniProduct_CoreDomain.Abstractions;
-using OmniProduct_CoreDomain.Models.Storage;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OmniProduct_CoreDomain.Models;
 
-public class Warehouse : IDentifiable
+[Table("Warehouses")]
+public class Warehouse
 {
-    public string Id { get; set; }
+    [Key]
+    public Guid Id { get; set; }
 
+    [Required]
+    [MaxLength(256)]
     public string Name { get; set; }
 
+    [MaxLength(512)]
     public string Address { get; set; }
 
+    [MaxLength(8)]
     public string Region { get; set; }
 
-    public List<StoredProduct> StoredProducts { get; set; } = new();
+    [NotMapped]
+    public List<Product> Products { get; set; } = new();
 }

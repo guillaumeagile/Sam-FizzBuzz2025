@@ -51,8 +51,8 @@ mixing responsibilities - the exact `ProductService`/`Product` smell this exerci
 ### HA7 - Fan-out
 
 applies only to entities - types declared under `OmniProduct_CoreDomain.Models.*` that implement
-`IDentifiable` (see HA9). An entity may directly reference (via fields, constructor/method
-parameters, or local variables) at most 3 distinct entity types, using that same definition - not
+`IDentifiable` (see HA9). An entity may reference NO other entity type (strict cap of 0) - via fields, properties, constructor/method
+parameters, return types, locals, or generic arguments such as `List<Supplier>` - using that same definition; entities relate by identifier (e.g. `WarehouseId`) only - not
 every domain type and not BCL/framework types. Value objects and services don't count toward the
 cap, and neither does an `IDentifiable` implementer declared outside `Models.*` (HA9 should
 already forbid that; HA7 checks the namespace itself rather than relying on it). Non-entity

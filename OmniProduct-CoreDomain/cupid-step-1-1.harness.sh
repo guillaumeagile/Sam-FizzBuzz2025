@@ -6,7 +6,7 @@
 #   HA1 - C# idioms            -> built-in Roslyn analyzers via .editorconfig, enforced as build errors
 #   HA5 - No god class         -> Cupid.Harness structural rule (max 6 public properties per class)
 #   HA6 - Single Concern       -> Cupid.Harness structural rule (public methods span at most 1 bounded-context concern)
-#   HA7 - Fan-out              -> Cupid.Harness structural rule (a class touches at most 3 distinct domain types)
+#   HA7 - Fan-out              -> Cupid.Harness structural rule (an entity references no other entity; use ids)
 #   HA8 - No Persistence in Domain -> Cupid.Harness structural rule (no EF/ORM vocabulary on domain models)
 #
 # Exit code is 0 only if every layer passes. Safe to run repeatedly (no state, no network).

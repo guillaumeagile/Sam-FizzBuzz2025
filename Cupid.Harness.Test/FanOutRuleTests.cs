@@ -5,7 +5,7 @@ namespace Cupid.Harness.Test;
 
 public class FanOutRuleTests
 {
-    private readonly FanOutRule _rule = new(maxDistinctDomainTypes: 3);
+    private readonly FanOutRule _rule = new();
 
     private const string IDentifiable = """
         namespace OmniProduct_CoreDomain.Abstractions
@@ -54,7 +54,7 @@ public class FanOutRuleTests
     }
 
     [Fact]
-    public void EntityTouchingThreeEntityTypes_ShouldPass()
+    public void EntityTouchingThreeEntityTypes_ShouldBeFlagged()
     {
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             namespace OmniProduct_CoreDomain.Models;
@@ -66,23 +66,112 @@ public class FanOutRuleTests
             public class Product : IDentifiable
             {
                 public string Id { get; set; }
+                public Supplier Supplier { get; set; }
+                public Warehouse Warehouse { get; set; }
+                public Price Price { get; set; }
+            }
+            """);
 
-                private readonly Supplier _supplier;
-                private readonly Warehouse _warehouse;
-                private readonly Price _price;
+        _rule.Check(trees, compilation).Should().ContainSingle(v => v.Message.Contains("3 distinct entity types"));
+    }
 
-                public Product(Supplier supplier, Warehouse warehouse, Price price)
+    [Fact]
+    public void EntityReferencingASingleOtherEntity_ShouldBeFlagged()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+
+            public class Product : IDentifiable
+            {
+                public string Id { get; set; }
+                public Warehouse IsStoredIn { get; set; }
+            }
+            """);
+
+        _rule.Check(trees, compilation).Should().ContainSingle(v => v.Message.Contains("Product") && v.Message.Contains("Warehouse"));
+    }
+
+    [Fact]
+    public void EntityReferencingEntityInsideGenericsOrArrays_ShouldBeFlagged()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            using System.Collections.Generic;
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+
+            public class Product : IDentifiable
+            {
+                public string Id { get; set; }
+                public Dictionary<string, Supplier> Suppliers { get; set; }
+                public Warehouse[] Warehouses { get; set; }
+            }
+            """);
+
+        _rule.Check(trees, compilation).Should().ContainSingle(v => v.Message.Contains("Supplier") && v.Message.Contains("Warehouse"));
+    }
+
+    [Fact]
+    public void EntityReferencingMethodParameterAndReturnType_ShouldBeFlagged()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+
+            public class Product : IDentifiable
+            {
+                public string Id { get; set; }
+                public Supplier Pick(Supplier s) => s;
+            }
+            """);
+
+        _rule.Check(trees, compilation).Should().ContainSingle(v => v.Message.Contains("Supplier"));
+    }
+
+    [Fact]
+    public void EntityReferencingOtherEntitiesByIdOnly_ShouldPass()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            using System;
+            using System.Collections.Generic;
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+
+            public class Product : IDentifiable
+            {
+                public string Id { get; set; }
+                public Guid? WarehouseId { get; set; }
+                public Dictionary<string, Guid> SupplierIdsByRegion { get; set; }
+            }
+            """);
+
+        _rule.Check(trees, compilation).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SameNamedTypeInAnotherNamespace_ShouldNotBeConfusedWithEntity()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace Other { public class Supplier { } }
+            namespace OmniProduct_CoreDomain.Models
+            {
+                using OmniProduct_CoreDomain.Abstractions;
+                public class Supplier : IDentifiable { public string Id { get; set; } }
+                public class Product : IDentifiable
                 {
-                    _supplier = supplier;
-                    _warehouse = warehouse;
-                    _price = price;
+                    public string Id { get; set; }
+                    public Other.Supplier External { get; set; }
                 }
             }
             """);
 
-        var violations = _rule.Check(trees, compilation);
-
-        violations.Should().BeEmpty();
+        _rule.Check(trees, compilation).Should().BeEmpty();
     }
 
     [Fact]
