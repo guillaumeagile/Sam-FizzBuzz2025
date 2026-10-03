@@ -12,8 +12,8 @@ public class ProductServiceTests
     public void Product_Name_ShouldBeSet()
     {
         var price = new Price(100m, "EUR");
-        var supplier = new Supplier { Id = Guid.NewGuid(), Name = "Acme", Email = "acme@example.com", Region = "FR" };
-        var warehouse = new Warehouse { Id = Guid.NewGuid(), Name = "Paris Hub", Address = "1 rue de la Paix", Region = "FR" };
+        var supplier = new Supplier { Id = Guid.NewGuid().ToString(), Name = "Acme", Email = "acme@example.com", Region = "FR" };
+        var warehouse = new Warehouse { Id = Guid.NewGuid().ToString(), Name = "Paris Hub", Address = "1 rue de la Paix", Region = "FR" };
 
         var product = new Product(
             id: "p1",

@@ -75,7 +75,7 @@ public class ProductService
     {
         var supplier = new Supplier
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.NewGuid().ToString(),
             Name = name,
             Email = email,
             Region = region
@@ -107,7 +107,7 @@ public class ProductService
     {
         var warehouse = new Warehouse
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.NewGuid().ToString(),
             Name = name,
             Address = address,
             Region = region

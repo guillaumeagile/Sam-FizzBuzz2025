@@ -56,7 +56,7 @@ public class Product
     public int Quantity { get; set; }
     public int Stock { get; set; }
 
-    public Guid? WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     [NotMapped]
     public Warehouse Warehouse { get; set; }

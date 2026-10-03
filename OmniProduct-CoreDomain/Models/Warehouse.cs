@@ -1,13 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OmniProduct_CoreDomain.Abstractions;
 
 namespace OmniProduct_CoreDomain.Models;
 
 [Table("Warehouses")]
-public class Warehouse
+public class Warehouse : IDentifiable
 {
     [Key]
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 
     [Required]
     [MaxLength(256)]

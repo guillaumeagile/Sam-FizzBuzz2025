@@ -50,7 +50,9 @@ public class FanOutRuleTests
 
         var violations = _rule.Check(trees, compilation);
 
-        violations.Should().ContainSingle(v => v.Message.Contains("Product") && v.Message.Contains("4 distinct entity types"));
+        violations.Should().HaveCountGreaterThanOrEqualTo(4); // one per reference: fields and ctor parameters
+        violations.Should().OnlyContain(v => v.Message.Contains("'Product'") && v.Message.Contains("[4 distinct entity type(s)"));
+        violations.Select(v => v.Message).Should().Contain(m => m.Contains("'Supplier'")).And.Contain(m => m.Contains("'Warehouse'")).And.Contain(m => m.Contains("'Price'")).And.Contain(m => m.Contains("'Notification'"));
     }
 
     [Fact]
@@ -72,7 +74,7 @@ public class FanOutRuleTests
             }
             """);
 
-        _rule.Check(trees, compilation).Should().ContainSingle(v => v.Message.Contains("3 distinct entity types"));
+        _rule.Check(trees, compilation).Should().HaveCount(3).And.OnlyContain(v => v.Message.Contains("[3 distinct entity type(s)"));
     }
 
     [Fact]
@@ -111,7 +113,9 @@ public class FanOutRuleTests
             }
             """);
 
-        _rule.Check(trees, compilation).Should().ContainSingle(v => v.Message.Contains("Supplier") && v.Message.Contains("Warehouse"));
+        var violations = _rule.Check(trees, compilation);
+        violations.Should().ContainSingle(v => v.Message.Contains("'Supplier'") && v.Message.Contains("property 'Suppliers'"));
+        violations.Should().ContainSingle(v => v.Message.Contains("'Warehouse'") && v.Message.Contains("property 'Warehouses'"));
     }
 
     [Fact]
@@ -180,13 +184,17 @@ public class FanOutRuleTests
         // HA7 only applies to entities. A service wiring together many entities is expected -
         // that's what services do - and is out of scope for this rule entirely.
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
-            namespace OmniProduct_CoreDomain.Models;
-            using OmniProduct_CoreDomain.Abstractions;
-            public class Supplier : IDentifiable { public string Id { get; set; } }
-            public class Warehouse : IDentifiable { public string Id { get; set; } }
-            public class Price : IDentifiable { public string Id { get; set; } }
-            public class Notification : IDentifiable { public string Id { get; set; } }
-
+            namespace OmniProduct_CoreDomain.Models
+            {
+                using OmniProduct_CoreDomain.Abstractions;
+                public class Supplier : IDentifiable { public string Id { get; set; } }
+                public class Warehouse : IDentifiable { public string Id { get; set; } }
+                public class Price : IDentifiable { public string Id { get; set; } }
+                public class Notification : IDentifiable { public string Id { get; set; } }
+            }
+            namespace OmniProduct_CoreDomain.Services
+            {
+            using OmniProduct_CoreDomain.Models;
             public class ProductService
             {
                 private readonly Supplier _supplier;
@@ -202,6 +210,7 @@ public class FanOutRuleTests
                     _notification = notification;
                 }
             }
+            }
             """);
 
         var violations = _rule.Check(trees, compilation);
@@ -210,40 +219,143 @@ public class FanOutRuleTests
     }
 
     [Fact]
-    public void NonEntityDomainTypes_ShouldNotCountTowardFanOut()
+    public void RecordValueObjects_ShouldNotCountTowardFanOut()
     {
-        // Value objects that don't implement IDentifiable are not entities, so an entity may
-        // reference more than the cap of them without tripping HA7.
+        // Records are value objects, not entities, so an entity may reference any number of them.
         var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
             namespace OmniProduct_CoreDomain.Models;
             using OmniProduct_CoreDomain.Abstractions;
-            public class Money { }
-            public class Slug { }
-            public class TaxRate { }
-            public class Margin { }
+            public record Money(decimal Amount);
+            public record Slug(string Value);
+            public record TaxRate(decimal Value);
 
             public class Product : IDentifiable
             {
                 public string Id { get; set; }
+                public Money Money { get; set; }
+                public Slug Slug { get; set; }
+                public TaxRate TaxRate { get; set; }
+            }
+            """);
 
-                private readonly Money _money;
-                private readonly Slug _slug;
-                private readonly TaxRate _taxRate;
-                private readonly Margin _margin;
+        _rule.Check(trees, compilation).Should().BeEmpty();
+    }
 
-                public Product(Money money, Slug slug, TaxRate taxRate, Margin margin)
-                {
-                    _money = money;
-                    _slug = slug;
-                    _taxRate = taxRate;
-                    _margin = margin;
-                }
+    [Fact]
+    public void ClassValueObjectWithoutIDentifiable_ShouldBeFreelyReferenceable()
+    {
+        // Price-style value object: a plain class without IDentifiable may be referenced by any entity.
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Price { public decimal Amount { get; set; } }
+            public class Product : IDentifiable
+            {
+                public string Id { get; set; }
+                public Price Price { get; set; }
+                public Price Discounted(Price p) => p;
+            }
+            """);
+
+        _rule.Check(trees, compilation).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SubjectNotImplementingIDentifiable_ShouldStillBeChecked()
+    {
+        // Regression: HA7 used to skip any type lacking IDentifiable, so a Product that omitted the
+        // interface (as the real domain did) passed vacuously. Every Models class is a checked subject.
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+            public class Product
+            {
+                public string Id { get; set; }
+                public Warehouse IsStoredIn { get; set; }
+            }
+            """);
+
+        _rule.Check(trees, compilation).Should().ContainSingle(v => v.Message.Contains("'Product'") && v.Message.Contains("'Warehouse'"));
+    }
+
+    [Fact]
+    public void Diagnostic_ShouldNameEntityMemberAndLine_PerReference()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } }
+            public class Product
+            {
+                public Warehouse IsStoredIn { get; set; }
+                public void Pick(Supplier s) { }
             }
             """);
 
         var violations = _rule.Check(trees, compilation);
 
-        violations.Should().BeEmpty();
+        violations.Should().HaveCount(2);
+        var first = violations.Min(v => v.Line);
+        violations.Should().ContainSingle(v => v.Line == first && v.Message.Contains("'Warehouse'") && v.Message.Contains("property 'IsStoredIn'") && v.Message.Contains("WarehouseId"));
+        violations.Should().ContainSingle(v => v.Line == first + 1 && v.Message.Contains("'Supplier'") && v.Message.Contains("method 'Pick'") && v.Message.Contains("SupplierId"));
+    }
+
+    [Fact]
+    public void LocalVariableOfEntityType_ShouldBeFlagged()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Supplier : IDentifiable { public string Id { get; set; } }
+            public class Product
+            {
+                public void Run() { Supplier s = null; }
+            }
+            """);
+
+        _rule.Check(trees, compilation).Should().Contain(v => v.Message.Contains("'Supplier'") && v.Message.Contains("method 'Run'"));
+    }
+
+    [Fact]
+    public void EntitiesReferencingEachOtherBidirectionally_ShouldBothBeFlagged()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile(IDentifiable + """
+            using System.Collections.Generic;
+            namespace OmniProduct_CoreDomain.Models;
+            using OmniProduct_CoreDomain.Abstractions;
+            public class Product : IDentifiable { public string Id { get; set; } public Warehouse Warehouse { get; set; } }
+            public class Warehouse : IDentifiable { public string Id { get; set; } public List<Product> Products { get; set; } }
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().Contain(v => v.Message.Contains("'Product' references entity 'Warehouse'"));
+        violations.Should().Contain(v => v.Message.Contains("'Warehouse' references entity 'Product'"));
+    }
+
+    [Fact]
+    public void DbContextSubclass_ShouldNotBeTreatedAsEntity()
+    {
+        // EF isn't referenced by the harness compilation; a locally declared DbContext stands in.
+        var (trees, compilation) = RuleTestHarness.Compile("""
+            using System.Collections.Generic;
+            namespace Microsoft.EntityFrameworkCore { public class DbContext { } public class DbSet<T> { } }
+            namespace OmniProduct_CoreDomain.Models
+            {
+                using Microsoft.EntityFrameworkCore;
+                public class Supplier { }
+                public class Warehouse { }
+                public class Ctx : DbContext
+                {
+                    public DbSet<Supplier> Suppliers { get; set; }
+                    public DbSet<Warehouse> Warehouses { get; set; }
+                }
+            }
+            """);
+
+        _rule.Check(trees, compilation).Should().BeEmpty();
     }
 
     [Fact]

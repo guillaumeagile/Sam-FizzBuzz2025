@@ -3,20 +3,26 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA7 - Fan-out (Unix Philosophy proxy), strict form: applies only to ENTITIES - types declared
-// under OmniProduct_CoreDomain.Models.* that implement IDentifiable (see HA9) - and an entity may
+// HA7 - Fan-out (Unix Philosophy proxy), strict form: applies only to ENTITIES and an entity may
 // reference NO other entity type at all (default cap = 0). Entities relate to each other by
 // identifier only (e.g. a WarehouseId), never by holding or accepting the other entity object:
 // not via fields, properties, method/constructor parameters, return types, locals, or generic
 // arguments (List<Supplier>, Dictionary<string, Supplier>, Supplier[], Supplier?).
-// Entities are matched by symbol identity, not by simple name, so a same-named type in another
-// namespace neither triggers nor masks a violation.
-// Services, value objects, and any other non-entity class are out of scope for this rule entirely
-// - a service is expected to wire together many collaborators; that's HA10's concern, not HA7's.
+//
+// Two distinct roles, on purpose:
+//  - REFERENCED entity: a class under OmniProduct_CoreDomain.Models.* that implements IDentifiable.
+//    Value objects (Price, records, anything without IDentifiable) are freely referenceable.
+//  - CHECKED type (subject): any non-record class under Models.* except DbContext subclasses,
+//    whether or not it implements IDentifiable. A type that simply omits the interface must not
+//    dodge the rule (HA9 reports the omission separately; HA7 must not depend on it being fixed).
+// Types are matched by symbol identity, not by simple name.
+//
+// Every offending reference is reported with its own file:line, the member it sits in, and the
+// entity it points at, so the diagnostic says exactly what to replace with an id.
 public sealed class FanOutRule : IHarnessRule
 {
-    private const string EntityNamespacePrefix = "OmniProduct_CoreDomain.Models";
     private const string EntityMarkerInterfaceName = "IDentifiable";
+    private const string EntityNamespacePrefix = "OmniProduct_CoreDomain.Models";
 
     private readonly int _maxDistinctDomainTypes;
 
@@ -39,10 +45,11 @@ public sealed class FanOutRule : IHarnessRule
             foreach (var typeDecl in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
             {
                 var declared = model.GetDeclaredSymbol(typeDecl) as INamedTypeSymbol;
-                if (declared == null || !IsEntity(declared))
+                if (declared == null || !IsCheckedType(declared))
                     continue; // HA7 only applies to entities; services/value objects are out of scope.
 
-                var referenced = new SortedSet<string>(StringComparer.Ordinal);
+                // (line, entity name, member) - a set so one type token counted via two paths reports once.
+                var found = new SortedSet<(int Line, string Entity, string Member)>();
 
                 foreach (var node in typeDecl.DescendantNodes())
                 {
@@ -64,22 +71,45 @@ public sealed class FanOutRule : IHarnessRule
 
                     foreach (var entity in EntitiesIn(type))
                     {
-                        if (!SymbolEqualityComparer.Default.Equals(entity, declared))
-                            referenced.Add(entity.Name);
+                        if (SymbolEqualityComparer.Default.Equals(entity, declared))
+                            continue;
+
+                        var line = node.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
+                        found.Add((line, entity.Name, DescribeMember(node, typeDecl)));
                     }
                 }
 
-                if (referenced.Count > _maxDistinctDomainTypes)
+                var distinct = found.Select(f => f.Entity).Distinct().Count();
+                if (distinct <= _maxDistinctDomainTypes)
+                    continue;
+
+                foreach (var (line, entity, member) in found)
                 {
                     violations.Add(new Violation(
                         tree.FilePath,
-                        typeDecl.Identifier.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
-                        $"'{typeDecl.Identifier.Text}' directly references {referenced.Count} distinct entity types: {string.Join(", ", referenced)}. Entities must not reference other entities - hold their identifier instead."));
+                        line,
+                        $"'{typeDecl.Identifier.Text}' references entity '{entity}' in {member}. " +
+                        $"Entities must not reference other entities - hold its identifier instead (e.g. {entity}Id). " +
+                        $"[{distinct} distinct entity type(s) referenced by '{typeDecl.Identifier.Text}', max {_maxDistinctDomainTypes}]"));
                 }
             }
         }
 
         return violations;
+    }
+
+    private static string DescribeMember(SyntaxNode node, TypeDeclarationSyntax owner)
+    {
+        var member = node.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault(m => m != owner);
+        return member switch
+        {
+            PropertyDeclarationSyntax p => $"property '{p.Identifier.Text}'",
+            FieldDeclarationSyntax f => $"field '{f.Declaration.Variables.First().Identifier.Text}'",
+            MethodDeclarationSyntax m => $"method '{m.Identifier.Text}'",
+            ConstructorDeclarationSyntax => "a constructor",
+            null => "the type declaration",
+            _ => member.Kind().ToString()
+        };
     }
 
     // Unwraps arrays, nullable and generic arguments so List<Supplier> counts as Supplier.
@@ -100,9 +130,29 @@ public sealed class FanOutRule : IHarnessRule
         }
     }
 
+    private static bool IsCheckedType(ITypeSymbol typeSymbol)
+    {
+        return typeSymbol is { TypeKind: TypeKind.Class, IsRecord: false, IsStatic: false }
+               && IsInEntityNamespace(typeSymbol)
+               && !IsPersistenceInfrastructure(typeSymbol);
+    }
+
     private static bool IsEntity(ITypeSymbol typeSymbol)
     {
-        return IsInEntityNamespace(typeSymbol) && typeSymbol.AllInterfaces.Any(i => i.Name == EntityMarkerInterfaceName);
+        return IsCheckedType(typeSymbol) && typeSymbol.AllInterfaces.Any(i => i.Name == EntityMarkerInterfaceName);
+    }
+
+    // EF contexts live next to the models but are infrastructure, not entities. EF isn't referenced
+    // by the harness compilation so the base type may be an error type; its name is still available.
+    private static bool IsPersistenceInfrastructure(ITypeSymbol typeSymbol)
+    {
+        for (var b = typeSymbol.BaseType; b != null; b = b.BaseType)
+        {
+            if (b.Name == "DbContext")
+                return true;
+        }
+
+        return false;
     }
 
     private static bool IsInEntityNamespace(ITypeSymbol typeSymbol)
