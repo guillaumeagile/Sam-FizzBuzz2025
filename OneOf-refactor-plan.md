@@ -40,3 +40,13 @@ Further possibilities (image contexts, discounts, region/currency value objects)
 - **Shelf-life:** cases are `Perishable` and `NonExpiring`; still define sell-by/expiration meaning, precedence, and sale/discount effects.
 - **Appreciation:** separate from shelf-life; formula and cap remain undecided.
 - **Blocker:** clarify HA2/HA9/HA11's distinction between identity-bearing entities and immutable value objects before applying their rules to all `Models.*` types.
+
+### Design (proposed, 2026-10-04): Perishable / NonExpiring on Product (HA4: composition, no subclassing)
+- `Product` keeps one class; new immutable `ShelfLife` property = `OneOf<Perishable, NonExpiring>` (C# alias; do NOT use `OneOfBase<>`, it is inheritance and breaks HA4).
+- Records in ValueObjects: `Perishable(MaxSellingDate, MaxConsumptionDate)` with invariant selling <= consumption via `Create` returning `OneOf<Perishable, InvalidDates>`; `NonExpiring(BestBeforeDate)`.
+- `Product.CanSell(today)` -> `OneOf<Sellable, PastSellingDate>`: Perishable blocks after MaxSellingDate; NonExpiring never blocks (BBD only affects the display label).
+- Expiry is computed from the date, not stored in `ProductStatus`. Inject `TimeProvider`/`today` instead of `DateTime.Now`.
+- `SellProduct` checks `CanSell` before `Withdraw`; `AddProduct` takes a `ShelfLife`; `GetDisplayLabel` matches on it.
+- Open: (1) "MaxSellingRate" read as MaxSellingDate — confirm; (2) dates per product vs per stock lot (`StoredProduct`) — decide before Step 4.
+- Naming suggestion (2026-10-04, not confirmed): `Perishable(SellByDate, UseByDate)` and `NonExpiring(BestBeforeDate)` instead of `MaxSellingRate/MaxConsumptionDate/BBD` — drop `Max` on dates, use food-labelling terms (use-by = safety, best-before = advisory), no `BBD` abbreviation in code. `ShelfStable` is an alternative to `NonExpiring`. Validate with the domain owner.
+- **Done 2026-10-04 (uncommitted):** HA4 explanation + participant exercise (Perishable/NonExpiring, ShelfLife via `OneOf<Perishable, NonExpiring>`, no `OneOfBase`) written into `OmniProduct-CoreDomain/CUPID-step1-2.md`. It uses the suggested names `SellByDate/UseByDate/BestBeforeDate` and `PastSellByDate` — still unconfirmed. Not yet enforced by the harness: HA4 check for `OneOfBase` and HA3 alias recognition need the harness updated.

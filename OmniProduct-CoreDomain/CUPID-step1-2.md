@@ -40,6 +40,9 @@ You will gain OneOf . but also Result and Option, that are sum types, which are 
 
 OneOf.Types ships None, NotFound, Success, Error<T> and others.
 
+#### Exercice 📝
+
+
 use Result to avoid exceptions
 - That means StoredProduct.Withdraw and the lookups that currently throw new Exception.
 - Use a specific error union such as OneOf<Withdrawn, InsufficientStock> rather than a generic Result<T, string> or Result<T, Exception>.
@@ -54,7 +57,49 @@ Optional: low priority
 ### HA4 - CUPID Principle: Composable = Extend through composition, not modification
 
 no inheritance, verified by static code analysis; model alternatives with OneOf rather than record inheritance.
-use OneOf for model shelf life as a closed ADT with exactly two alternatives, Perishable and NonExpiring.
+
+#### Why
+
+When two kinds of product behave differently, the reflex is `PerishableProduct : Product` and
+`NonExpiringProduct : Product`.
+
+That extends `Product` by inheritance: every new kind adds a subclass,
+and every consumer that needs to know the kind ends up with `is`/`as` checks. HA4 asks for the opposite:
+keep `Product` as it is and **compose** it with a value that carries the difference.
+
+The rule is checked by static analysis: no class or record may declare a base type other than
+`object` (interfaces are fine). This includes the `OneOfBase<...>` helper class of the OneOf package,
+which is inheritance in disguise - use `OneOf<T0, T1>` itself instead.
+
+#### Exercise 📝
+
+Products now have a shelf life, and the two kinds differ in their dates, not in what a product is:
+
+| Kind | Dates | Meaning |
+|---|---|---|
+| **Perishable** | `SellByDate`, `UseByDate` | After `SellByDate` the product can no longer be sold. After `UseByDate` it is unsafe to consume. Invariant: `SellByDate <= UseByDate`. |
+| **NonExpiring** | `BestBeforeDate` | Advisory only: a quality guideline. The product can still be sold after it, but the catalog label should say so. |
+
+1. **Create the two value objects** as immutable records in `ValueObjects` (HA2, HA11).  This is what makes illegal combinations unrepresentable.
+2. **Give `Product` one `ShelfLife` property** of type `OneOf<Perishable, NonExpiring>`, set once at
+   creation (no setter).  
+3. **Validate the invariant at the boundary.** Dates are input data, so a `Perishable.Create(...)` that
+   returns `OneOf<Perishable, InvalidDates>` is better than a constructor that throws (HA3).
+4. **Put the behaviour behind `Match`**, so each alternative is handled and the compiler checks it:
+   `Product.CanSell(today)` returns `OneOf<Sellable, PastSellByDate>`. A `Perishable` refuses the sale
+   after `SellByDate`; a `NonExpiring` never refuses.
+5. **Do not store expiry in `ProductStatus`.** Expiry depends on today's date, so compute it when
+   asked. A stored status would go stale. `ProductStatus` stays about the lifecycle.
+6. **Do not read the clock inside the model.** Pass `today` (or inject a `TimeProvider`) so each
+   date case can be tested without waiting.
+7. **Wire the services.** `SellProduct` checks `CanSell` before `Withdraw`; `AddProduct` receives a
+   `ShelfLife`; `CatalogService`/`ProductCatalog.GetDisplayLabel` matches on it to show
+   "[BEST BEFORE PASSED]" for a `NonExpiring` past its date.
+
+**Self-check:** adding a third kind (say `Frozen`) must only require a new record, one more type in the
+`OneOf`, and the compiler pointing at every `Match` that now needs a case. If you had to edit an
+existing class hierarchy, you extended by modification instead of composition.
+
 
 ### HA11 - Records are Value Objects, never entities
 
