@@ -52,7 +52,8 @@ var compilation = CSharpCompilation.Create(
     trees,
     references: new[]
     {
-        MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+        MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(OneOf.OneOf<,>).Assembly.Location)
     },
     options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 

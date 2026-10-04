@@ -30,14 +30,16 @@ no setter on any property
 
 ### HA3 - ADT (algebraic data structures)
 
-in C#14, enforce the use of pseudo-unions type with record hierarchy	
-records are a C# 9 feature.  
-https://comcomponent.com/en/blog/2026/06/09/003-dotnet-algebraic-data-types/#10-about-c-15-union-types
+Represent closed alternatives with `OneOf<T0, T1, ...>` from the `OneOf` NuGet package. Its `.Match(...)` API forces each alternative to be handled, without relying on an inheritance hierarchy. This also satisfies HA4's no-inheritance constraint.
+
+Use these unions for expected outcomes, such as `OneOf<Product, ProductNotFound>` for a lookup or a union of success and named domain failures for an operation. Do not encode expected absence as `null`. Chain operations with narrowly scoped `Bind`/`Map` helpers that propagate each failure case; `OneOf` supplies exhaustive matching but does not itself provide monadic chaining. Keep unexpected failures exceptional rather than silently converting them into domain results.
+
+The harness requires at least one actual `OneOf<T0, T1, ...>` usage in the analyzed source. Record hierarchies alone do not satisfy HA3.
 
 
 ### HA4- CUPID Principle: Composable = Extend through composition, not modification
 
-no inheritance, verifed by static code analysis
+no inheritance, verified by static code analysis; model alternatives with OneOf rather than record inheritance.
 
 
 ### HA11 - Records are Value Objects, never entities

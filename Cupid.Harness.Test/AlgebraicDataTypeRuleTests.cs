@@ -8,43 +8,17 @@ public class AlgebraicDataTypeRuleTests
     private readonly AlgebraicDataTypeRule _rule = new();
 
     [Fact]
-    public void NonAbstractUnionBase_ShouldBeFlagged()
+    public void OneOfWithMultipleAlternatives_ShouldPass()
     {
         var (trees, compilation) = RuleTestHarness.Compile("""
+            using OneOf;
             namespace Sample;
-            public record Shape;
-            public sealed record Circle : Shape;
-            public sealed record Square : Shape;
-            """);
-
-        var violations = _rule.Check(trees, compilation);
-
-        violations.Should().Contain(v => v.Message.Contains("Shape") && v.Message.Contains("not 'abstract'"));
-    }
-
-    [Fact]
-    public void NonSealedUnionCase_ShouldBeFlagged()
-    {
-        var (trees, compilation) = RuleTestHarness.Compile("""
-            namespace Sample;
-            public abstract record Shape;
-            public record Circle : Shape;
-            public sealed record Square : Shape;
-            """);
-
-        var violations = _rule.Check(trees, compilation);
-
-        violations.Should().ContainSingle(v => v.Message.Contains("Circle") && v.Message.Contains("not 'sealed'"));
-    }
-
-    [Fact]
-    public void WellFormedUnion_ShouldPass()
-    {
-        var (trees, compilation) = RuleTestHarness.Compile("""
-            namespace Sample;
-            public abstract record Shape;
-            public sealed record Circle : Shape;
-            public sealed record Square : Shape;
+            public class ProductLookup
+            {
+                public OneOf<Product, ProductNotFound> Find(string id) => throw new System.NotImplementedException();
+            }
+            public sealed record Product;
+            public sealed record ProductNotFound;
             """);
 
         var violations = _rule.Check(trees, compilation);
@@ -52,24 +26,74 @@ public class AlgebraicDataTypeRuleTests
         violations.Should().BeEmpty();
     }
 
-    // Regression: a codebase with zero record hierarchies has nothing to check, so the rule
-    // reports no violations - a vacuous PASS. That is wrong when the exercise (CUPID step 1.2:
-    // Price rules that "may apply" Margin, then TransportationFee, then VAT) requires an ADT to
-    // exist in the first place. Absence of any union is itself a HA3 failure.
     [Fact]
-    public void NoRecordHierarchyAtAll_ShouldBeFlagged()
+    public void FullyQualifiedOneOfWithMultipleAlternatives_ShouldPass()
     {
         var (trees, compilation) = RuleTestHarness.Compile("""
             namespace Sample;
-            public class Price
+            public class ProductLookup
             {
-                public decimal Amount { get; set; }
-                public string Currency { get; set; }
+                public OneOf.OneOf<Product, ProductNotFound> Find(string id) => throw new System.NotImplementedException();
             }
+            public sealed record Product;
+            public sealed record ProductNotFound;
             """);
 
         var violations = _rule.Check(trees, compilation);
 
-        violations.Should().Contain(v => v.Message.Contains("No ADT"));
+        violations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void LookalikeTypeNamedOneOf_ShouldFail()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile("""
+            namespace OneOf
+            {
+                public record OneOf<T>;
+            }
+            namespace Sample;
+            public class ProductLookup
+            {
+                public OneOf.OneOf<Product> Find(string id) => throw new System.NotImplementedException();
+            }
+            public sealed record Product;
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().ContainSingle(v => v.Message.Contains("No OneOf ADT"));
+    }
+
+    [Fact]
+    public void RecordHierarchyWithoutOneOf_ShouldFail()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile("""
+            namespace Sample;
+            public abstract record Shape;
+            public sealed record Circle : Shape;
+            public sealed record Square : Shape;
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().ContainSingle(v => v.Message.Contains("No OneOf ADT"));
+    }
+
+    [Fact]
+    public void NoUnion_ShouldFail()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile("""
+            namespace Sample;
+            public class ProductLookup
+            {
+                public Product? Find(string id) => null;
+            }
+            public sealed record Product;
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().ContainSingle(v => v.Message.Contains("No OneOf ADT"));
     }
 }

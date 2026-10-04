@@ -5,7 +5,7 @@
 # CUPID-step1-2.md:
 #   HA1  - C# idioms          -> built-in Roslyn analyzers via .editorconfig, enforced as build errors
 #   HA2  - immutable data     -> Cupid.Harness structural rule (records only, no setters, no mutable collections)
-#   HA3  - ADT / pseudo-union -> Cupid.Harness structural rule (abstract base + sealed leaves)
+#   HA3  - ADT / pseudo-union -> Cupid.Harness structural rule (OneOf<T0, T1, ...>)
 #   HA4  - Composable         -> Cupid.Harness structural rule (no class/record inheritance)
 #   HA11 - Records are VOs    -> Cupid.Harness structural rule (records never implement IDentifiable; Price must be one)
 #
