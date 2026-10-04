@@ -35,6 +35,40 @@ records are a C# 9 feature.
 https://comcomponent.com/en/blog/2026/06/09/003-dotnet-algebraic-data-types/#10-about-c-15-union-types
 
 
+You will gain OneOf . but also Result and Option, that are sum types, which are ADTs, and OneOf already expresses both:
+
+- Option<T> is OneOf<T, None> or OneOf<T, NotFound>.
+- Result<T, E> is OneOf<T, E> or OneOf<T, Error>.
+
+OneOf.Types ships None, NotFound, Success, Error<T> and others.
+
+
+#### HA3 - a
+
+use OneOf for....
+
+
+#### HA3 - b
+
+use Result to avoid exceptions
+
+- That means StoredProduct.Withdraw and the lookups that currently throw new Exception.
+- Use a specific error union such as OneOf<Withdrawn, InsufficientStock> rather than a generic Result<T, string> or Result<T, Exception>.
+- The failure cases are then a closed set that the compiler checks exhaustively.
+- Keep exceptions for bugs and violated invariants, not for business outcomes.
+
+Option: low priority
+
+- C# 14 nullable reference types (Supplier?) already cover most of it.
+- Use OneOf<Supplier, NotFound> only for lookups where absence is a normal answer and you want the caller forced to handle it. FindSupplierForRegion and GetStock are examples.
+- The "TransportationFee if any, VAT if applicable" case needs no Option. An absent adjustment is simply missing from the ordered PriceAdjustment list, which is the composable design you want.
+
+
+
+
+
+
+
 ### HA4- CUPID Principle: Composable = Extend through composition, not modification
 
 no inheritance, verifed by static code analysis
