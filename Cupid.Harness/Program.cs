@@ -76,6 +76,7 @@ var step1Dot2Rules = new IHarnessRule[]
     new AlgebraicDataTypeRule(),
     new NoInheritanceRule(),
     new ValueObjectsAreImmutableRule(),
+    new ProductHasOneOfPropertyRule(),
     new RecordsAreValueObjectsRule(),
 };
 

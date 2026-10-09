@@ -1,6 +1,6 @@
 # HA4 Roslyn rules plan
 
-**Resume at:** HA4.2 (at least one `OneOf<...>` property on `Product`, no setter, type arguments are VOs via `ValueObjectsAreImmutableRule.IsValueObject`), test-first. Not yet committed/pushed. HA4.3-HA4.7 still to be relaxed (no pinned names) before their turn.
+**Resume at:** relax HA4.3-HA4.7 (no pinned names, agree wording with the user), then HA4.3 test-first. HA4.1 and HA4.2 done and pushed.
 
 Source of truth for the exercise: `OmniProduct-CoreDomain/CUPID-step1-2.md` (HA4 section, 7 steps).
 Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTestHarness.Compile`), registered in `Cupid.Harness/Program.cs` (`step1Dot2Rules`).
@@ -40,7 +40,7 @@ Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type
 - [x] **2026-10-09 — analysed** HA4 exercise, existing `NoInheritanceRule`, test harness, Program.cs registration. No code changed.
 - [ ] Confirm the 7-rule split and the names above.
 - [ ] HA4.1 — **done 2026-10-09, verified locally** (uncommitted; `dotnet test Cupid.Harness.Test` 75/75 passed = 66 + 9 new; harness on `OmniProduct-CoreDomain --step 1.2` gives `[PASS] HA4.1` because `Price` is an immutable record VO): `Cupid.Harness/Rules/ValueObjectsAreImmutableRule.cs` (id `HA4.1`, `IsValueObject` internal helper reusable by HA4.2), 9 tests in `Cupid.Harness.Test/ValueObjectsAreImmutableRuleTests.cs`, registered in `Program.cs` `step1Dot2Rules`. 
-- [ ] HA4.2
+- [x] HA4.2 — **done 2026-10-09, verified locally**: `Cupid.Harness/Rules/ProductHasOneOfPropertyRule.cs` (id `HA4.2`; type named `Product`, at least one real `OneOf<...>` property, no `set`, type args are VOs; `OneOfBase` subclass does not count), 9 tests in `Cupid.Harness.Test/ProductHasOneOfPropertyRuleTests.cs`, registered in `Program.cs`. `dotnet test` 84/84. On the real domain `[FAIL] HA4.2` (Product has no OneOf property), which is the intended state.
 - [ ] HA4.3
 - [ ] HA4.4
 - [ ] HA4.5
