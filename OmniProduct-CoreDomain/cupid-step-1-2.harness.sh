@@ -6,7 +6,9 @@
 #   HA1  - C# idioms          -> built-in Roslyn analyzers via .editorconfig, enforced as build errors
 #   HA2  - immutable data     -> Cupid.Harness structural rule (records only, no setters, no mutable collections)
 #   HA3  - ADT / pseudo-union -> Cupid.Harness structural rule (OneOf<T0, T1, ...>)
-#   HA4  - Composable         -> Cupid.Harness structural rule (no class/record inheritance)
+#   HA4  - Composable         -> Cupid.Harness rules HA4.0-HA4.7 (no inheritance, no throwing constructors, immutable VOs,
+#                                OneOf property on Product, validating factory, Match not is/as/switch, no clock in model;
+#                                HA4.7 SellProduct/CanSell/Withdraw order is a [WARN] only and never fails the run)
 #   HA11 - Records are VOs    -> Cupid.Harness structural rule (records never implement IDentifiable; Price must be one)
 #
 # Exit code is 0 only if every layer passes. Safe to run repeatedly (no state, no network).

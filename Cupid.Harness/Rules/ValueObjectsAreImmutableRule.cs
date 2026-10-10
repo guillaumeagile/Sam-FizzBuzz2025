@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA4.1 - Composable, step 1: composition needs value objects, and they must be immutable.
+// HA4.2 - Composable, step 1: composition needs value objects, and they must be immutable.
 // A value object is a record / record struct that does not implement IDentifiable (identity belongs
 // to entities, see HA9/HA11). No type name or namespace is pinned: at least one such record must exist,
 // and every one of them must have no setter, no mutable field and no mutable collection.
@@ -16,7 +16,7 @@ public sealed class ValueObjectsAreImmutableRule : IHarnessRule
         "List", "Dictionary", "HashSet", "Queue", "Stack", "LinkedList", "SortedList", "SortedDictionary"
     };
 
-    public string Id => "HA4.1";
+    public string Id => "HA4.2";
     public string Name => "Value objects exist and are immutable (records that are not IDentifiable)";
 
     public IReadOnlyList<Violation> Check(IReadOnlyList<SyntaxTree> trees, Compilation compilation)
@@ -49,7 +49,7 @@ public sealed class ValueObjectsAreImmutableRule : IHarnessRule
         return violations;
     }
 
-    // Shared definition of "value object" so HA4.2 can reuse it.
+    // Shared definition of "value object" so HA4.3 can reuse it.
     internal static bool IsValueObject(INamedTypeSymbol symbol) =>
         symbol.IsRecord && symbol.AllInterfaces.All(i => i.Name != EntityMarkerInterfaceName);
 

@@ -4,14 +4,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA4.4 - Composable, step 4 (light): behaviour per alternative goes through OneOf.Match, never through type tests.
+// HA4.5 - Composable, step 4 (light): behaviour per alternative goes through OneOf.Match, never through type tests.
 // Two checks:
 //   1. no `is` / `as` / `switch` on a OneOf, nor testing for one of its alternatives (a type argument of any
 //      OneOf<...> used in the source);
 //   2. `.Match(...)` is actually called on at least one OneOf<Y, Z, ...> whose type arguments are all records.
 public sealed class MatchOverOneOfRule : IHarnessRule
 {
-    public string Id => "HA4.4";
+    public string Id => "HA4.5";
     public string Name => "Alternatives are handled with OneOf.Match over records, never is/as/switch";
 
     public IReadOnlyList<Violation> Check(IReadOnlyList<SyntaxTree> trees, Compilation compilation)

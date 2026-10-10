@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA4.3 - Composable, step 3 (heuristic): input is validated at the boundary, not by throwing in a constructor.
+// HA4.4 - Composable, step 3 (heuristic): input is validated at the boundary, not by throwing in a constructor.
 // At least one value object must expose a static `Create` or `Build` method returning OneOf<Self, E>, where
 // Self is the value object itself and E implements IValidationError (an interface: HA4 forbids base classes).
 public sealed class ValueObjectFactoryRule : IHarnessRule
@@ -11,7 +11,7 @@ public sealed class ValueObjectFactoryRule : IHarnessRule
     private const string ValidationErrorInterfaceName = "IValidationError";
     private static readonly string[] FactoryNames = ["Create", "Build"];
 
-    public string Id => "HA4.3";
+    public string Id => "HA4.4";
     public string Name => $"A value object has a Create/Build returning OneOf<Self, E> with E : {ValidationErrorInterfaceName}";
 
     public IReadOnlyList<Violation> Check(IReadOnlyList<SyntaxTree> trees, Compilation compilation)

@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA4.2 - Composable, step 2: Product carries its differences as composed values, not subclasses.
+// HA4.3 - Composable, step 2: Product carries its differences as composed values, not subclasses.
 // `Product` must have at least one property typed OneOf<T0, T1, ...> (the real OneOf.OneOf<> type, not an
 // OneOfBase subclass), each with no setter (get-only or init), and every type argument must be a value
 // object (see ValueObjectsAreImmutableRule.IsValueObject). Property names are not pinned.
@@ -11,7 +11,7 @@ public sealed class ProductHasOneOfPropertyRule : IHarnessRule
 {
     private const string ProductTypeName = "Product";
 
-    public string Id => "HA4.2";
+    public string Id => "HA4.3";
     public string Name => "Product has at least one OneOf<...> property: no setter, type arguments are value objects";
 
     public IReadOnlyList<Violation> Check(IReadOnlyList<SyntaxTree> trees, Compilation compilation)

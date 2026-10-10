@@ -3,13 +3,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA4.5 - Composable, step 3 follow-up: a constructor must not throw. Expected failures (bad input) are returned
-// as values by a factory (see HA4.3: OneOf<Self, IValidationError>), not raised from `new`.
+// HA4.1 - Composable, step 3 follow-up: a constructor must not throw. Expected failures (bad input) are returned
+// as values by a factory (see HA4.4: OneOf<Self, IValidationError>), not raised from `new`.
 // Flags `throw` statements, `throw` expressions (`x ?? throw ...`) and `ThrowIf*` guard calls (e.g.
 // ArgumentNullException.ThrowIfNull) inside any constructor body, expression body or initializer.
 public sealed class NoThrowInConstructorRule : IHarnessRule
 {
-    public string Id => "HA4.5";
+    public string Id => "HA4.1";
     public string Name => "No exception thrown in constructors (return a OneOf from a factory instead)";
 
     public IReadOnlyList<Violation> Check(IReadOnlyList<SyntaxTree> trees, Compilation compilation)

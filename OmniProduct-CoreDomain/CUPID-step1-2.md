@@ -101,6 +101,28 @@ Products now have a shelf life, and the two kinds differ in their dates, not in 
 existing class hierarchy, you extended by modification instead of composition.
 
 
+#### What the harness checks
+
+HA4 is verified by eight small Roslyn rules, `HA4.0` to `HA4.7`. They never pin a type name
+(except `Product`, `SellProduct`, `CanSell`, `Withdraw`, `Create`/`Build` and `IValidationError`), so you are free to
+choose yours. A *value object* here is a `record` / `record struct` that does not implement `IDentifiable`.
+
+| Rule | Checks | Level |
+|---|---|---|
+| HA4.0 | No class or record has a base type other than `object` (interfaces are fine; `OneOfBase<...>` is caught). | error |
+| HA4.1 | No exception is thrown in a constructor (`throw`, `?? throw`, `ThrowIf*`). Return a `OneOf` from a factory instead. | error |
+| HA4.2 | At least one value object exists, and every value object is immutable (no setter, no mutable field, no mutable collection). | error |
+| HA4.3 | `Product` has at least one `OneOf<X, Y, ...>` property with no setter, and every type argument is a value object. | error |
+| HA4.4 | At least one value object has a static `Create` or `Build` returning `OneOf<Self, E>`, where `E` implements `IValidationError`. | error |
+| HA4.5 | No `is` / `as` / `switch` on a `OneOf` or on its alternatives, and at least one `.Match(...)` over a `OneOf` whose type arguments are all records. | error |
+| HA4.6 | The model (entities and value objects) never reads the clock: no `DateTime.Now/UtcNow/Today`, `DateTimeOffset.Now/UtcNow`, `TimeProvider.System`. Pass `today` or inject a `TimeProvider`. | error |
+| HA4.7 | In `SellProduct`, `CanSell` is called before `Withdraw`. | warning |
+
+`E` implements the interface `IValidationError` (provided in `OmniProduct_CoreDomain.Errors`, with a
+generic `ValidationError` record) rather than inheriting from a base class, because HA4.0 forbids inheritance.
+A warning is printed as `[WARN]` and does not fail the harness.
+
+
 ### HA11 - Records are Value Objects, never entities
 
 a record must never implement `IDentifiable` - identity belongs to entities (HA9), and a record's

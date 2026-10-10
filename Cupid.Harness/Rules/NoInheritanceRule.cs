@@ -3,12 +3,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cupid.Harness.Rules;
 
-// HA4 - CUPID Composable: extend through composition, not modification/inheritance.
+// HA4.0 - CUPID Composable: extend through composition, not modification/inheritance.
 // Any class/record that derives from another class/record (not an interface, not object/Exception)
 // is flagged. Implementing interfaces is fine; subclassing is not.
 public sealed class NoInheritanceRule : IHarnessRule
 {
-    public string Id => "HA4";
+    public string Id => "HA4.0";
     public string Name => "Composable (no class/record inheritance, only interface implementation)";
 
     private static readonly HashSet<string> AllowedBaseTypes = new(StringComparer.Ordinal)
