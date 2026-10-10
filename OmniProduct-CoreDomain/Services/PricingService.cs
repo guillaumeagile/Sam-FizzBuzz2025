@@ -29,6 +29,7 @@ public class PricingService
 
     public void SetMargin(Ulid productId, decimal marginPercent)
     {
-        GetPricing(productId).SetMargin(marginPercent);
+        var pricing = GetPricing(productId).SetMargin(marginPercent);
+        _pricings[_pricings.FindIndex(p => p.ProductId == productId)] = pricing;
     }
 }

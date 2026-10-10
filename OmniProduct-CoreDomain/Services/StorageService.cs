@@ -50,5 +50,14 @@ public class StorageService
         return storedProduct;
     }
 
-    public void ReceiveStock(Ulid productId, int quantity) => GetStock(productId).Receive(quantity);
+    public void ReceiveStock(Ulid productId, int quantity) => SaveStock(GetStock(productId).Receive(quantity));
+
+    public StoredProduct Withdraw(Ulid productId, int quantity) => SaveStock(GetStock(productId).Withdraw(quantity));
+
+    // Records are immutable: a mutation yields a new instance that has to replace the stored one.
+    private StoredProduct SaveStock(StoredProduct storedProduct)
+    {
+        _storedProducts[_storedProducts.FindIndex(sp => sp.ProductId == storedProduct.ProductId)] = storedProduct;
+        return storedProduct;
+    }
 }

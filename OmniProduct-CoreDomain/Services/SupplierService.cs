@@ -53,6 +53,7 @@ public class SupplierService
 
     public void AddSupplierToRegion(Ulid productId, string region)
     {
-        GetSuppliers(productId).AddSupplierToRegion(region, FindSupplierForRegion(region).Id);
+        var productSuppliers = GetSuppliers(productId).AddSupplierToRegion(region, FindSupplierForRegion(region).Id);
+        _productSuppliers[_productSuppliers.FindIndex(s => s.ProductId == productId)] = productSuppliers;
     }
 }

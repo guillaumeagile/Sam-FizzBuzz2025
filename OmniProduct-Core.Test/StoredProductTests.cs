@@ -22,7 +22,7 @@ public class StoredProductTests
     {
         var storedProduct = CreateStoredProduct(stock: 10);
 
-        storedProduct.Receive(5);
+        storedProduct = storedProduct.Receive(5);
 
         storedProduct.Stock.Should().Be(15);
     }
@@ -32,7 +32,7 @@ public class StoredProductTests
     {
         var storedProduct = CreateStoredProduct(stock: 10);
 
-        storedProduct.Withdraw(4);
+        storedProduct = storedProduct.Withdraw(4);
 
         storedProduct.Stock.Should().Be(6);
     }
@@ -42,7 +42,7 @@ public class StoredProductTests
     {
         var storedProduct = CreateStoredProduct(stock: 10);
 
-        storedProduct.Withdraw(10);
+        storedProduct = storedProduct.Withdraw(10);
 
         storedProduct.Stock.Should().Be(0);
     }

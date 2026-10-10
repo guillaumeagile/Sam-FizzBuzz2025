@@ -3,15 +3,15 @@ using OmniProduct_CoreDomain.Models.Storage;
 
 namespace OmniProduct_CoreDomain.Models;
 
-public class Warehouse : IDentifiable
+public record Warehouse : IDentifiable
 {
-    public Ulid Id { get; set; }
+    public Ulid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public string Address { get; set; }
+    public string Address { get; init; }
 
-    public string Region { get; set; }
+    public string Region { get; init; }
 
-    public List<Ulid> StoredProductIds { get; set; } = new();
+    public IReadOnlyList<Ulid> StoredProductIds { get; init; } = Array.Empty<Ulid>();
 }

@@ -45,13 +45,19 @@ public class CatalogService
 
     public void AddImage(Ulid productId, string context, string url)
     {
-        GetListing(productId).AddImage(context, url);
-        _productLifecycleService.GetProduct(productId).UpdatedAt = DateTime.Now;
+        SaveListing(GetListing(productId).AddImage(context, url));
+        _productLifecycleService.TouchProduct(productId);
     }
 
     public void AddDiscount(Ulid productId, string discountCode)
     {
-        GetListing(productId).AddDiscount(discountCode);
-        _productLifecycleService.GetProduct(productId).UpdatedAt = DateTime.Now;
+        SaveListing(GetListing(productId).AddDiscount(discountCode));
+        _productLifecycleService.TouchProduct(productId);
+    }
+
+    // Records are immutable: a mutation yields a new instance that has to replace the stored one.
+    private void SaveListing(ProductCatalog listing)
+    {
+        _catalogs[_catalogs.FindIndex(c => c.ProductId == listing.ProductId)] = listing;
     }
 }

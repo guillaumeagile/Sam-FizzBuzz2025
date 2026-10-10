@@ -56,13 +56,18 @@ public class ProductServiceTests
         product.Status.Should().Be("active");
 
         storageService.ReceiveStock(product.Id, 50);
+        storedProduct = storageService.GetStock(product.Id);
         storedProduct.Stock.Should().Be(50);
 
         productLifecycleService.SellProduct(product.Id, 10);
+        storedProduct = storageService.GetStock(product.Id);
+        product = productLifecycleService.GetProduct(product.Id);
         storedProduct.Stock.Should().Be(40);
         product.Status.Should().Be("active");
 
         productLifecycleService.SellProduct(product.Id, 40);
+        storedProduct = storageService.GetStock(product.Id);
+        product = productLifecycleService.GetProduct(product.Id);
         storedProduct.Stock.Should().Be(0);
         product.Status.Should().Be("out_of_stock");
 
@@ -70,6 +75,8 @@ public class ProductServiceTests
         resellerPrice.Should().Be(124m); // 100 + 20% margin + 20% VAT on margin
 
         productLifecycleService.DeprecateProduct(product.Id);
+        product = productLifecycleService.GetProduct(product.Id);
+        storedProduct = storageService.GetStock(product.Id);
         product.Status.Should().Be("deprecated");
         storedProduct.Stock.Should().Be(0);
 

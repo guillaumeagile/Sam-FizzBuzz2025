@@ -66,11 +66,10 @@ public class ProductLifecycleService
     public void SellProduct(Ulid productId, int quantity)
     {
         var product = GetProduct(productId);
-        var storedProduct = _storageService.GetStock(productId);
         var suppliersRegions = _supplierService.GetSuppliers(productId).SuppliersRegions;
 
-        storedProduct.Withdraw(quantity);
-        product.Sell(storedProduct.Stock);
+        var storedProduct = _storageService.Withdraw(productId, quantity);
+        product = SaveProduct(product.Sell(storedProduct.Stock));
 
         foreach (var (region, supplierId) in suppliersRegions)
         {
@@ -88,7 +87,7 @@ public class ProductLifecycleService
     {
         var product = GetProduct(productId);
         var suppliersRegions = _supplierService.GetSuppliers(productId).SuppliersRegions;
-        product.Deprecate();
+        product = SaveProduct(product.Deprecate());
 
         foreach (var (region, supplierId) in suppliersRegions)
         {
@@ -108,5 +107,17 @@ public class ProductLifecycleService
             Body = $"We're sorry, {product.Name} has been discontinued.",
             SentAt = DateTime.Now
         });
+    }
+
+    public void TouchProduct(Ulid productId)
+    {
+        SaveProduct(GetProduct(productId).Touch());
+    }
+
+    // Records are immutable: a mutation yields a new instance that has to replace the stored one.
+    private Product SaveProduct(Product product)
+    {
+        _products[_products.FindIndex(p => p.Id == product.Id)] = product;
+        return product;
     }
 }

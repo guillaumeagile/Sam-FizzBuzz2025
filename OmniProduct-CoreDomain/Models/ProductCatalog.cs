@@ -1,19 +1,20 @@
+using System.Collections.Immutable;
 using OmniProduct_CoreDomain.Abstractions;
 
 namespace OmniProduct_CoreDomain.Models;
 
 // Catalog concern for a Product: images and discounts, keyed back to the product by ProductId.
-public class ProductCatalog : IDentifiable
+public record ProductCatalog : IDentifiable
 {
-    public Ulid ProductId { get; set; }
+    public Ulid ProductId { get; init; }
 
-    public string Slug { get; set; }
+    public string Slug { get; init; }
 
-    public Dictionary<string, string> Images { get; set; }          // key = context (e.g. "thumbnail", "hero"), value = url
+    public IReadOnlyDictionary<string, string> Images { get; init; }          // key = context (e.g. "thumbnail", "hero"), value = url
 
-    public List<string> Discounts { get; set; }
+    public IReadOnlyList<string> Discounts { get; init; }
 
-    public ProductCatalog(Ulid productId, string slug, Dictionary<string, string> images, List<string> discounts)
+    public ProductCatalog(Ulid productId, string slug, IReadOnlyDictionary<string, string> images, IReadOnlyList<string> discounts)
     {
         ProductId = productId;
         Slug = slug;
@@ -30,15 +31,15 @@ public class ProductCatalog : IDentifiable
         return productName;
     }
 
-    public void AddImage(string context, string url)
+    public ProductCatalog AddImage(string context, string url)
     {
-        Images[context] = url;
+        return this with { Images = Images.ToImmutableDictionary().SetItem(context, url) };
     }
 
-    public void AddDiscount(string discountCode)
+    public ProductCatalog AddDiscount(string discountCode)
     {
-        Discounts.Add(discountCode);
+        return this with { Discounts = Discounts.ToImmutableList().Add(discountCode) };
     }
 
-    public Ulid Id { get; set; }
+    public Ulid Id { get; init; }
 }

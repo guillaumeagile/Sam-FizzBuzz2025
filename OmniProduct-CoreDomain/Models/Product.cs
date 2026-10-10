@@ -2,16 +2,16 @@ using OmniProduct_CoreDomain.Abstractions;
 
 namespace OmniProduct_CoreDomain.Models;
 
-public class Product : IDentifiable
+public record Product : IDentifiable
 {
-    public Ulid Id { get; set; }
+    public Ulid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public string Status { get; set; }
+    public string Status { get; init; }
 
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime CreatedAt { get; init; }
+    public DateTime UpdatedAt { get; init; }
 
 
     public Product()
@@ -31,12 +31,13 @@ public class Product : IDentifiable
 
     // Storage owns the actual stock decrement (see StoredProduct.Withdraw); this only
     // records the sale's effect on the catalog side: status flip.
-    public void Sell(int remainingStock)
+    public Product Sell(int remainingStock)
     {
-        UpdatedAt = DateTime.Now;
+        var sold = this with { UpdatedAt = DateTime.Now };
 
-        if (remainingStock == 0)
-            Status = "out_of_stock";
+        return remainingStock == 0
+            ? sold with { Status = "out_of_stock" }
+            : sold;
     }
 
     // Deliberately badly coded (HA4.6 exercise): the model reads the clock itself,
@@ -48,9 +49,13 @@ public class Product : IDentifiable
 
     // --- Lifecycle ---
 
-    public void Deprecate()
+    public Product Deprecate()
     {
-        Status = "deprecated";
-        UpdatedAt = DateTime.Now;
+        return this with { Status = "deprecated", UpdatedAt = DateTime.Now };
+    }
+
+    public Product Touch()
+    {
+        return this with { UpdatedAt = DateTime.Now };
     }
 }

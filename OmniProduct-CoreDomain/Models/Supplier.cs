@@ -2,15 +2,15 @@ using OmniProduct_CoreDomain.Abstractions;
 
 namespace OmniProduct_CoreDomain.Models;
 
-public class Supplier: IDentifiable
+public record Supplier : IDentifiable
 {
-    public Ulid Id { get; set; }
+    public Ulid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; }
 
-    public string Email { get; set; }
+    public string Email { get; init; }
 
-    public string Region { get; set; }
+    public string Region { get; init; }
 
-    public List<Ulid> ProductIds { get; set; } = new();
+    public IReadOnlyList<Ulid> ProductIds { get; init; } = Array.Empty<Ulid>();
 }
