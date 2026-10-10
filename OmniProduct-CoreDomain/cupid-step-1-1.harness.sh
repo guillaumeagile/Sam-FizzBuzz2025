@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # CUPID step 1.1 harness.
 #
-# Deterministic, non-AI checks for the HA1/HA5-HA8, HA11-HA12, HA12 assessment criteria described in
+# Deterministic, non-AI checks for the HA1/HA5-HA8, HA11, HA12 assessment criteria described in
 # CUPID-step1-1.md (Concept 1.1: Single Responsibility -> Unix Philosophy):
 #   HA1 - C# idioms            -> built-in Roslyn analyzers via .editorconfig, enforced as build errors
 #   HA5 - No god class         -> Cupid.Harness structural rule (max 6 public properties per class)
