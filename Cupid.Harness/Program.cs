@@ -89,6 +89,7 @@ var step1Dot2Rules = new IHarnessRule[]
     new MatchOverOneOfRule(),
     new NoThrowInConstructorRule(),
     new NoClockInModelRule(),
+    new SellChecksCanSellBeforeWithdrawRule(),
     new RecordsAreValueObjectsRule(),
 };
 
@@ -113,8 +114,9 @@ foreach (var rule in rules)
         .ThenBy(v => v.Line)
         .ToList();
 
-    var status = violations.Count == 0 ? "PASS" : "FAIL";
-    if (violations.Count > 0)
+    var isWarning = rule.Severity == HarnessSeverity.Warning;
+    var status = violations.Count == 0 ? "PASS" : isWarning ? "WARN" : "FAIL";
+    if (violations.Count > 0 && !isWarning)
         overallPass = false;
 
     Console.WriteLine($"[{status}] {rule.Id} - {rule.Name}");
