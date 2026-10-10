@@ -1,6 +1,6 @@
 # HA4 Roslyn rules plan
 
-**Resume at:** relax HA4.3-HA4.7 (no pinned names, agree wording with the user), then HA4.3 test-first. HA4.1 and HA4.2 done and pushed.
+**Resume at:** HA4.4 (no `is`/`as`/`switch` on a `OneOf` alternative outside `.Match`; agree the exact wording with the user first, then test-first). HA4.1-HA4.3 done; HA4.3 committed locally, not pushed.
 
 Source of truth for the exercise: `OmniProduct-CoreDomain/CUPID-step1-2.md` (HA4 section, 7 steps).
 Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTestHarness.Compile`), registered in `Cupid.Harness/Program.cs` (`step1Dot2Rules`).
@@ -15,7 +15,7 @@ Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTes
 |---|---|---|---|
 | HA4.1 | 1. Value objects | (relaxed 2026-10-09) At least one VO exists and every VO is immutable. No type names pinned. VO definition pending, recommended: record/record struct not implementing `IDentifiable` | no VO at all; VO with setter; VO with mutable collection; valid VO |
 | HA4.2 | 2. One shelf-life property | (relaxed 2026-10-09) `Product` has at least one property of type `OneOf<X, Y, ...>` (corrected 2026-10-09: at least one, not exactly one), no setter (get-only or init) on each such property. Name not pinned. Optional: type arguments must be VOs | none; setter; `OneOfBase`; one valid; two valid |
-| HA4.3 | 3. Validate at boundary | `Perishable` has a static `Create` returning `OneOf<Perishable, InvalidDates>`; no `throw` in `Perishable`/`NonExpiring` | Create returns Perishable; ctor throws |
+| HA4.3 | 3. Validate at boundary | (heuristic, 2026-10-10) at least one VO has a static `Create` or `Build` returning `OneOf<Self, E>` where `E` implements `IValidationError` | no factory; returns VO directly; E not IValidationError; OneOf of another type; other name; IDentifiable record |
 | HA4.4 | 4. Behaviour behind `Match` | `Product.CanSell(...)` returns `OneOf<Sellable, PastSellByDate>`; no `is`/`as`/`switch` on `Perishable`/`NonExpiring` anywhere (use `.Match`) | `is Perishable` check; switch on kind; Match used |
 | HA4.5 | 5. No expiry in `ProductStatus` | `ProductStatus` has no member naming expiry (Expired, Expiry, PastSellBy, ...) | enum member `Expired`; clean enum |
 | HA4.6 | 6. No clock in the model | No `DateTime.Now/UtcNow/Today`, `DateOnly.FromDateTime(...Now)`, `DateTimeOffset.Now/UtcNow` in `Models`/`ValueObjects` | `DateTime.Now` in Product; `today` parameter |
@@ -24,6 +24,8 @@ Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTes
 Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type") is not a separate rule: HA4.4's no-`is`/`as` check is what makes it hold.
 
 ## Decisions
+
+- **2026-10-10:** HA4.3 error relation: `E` *implements* `IValidationError` (interface), not a base class, because HA4 forbids inheritance (user chose the interface option). The error types live in the domain under `Errors/` (user: "a special place for error representation"). This is the one addition to the otherwise untouched failing domain.
 
 - **2026-10-09:** the domain source (`OmniProduct-CoreDomain`) is intentionally failing the rules: do NOT modify it. Verify locally with `dotnet test` and `dotnet run --project Cupid.Harness -- --step 1.2 OmniProduct-CoreDomain` (user allows local dotnet; this overrides the cloud-verification default for this work).
 
@@ -41,7 +43,7 @@ Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type
 - [ ] Confirm the 7-rule split and the names above.
 - [ ] HA4.1 — **done 2026-10-09, verified locally** (uncommitted; `dotnet test Cupid.Harness.Test` 75/75 passed = 66 + 9 new; harness on `OmniProduct-CoreDomain --step 1.2` gives `[PASS] HA4.1` because `Price` is an immutable record VO): `Cupid.Harness/Rules/ValueObjectsAreImmutableRule.cs` (id `HA4.1`, `IsValueObject` internal helper reusable by HA4.2), 9 tests in `Cupid.Harness.Test/ValueObjectsAreImmutableRuleTests.cs`, registered in `Program.cs` `step1Dot2Rules`. 
 - [x] HA4.2 — **done 2026-10-09, verified locally**: `Cupid.Harness/Rules/ProductHasOneOfPropertyRule.cs` (id `HA4.2`; type named `Product`, at least one real `OneOf<...>` property, no `set`, type args are VOs; `OneOfBase` subclass does not count), 9 tests in `Cupid.Harness.Test/ProductHasOneOfPropertyRuleTests.cs`, registered in `Program.cs`. `dotnet test` 84/84. On the real domain `[FAIL] HA4.2` (Product has no OneOf property), which is the intended state.
-- [ ] HA4.3
+- [x] HA4.3 — **done 2026-10-10, verified locally**: `Cupid.Harness/Rules/ValueObjectFactoryRule.cs` (id `HA4.3`), 9 tests in `ValueObjectFactoryRuleTests.cs`, registered in `Program.cs`. `dotnet test` 93/93. Real domain: `[FAIL] HA4.3` (no factory yet), intended. Added to the domain in a dedicated `OmniProduct-CoreDomain/Errors/` folder: `IValidationError` (interface, `string Message`) and `record ValidationError(string Message) : IValidationError`. Domain builds; other rule results unchanged with or without these files.
 - [ ] HA4.4
 - [ ] HA4.5
 - [ ] HA4.6
