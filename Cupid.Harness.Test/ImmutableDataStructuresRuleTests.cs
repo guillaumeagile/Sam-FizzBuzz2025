@@ -24,6 +24,39 @@ public class ImmutableDataStructuresRuleTests
     }
 
     [Fact]
+    public void ClassInServicesNamespace_ShouldNotBeFlagged()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile("""
+            namespace Sample.Services;
+            public class WidgetService
+            {
+                public void Run() { }
+            }
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().NotContain(v => v.Message.Contains("is a class, not a record"));
+    }
+
+    [Fact]
+    public void MutableCollectionInServicesNamespace_ShouldNotBeFlagged()
+    {
+        var (trees, compilation) = RuleTestHarness.Compile("""
+            using System.Collections.Generic;
+            namespace Sample.Services;
+            public class WidgetService
+            {
+                private readonly List<string> _names = new();
+            }
+            """);
+
+        var violations = _rule.Check(trees, compilation);
+
+        violations.Should().NotContain(v => v.Message.Contains("mutable collection type"));
+    }
+
+    [Fact]
     public void PropertyWithSetter_ShouldBeFlagged()
     {
         var (trees, compilation) = RuleTestHarness.Compile("""
