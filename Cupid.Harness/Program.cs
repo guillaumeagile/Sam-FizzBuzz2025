@@ -79,6 +79,7 @@ var step1Dot2Rules = new IHarnessRule[]
     new ProductHasOneOfPropertyRule(),
     new ValueObjectFactoryRule(),
     new NoThrowInConstructorRule(),
+    new NoClockInModelRule(),
     new RecordsAreValueObjectsRule(),
 };
 

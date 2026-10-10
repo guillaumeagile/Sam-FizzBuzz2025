@@ -1,6 +1,6 @@
 # HA4 Roslyn rules plan
 
-**Resume at:** HA4.4 (no `is`/`as`/`switch` on a `OneOf` alternative outside `.Match`; agree the exact wording with the user first, then test-first). HA4.1, 4.2, 4.3, 4.5 done (4.4 skipped for now); committed locally, not pushed since `1c124fa`.
+**Resume at:** HA4.4 (no `is`/`as`/`switch` on a `OneOf` alternative outside `.Match`; agree the wording first, then test-first), then HA4.7. HA4.1, 4.2, 4.3, 4.5, 4.6 done; HA4.1-4.5 pushed, HA4.6 committed locally.
 
 Source of truth for the exercise: `OmniProduct-CoreDomain/CUPID-step1-2.md` (HA4 section, 7 steps).
 Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTestHarness.Compile`), registered in `Cupid.Harness/Program.cs` (`step1Dot2Rules`).
@@ -18,7 +18,7 @@ Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTes
 | HA4.3 | 3. Validate at boundary | (heuristic, 2026-10-10) at least one VO has a static `Create` or `Build` returning `OneOf<Self, E>` where `E` implements `IValidationError` | no factory; returns VO directly; E not IValidationError; OneOf of another type; other name; IDentifiable record |
 | HA4.4 | 4. Behaviour behind `Match` | `Product.CanSell(...)` returns `OneOf<Sellable, PastSellByDate>`; no `is`/`as`/`switch` on `Perishable`/`NonExpiring` anywhere (use `.Match`) | `is Perishable` check; switch on kind; Match used |
 | HA4.5 | 3 (follow-up). No throw in constructors | (replaces the old "no expiry in ProductStatus" idea, 2026-10-10) no `throw` statement, `throw` expression or `ThrowIf*` call inside any constructor | throw stmt; `?? throw`; `ThrowIfNull`; record ctor; clean ctor; throw in method; Create factory |
-| HA4.6 | 6. No clock in the model | No `DateTime.Now/UtcNow/Today`, `DateOnly.FromDateTime(...Now)`, `DateTimeOffset.Now/UtcNow` in `Models`/`ValueObjects` | `DateTime.Now` in Product; `today` parameter |
+| HA4.6 | 6. No clock in the model | (relaxed 2026-10-10) in the model (entities = `IDentifiable` types, VOs = records not IDentifiable; services out of scope, no namespace pinned) no `DateTime.Now/UtcNow/Today`, `DateTimeOffset.Now/UtcNow`, `TimeProvider.System`; a `today` parameter or an injected `TimeProvider` instance is fine | each clock read in entity/VO; `using static`; today param; injected TimeProvider; service out of scope |
 | HA4.7 | 7. Services wired | `SellProduct` calls `CanSell` before `Withdraw`; `AddProduct` takes a `ShelfLife` parameter; `GetDisplayLabel` uses `ShelfLife.Match` and mentions "[BEST BEFORE PASSED]" | withdraw without CanSell; AddProduct without ShelfLife |
 
 Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type") is not a separate rule: HA4.4's no-`is`/`as` check is what makes it hold.
@@ -48,7 +48,7 @@ Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type
 - [x] HA4.3 — **done 2026-10-10, verified locally**: `Cupid.Harness/Rules/ValueObjectFactoryRule.cs` (id `HA4.3`), 9 tests in `ValueObjectFactoryRuleTests.cs`, registered in `Program.cs`. `dotnet test` 93/93. Real domain: `[FAIL] HA4.3` (no factory yet), intended. Added to the domain in a dedicated `OmniProduct-CoreDomain/Errors/` folder: `IValidationError` (interface, `string Message`) and `record ValidationError(string Message) : IValidationError`. Domain builds; other rule results unchanged with or without these files.
 - [ ] HA4.4
 - [x] HA4.5 — **done 2026-10-10, verified locally**: checked first, no existing rule forbade throwing in constructors (HA10 only bans services in entity constructors; HA3 text only mentions it). `Cupid.Harness/Rules/NoThrowInConstructorRule.cs` (id `HA4.5`), 7 tests in `NoThrowInConstructorRuleTests.cs`, registered. `dotnet test` 100/100. Real domain: `[PASS] HA4.5` today (no constructor throws yet).
-- [ ] HA4.6
+- [x] HA4.6 — **done 2026-10-10, verified locally**: `Cupid.Harness/Rules/NoClockInModelRule.cs` (id `HA4.6`, semantic symbol detection), 9 tests in `NoClockInModelRuleTests.cs`, registered. `dotnet test` 109/109. Real domain: `[PASS] HA4.6` today (no clock reads in Models/ValueObjects/Services yet).
 - [ ] HA4.7
 
 ## Blockers
