@@ -14,10 +14,12 @@
 | Rule | Check | Severity |
 |---|---|---|
 | HA12 | every `Id`/`*Id` property or parameter has type Guid/Ulid or a record wrapping a single Guid/Ulid; no `Guid.NewGuid()`, `Guid.Empty`, `new Guid()`, `default(Guid)` in id context | error |
-| HA12.1 | an `Id` typed as a bare `Guid`/`Ulid` should be wrapped in a record | warning |
+| HA12.1 | (changed 2026-10-10, user) any `Id`/`*Id` not a record wrapper (string, int, bare Guid/Ulid...) should be wrapped: primitive obsession | warning |
 
 ## Status
 
 - [x] (2026-10-10) tests HA12, rule HA12, tests HA12.1, rule HA12.1, register in `step1Dot1Rules`, docs (`CUPID-step1-1.md`, `cupid-step-1-1.harness.sh`, `AGENTS.md`), local verify, commit.
 
 Real domain: `[FAIL] HA12` (string Ids in IDentifiable, Notification, Product, ProductCatalog, ...), `[PASS] HA12.1`. Helper shared in `Rules/IdentifierShape.cs`.
+
+- **2026-10-10 (user):** HA12.1 originally only warned on bare Guid/Ulid, so it passed on the real domain although `string Id` is primitive obsession. Now warns on every non-wrapper id (a string id both fails HA12 and warns HA12.1).

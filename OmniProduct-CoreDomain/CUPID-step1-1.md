@@ -117,5 +117,6 @@ every `Id` / `*Id` property or parameter of the model and events (anything outsi
 `new Guid()` and `default(Guid)` are flagged where they build an identifier; `Guid.CreateVersion7()` and
 `Ulid.NewUlid()` are fine.
 
-**HA12.1 (warning only, `[WARN]`):** a bare `Guid` / `Ulid` is accepted by HA12 but still primitive obsession; wrap it
-in a record so a `ProductId` cannot be mixed up with a `SupplierId`.
+**HA12.1 (warning only, `[WARN]`):** primitive obsession on identifiers. Any `Id` / `*Id` that is not a record wrapper
+(a `string`, `int`, bare `Guid` or `Ulid`, ...) gets a warning asking to wrap it in a record, so a `ProductId` cannot be
+mixed up with a `SupplierId`. A `string` id therefore both fails HA12 and warns in HA12.1.

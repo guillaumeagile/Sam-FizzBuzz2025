@@ -37,8 +37,17 @@ public class BareIdentifierIsWeakRuleTests
         Run("public class Product { public ProductId Id { get; } }").Should().BeEmpty();
 
     [Fact]
-    public void StringId_IsNotThisRulesBusiness() =>
-        Run("public class Product { public string Id { get; } }").Should().BeEmpty();
+    public void StringId_ShouldWarn() =>
+        Run("public class Product { public string Id { get; } }").Should().ContainSingle(v => v.Message.Contains("string"));
+
+    [Fact]
+    public void IntSuffixId_ShouldWarn() =>
+        Run("public class Stock { public int ProductId { get; } }").Should().ContainSingle(v => v.Message.Contains("int"));
+
+    [Fact]
+    public void WrapperOverString_ShouldWarn() =>
+        Run("public record NameId(string Value); public class Product { public NameId Id { get; } }")
+            .Should().ContainSingle(v => v.Message.Contains("NameId"));
 
     [Fact]
     public void ServicesNamespace_IsOutOfScope() =>

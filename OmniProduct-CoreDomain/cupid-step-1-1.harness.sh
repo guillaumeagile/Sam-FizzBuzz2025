@@ -9,7 +9,7 @@
 #   HA7 - Fan-out              -> Cupid.Harness structural rule (a class touches at most 3 distinct domain types)
 #   HA8 - No Persistence in Domain -> Cupid.Harness structural rule (no EF/ORM vocabulary on domain models)
 #   HA11 - Records are VOs     -> Cupid.Harness structural rule (records never implement IDentifiable; Price must be one)
-#   HA12 - Rich identifiers    -> Cupid.Harness structural rules (Id/*Id is a Guid/Ulid or a record wrapping one, no NewGuid/Empty; HA12.1 bare Guid is a [WARN] only)
+#   HA12 - Rich identifiers    -> Cupid.Harness structural rules (Id/*Id is a Guid/Ulid or a record wrapping one, no NewGuid/Empty; HA12.1 unwrapped primitive id is a [WARN] only)
 #
 # Exit code is 0 only if every layer passes. Safe to run repeatedly (no state, no network).
 
