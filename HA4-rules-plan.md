@@ -25,6 +25,8 @@ Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type
 
 ## Decisions
 
+- **2026-10-10:** user asked for a deliberately badly coded `Product.CanSell` in the domain `Product.cs` that breaks HA4.6 (overrides "do not change the domain" for this one edit). It reads `DateTime.Now`. Later HA4.4/HA4.7 exercises will likely want a proper `CanSell` returning `OneOf`; this bad version is the starting point to refactor.
+
 - **2026-10-10:** user asked to add "no exception thrown in constructors" as HA4.5 if no rule covers it; none did. It replaces the previous HA4.5 idea (no expiry in `ProductStatus`), which is dropped. HA4.6 (no clock) and HA4.7 (services) keep their numbers.
 
 - **2026-10-10:** HA4.3 error relation: `E` *implements* `IValidationError` (interface), not a base class, because HA4 forbids inheritance (user chose the interface option). The error types live in the domain under `Errors/` (user: "a special place for error representation"). This is the one addition to the otherwise untouched failing domain.
@@ -48,7 +50,7 @@ Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type
 - [x] HA4.3 — **done 2026-10-10, verified locally**: `Cupid.Harness/Rules/ValueObjectFactoryRule.cs` (id `HA4.3`), 9 tests in `ValueObjectFactoryRuleTests.cs`, registered in `Program.cs`. `dotnet test` 93/93. Real domain: `[FAIL] HA4.3` (no factory yet), intended. Added to the domain in a dedicated `OmniProduct-CoreDomain/Errors/` folder: `IValidationError` (interface, `string Message`) and `record ValidationError(string Message) : IValidationError`. Domain builds; other rule results unchanged with or without these files.
 - [ ] HA4.4
 - [x] HA4.5 — **done 2026-10-10, verified locally**: checked first, no existing rule forbade throwing in constructors (HA10 only bans services in entity constructors; HA3 text only mentions it). `Cupid.Harness/Rules/NoThrowInConstructorRule.cs` (id `HA4.5`), 7 tests in `NoThrowInConstructorRuleTests.cs`, registered. `dotnet test` 100/100. Real domain: `[PASS] HA4.5` today (no constructor throws yet).
-- [x] HA4.6 — **done 2026-10-10, verified locally**: `Cupid.Harness/Rules/NoClockInModelRule.cs` (id `HA4.6`, semantic symbol detection), 9 tests in `NoClockInModelRuleTests.cs`, registered. `dotnet test` 109/109. Real domain: `[PASS] HA4.6` today (no clock reads in Models/ValueObjects/Services yet).
+- [x] HA4.6 — **done 2026-10-10, verified locally**: `Cupid.Harness/Rules/NoClockInModelRule.cs` (id `HA4.6`, semantic symbol detection), 9 tests in `NoClockInModelRuleTests.cs`, registered. `dotnet test` 109/109. Real domain: `[FAIL] HA4.6`, 5 hits in `Models/Product.cs` (the 4 existing `DateTime.Now` plus the deliberately bad `CanSell(DateTime sellByDate)` added at the user's request 2026-10-10). Bug found and fixed on the way: the harness compiled the domain without its `<ImplicitUsings>`, so `DateTime` did not resolve in `Product.cs` (no `using System;`) and the rule silently passed. `Program.cs` now adds the implicit global usings as a compilation-only tree. Other rule results unchanged.
 - [ ] HA4.7
 
 ## Blockers

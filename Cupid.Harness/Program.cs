@@ -47,9 +47,17 @@ var trees = files
     .Select(f => CSharpSyntaxTree.ParseText(File.ReadAllText(f), path: f))
     .ToList();
 
+// The domain project enables <ImplicitUsings>, so its files use System/Linq/... types without a `using`.
+// Mirror those global usings in a compilation-only tree (not handed to the rules) so semantic checks can
+// resolve symbols such as DateTime instead of silently skipping them.
+var implicitUsings = CSharpSyntaxTree.ParseText(
+    "global using System; global using System.Collections.Generic; global using System.IO; " +
+    "global using System.Linq; global using System.Net.Http; global using System.Threading; " +
+    "global using System.Threading.Tasks;");
+
 var compilation = CSharpCompilation.Create(
     "CupidHarness.Analysis",
-    trees,
+    trees.Append(implicitUsings),
     references: new[]
     {
         MetadataReference.CreateFromFile(typeof(object).Assembly.Location),

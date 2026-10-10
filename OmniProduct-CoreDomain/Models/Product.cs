@@ -39,6 +39,13 @@ public class Product : IDentifiable
             Status = "out_of_stock";
     }
 
+    // Deliberately badly coded (HA4.6 exercise): the model reads the clock itself,
+    // so the sale rule cannot be tested without waiting.
+    public bool CanSell(DateTime sellByDate)
+    {
+        return DateTime.Now <= sellByDate;
+    }
+
     // --- Lifecycle ---
 
     public void Deprecate()
