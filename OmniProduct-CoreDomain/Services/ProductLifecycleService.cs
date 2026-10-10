@@ -33,7 +33,10 @@ public class ProductLifecycleService
         var supplier = _supplierService.FindSupplierForRegion(region);
         var warehouse = _storageService.FindWarehouseNear(region);
 
-        var price = new Price(supplierPrice, currency);
+        var priceResult = Price.Create(supplierPrice, currency);
+        if (priceResult.IsT1)
+            throw new ArgumentException(priceResult.AsT1.Message);
+        var price = priceResult.AsT0;
         var suppliersRegions = new Dictionary<string, Ulid> { { region, supplier.Id } };
 
         var product = new Product(

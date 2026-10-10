@@ -26,7 +26,7 @@ public record ProductCatalog : IDentifiable
 
     public string GetDisplayLabel(string productName, OneOf<Active, OutOfStock, Deprecated> productStatus, int stock)
     {
-        if (productStatus.Match(_ => false, _ => false, _ => true))
+        if (productStatus.IsT2)
             return $"[DISCONTINUED] {productName}";
         if (stock == 0)
             return $"[OUT OF STOCK] {productName}";
