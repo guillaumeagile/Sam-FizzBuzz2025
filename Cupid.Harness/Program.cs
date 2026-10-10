@@ -84,7 +84,6 @@ var step1Dot1Rules = new IHarnessRule[]
 var step1Dot2Rules = new IHarnessRule[]
 {
     new ImmutableDataStructuresRule(),
-    new AlgebraicDataTypeRule(),
     new NoInheritanceRule(),
     new NoThrowInConstructorRule(),
     new ValueObjectsAreImmutableRule(),

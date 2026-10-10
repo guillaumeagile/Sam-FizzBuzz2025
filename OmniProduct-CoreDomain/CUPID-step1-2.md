@@ -26,13 +26,13 @@ use FxCop to enforce C#14 style
 enforce the usage of records and all imutable collections
 no setter on any property
 
-### HA3 - ADT (algebraic data structures)
+### HA3 - ADT (algebraic data structures) — rule removed, covered by HA4.3
 
 Represent closed alternatives with `OneOf<T0, T1, ...>` from the `OneOf` NuGet package. Its `.Match(...)` API forces each alternative to be handled, without relying on an inheritance hierarchy. This also satisfies HA4's no-inheritance constraint.
 
 Use these unions for expected outcomes, such as `OneOf<Product, ProductNotFound>` for a lookup or a union of success and named domain failures for an operation. Do not encode expected absence as `null`. Chain operations with narrowly scoped `Bind`/`Map` helpers that propagate each failure case; `OneOf` supplies exhaustive matching but does not itself provide monadic chaining. Keep unexpected failures exceptional rather than silently converting them into domain results.
 
-The harness requires at least one actual `OneOf<T0, T1, ...>` usage in the analyzed source. Record hierarchies alone do not satisfy HA3.
+The harness checks this through HA4.3: `Product` must have at least one `OneOf<...>` property. Record hierarchies alone do not satisfy HA4.3.
 
 You will gain OneOf . but also Result and Option, that are sum types, which are ADTs, and OneOf already expresses both:
 - Option<T> is OneOf<T, None> or OneOf<T, NotFound>.
@@ -84,7 +84,7 @@ Products now have a shelf life, and the two kinds differ in their dates, not in 
 2. **Give `Product` one `ShelfLife` property** of type `OneOf<Perishable, NonExpiring>`, set once at
    creation (no setter).  
 3. **Validate the invariant at the boundary.** Dates are input data, so a `Perishable.Create(...)` that
-   returns `OneOf<Perishable, InvalidDates>` is better than a constructor that throws (HA3).
+   returns `OneOf<Perishable, InvalidDates>` is better than a constructor that throws (HA4.1).
 4. **Put the behaviour behind `Match`**, so each alternative is handled and the compiler checks it:
    `Product.CanSell(today)` returns `OneOf<Sellable, PastSellByDate>`. A `Perishable` refuses the sale
    after `SellByDate`; a `NonExpiring` never refuses.
