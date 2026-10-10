@@ -111,12 +111,14 @@ staying an immutable record.
 
 ### HA12 - Identifiers are rich objects (UUID v7+ or ULID)
 
-every `Id` / `*Id` property or parameter of the model and events (anything outside a `Services` namespace) must be a
-`Guid` or a `Ulid`, or a record wrapping exactly one of them (`record ProductId(Guid Value)`). A `string`, `int` or
-`long` identifier is a violation. "At least v7" is checked by shape: `Guid.NewGuid()` (v4), `Guid.Empty`,
-`new Guid()` and `default(Guid)` are flagged where they build an identifier; `Guid.CreateVersion7()` and
+every `Id` / `*Id` / `*Ids` property, field, local, return type or parameter of the model and events (anything outside
+a `Services` namespace) must be a `Guid` or a `Ulid`, or a record wrapping exactly one of them
+(`record ProductId(Guid Value)`). A `string`, `int` or `long` identifier is a violation. For `*Ids` collections and
+dictionaries the element and key types are checked. "At least v7" is checked by shape: `Guid.NewGuid()` (v4),
+`Guid.Empty`, `new Guid()` and `default(Guid)` are flagged where they build an identifier; `Guid.CreateVersion7()` and
 `Ulid.NewUlid()` are fine.
 
-**HA12.1 (warning only, `[WARN]`):** primitive obsession on identifiers. Any `Id` / `*Id` that is not a record wrapper
-(a `string`, `int`, bare `Guid` or `Ulid`, ...) gets a warning asking to wrap it in a record, so a `ProductId` cannot be
-mixed up with a `SupplierId`. A `string` id therefore both fails HA12 and warns in HA12.1.
+**HA12.1 (warning only, `[WARN]`):** primitive obsession on identifiers, services included. Any id member whose type is
+not declared in the analysed source (so a BCL or package type used raw: `string`, `int`, `Guid`, `Ulid`, `Uri`, ...)
+gets a warning asking for a domain record, so a `ProductId` cannot be mixed up with a `SupplierId`. A `string` id
+therefore both fails HA12 and warns in HA12.1.

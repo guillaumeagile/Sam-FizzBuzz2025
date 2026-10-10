@@ -23,3 +23,5 @@
 Real domain: `[FAIL] HA12` (string Ids in IDentifiable, Notification, Product, ProductCatalog, ...), `[PASS] HA12.1`. Helper shared in `Rules/IdentifierShape.cs`.
 
 - **2026-10-10 (user):** HA12.1 originally only warned on bare Guid/Ulid, so it passed on the real domain although `string Id` is primitive obsession. Now warns on every non-wrapper id (a string id both fails HA12 and warns HA12.1).
+
+- **2026-10-10 (user: "yes"):** HA12.1 now = id type not declared in source (BCL/package type used raw), detected with `Locations.IsInSource`; scope widened to fields, locals, return types, `*Ids` collections/dictionaries (element + key), `Nullable<T>`/arrays unwrapped, and `Services` namespaces (HA12 stays out of Services). Void methods ignored. 164 tests pass; real domain: HA12 FAIL, HA12.1 WARN 39 hits (properties, ctor params, service params). Not detected: `Sku`/`Slug`-style names, dictionary keys not named `*Ids`, `Guid.Parse`/`ToString` conversions.

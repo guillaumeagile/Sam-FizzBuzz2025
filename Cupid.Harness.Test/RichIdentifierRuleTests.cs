@@ -114,4 +114,22 @@ public class RichIdentifierRuleTests
     [Fact]
     public void NewGuid_ForNonIdPurpose_ShouldNotBeFlagged() =>
         Run("public class Factory { public void Make() { var token = Guid.NewGuid(); } }").Should().BeEmpty();
+
+    [Fact]
+    public void FieldReturnTypeAndLocal_ShouldBeFlagged() =>
+        Run("public class Stock { private string _productId = \"\"; public int GetSupplierId() => 0; public void Do() { string orderId = \"\"; } }")
+            .Should().HaveCount(3);
+
+    [Fact]
+    public void ListOfStringIds_ShouldBeFlagged() =>
+        Run("public class Stock { public System.Collections.Generic.List<string> ProductIds { get; } }")
+            .Should().ContainSingle(v => v.Message.Contains("string"));
+
+    [Fact]
+    public void ListOfWrappedIds_ShouldPass() =>
+        Run("public class Stock { public System.Collections.Generic.List<ProductId> ProductIds { get; } }").Should().BeEmpty();
+
+    [Fact]
+    public void VoidMethodNamedLikeAnId_ShouldPass() =>
+        Run("public class Stock { public void ProcessId() { } }").Should().BeEmpty();
 }

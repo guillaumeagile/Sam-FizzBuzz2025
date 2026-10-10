@@ -12,10 +12,36 @@ internal static class IdentifierShape
 
     internal sealed record IdMember(SyntaxTree Tree, SyntaxNode Node, string Owner, string Name, ITypeSymbol Type);
 
+    // `Id`, `id`, `*Id` (single id) and `*Ids` (collection of ids).
     internal static bool IsIdName(string name) =>
-        name is "Id" or "id" || (name.Length > 2 && name.EndsWith("Id", StringComparison.Ordinal));
+        name is "Id" or "id" or "Ids" or "ids"
+        || (name.Length > 2 && name.EndsWith("Id", StringComparison.Ordinal))
+        || (name.Length > 3 && name.EndsWith("Ids", StringComparison.Ordinal));
 
     internal static bool IsGuidOrUlid(ITypeSymbol type) => type.Name is "Guid" or "Ulid";
+
+    // A domain type: declared in the analysed source (not the BCL / a NuGet package) and not a stand-in for Guid/Ulid.
+    internal static bool IsDomainType(ITypeSymbol type) =>
+        !IsGuidOrUlid(type) && type.Locations.Any(l => l.IsInSource);
+
+    // The type(s) that actually carry the identifier: unwraps Nullable<T> and arrays; for a plural `*Ids`
+    // member also every type argument of a generic collection or dictionary (element and key).
+    internal static IEnumerable<ITypeSymbol> Leaves(IdMember member) => Leaves(member.Type, member.Name);
+
+    private static IEnumerable<ITypeSymbol> Leaves(ITypeSymbol type, string name)
+    {
+        switch (type)
+        {
+            case IArrayTypeSymbol array:
+                return Leaves(array.ElementType, name);
+            case INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } nullable:
+                return Leaves(nullable.TypeArguments[0], name);
+            case INamedTypeSymbol { IsGenericType: true } generic when name.EndsWith("Ids", StringComparison.OrdinalIgnoreCase):
+                return generic.TypeArguments.SelectMany(t => Leaves(t, name));
+            default:
+                return new[] { type };
+        }
+    }
 
     // A record whose only public instance property is a Guid or a Ulid, e.g. record ProductId(Guid Value).
     internal static bool IsWrapper(ITypeSymbol type)
@@ -35,7 +61,8 @@ internal static class IdentifierShape
         return ns != null && ns.Split('.').Contains("Services");
     }
 
-    internal static IEnumerable<IdMember> FindIdMembers(IReadOnlyList<SyntaxTree> trees, Compilation compilation)
+    internal static IEnumerable<IdMember> FindIdMembers(
+        IReadOnlyList<SyntaxTree> trees, Compilation compilation, bool includeServices)
     {
         foreach (var tree in trees)
         {
@@ -43,25 +70,37 @@ internal static class IdentifierShape
 
             foreach (var node in tree.GetRoot().DescendantNodes())
             {
-                (string Name, TypeSyntax? Type) member = node switch
+                string name;
+                switch (node)
                 {
-                    PropertyDeclarationSyntax p => (p.Identifier.Text, p.Type),
-                    ParameterSyntax p => (p.Identifier.Text, p.Type),
-                    _ => default
-                };
+                    case PropertyDeclarationSyntax p: name = p.Identifier.Text; break;
+                    case ParameterSyntax { Type: not null } p: name = p.Identifier.Text; break;
+                    case VariableDeclaratorSyntax v: name = v.Identifier.Text; break;
+                    case MethodDeclarationSyntax m: name = m.Identifier.Text; break;
+                    case LocalFunctionStatementSyntax l: name = l.Identifier.Text; break;
+                    default: continue;
+                }
 
-                if (member.Type == null || !IsIdName(member.Name))
+                if (!IsIdName(name))
                     continue;
 
                 var symbol = model.GetDeclaredSymbol(node);
-                if (symbol == null || InServices(symbol))
+                var type = symbol switch
+                {
+                    IPropertySymbol p => p.Type,
+                    IParameterSymbol p => p.Type,
+                    IFieldSymbol f => f.Type,
+                    ILocalSymbol l => l.Type,
+                    IMethodSymbol { ReturnsVoid: false } m => m.ReturnType,
+                    _ => null
+                };
+
+                if (symbol == null || type == null || type.TypeKind == TypeKind.Error && type.Name.Length == 0)
+                    continue;
+                if (!includeServices && InServices(symbol))
                     continue;
 
-                var type = model.GetTypeInfo(member.Type).Type;
-                if (type == null)
-                    continue;
-
-                yield return new IdMember(tree, node, symbol.ContainingType?.Name ?? string.Empty, member.Name, type);
+                yield return new IdMember(tree, node, symbol.ContainingType?.Name ?? string.Empty, name, type);
             }
         }
     }

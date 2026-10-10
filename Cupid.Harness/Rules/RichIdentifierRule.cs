@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Cupid.Harness.Rules;
 
-// HA12 - Identifiers are rich objects: every `Id` / `*Id` property or parameter of the model (anything
+// HA12 - Identifiers are rich objects: every `Id` / `*Id` / `*Ids` property, field, local, return type or parameter of the model (anything
 // outside a `Services` namespace) is a Guid or a Ulid, or a record wrapping exactly one of them
 // (record ProductId(Guid Value)). Never string / int / long. "At least v7" is checked by shape only:
 // Guid.NewGuid() (v4), Guid.Empty, new Guid() and default(Guid) are flagged in id context, while
@@ -16,13 +16,16 @@ public sealed class RichIdentifierRule : IHarnessRule
     {
         var violations = new List<Violation>();
 
-        foreach (var member in IdentifierShape.FindIdMembers(trees, compilation))
+        foreach (var member in IdentifierShape.FindIdMembers(trees, compilation, includeServices: false))
         {
-            if (IdentifierShape.IsGuidOrUlid(member.Type) || IdentifierShape.IsWrapper(member.Type))
-                continue;
+            foreach (var type in IdentifierShape.Leaves(member))
+            {
+                if (IdentifierShape.IsGuidOrUlid(type) || IdentifierShape.IsWrapper(type))
+                    continue;
 
-            violations.Add(new Violation(member.Tree.FilePath, IdentifierShape.Line(member.Node),
-                $"'{member.Owner}.{member.Name}' is typed '{member.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)}'. Identifiers must be rich objects: a record wrapping a Guid (UUID v7) or a Ulid."));
+                violations.Add(new Violation(member.Tree.FilePath, IdentifierShape.Line(member.Node),
+                    $"'{member.Owner}.{member.Name}' is typed '{type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)}'. Identifiers must be rich objects: a record wrapping a Guid (UUID v7) or a Ulid."));
+            }
         }
 
         foreach (var (tree, node, text) in IdentifierShape.FindBadCreations(trees, compilation))
