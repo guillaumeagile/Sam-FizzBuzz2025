@@ -78,6 +78,7 @@ var step1Dot2Rules = new IHarnessRule[]
     new ValueObjectsAreImmutableRule(),
     new ProductHasOneOfPropertyRule(),
     new ValueObjectFactoryRule(),
+    new NoThrowInConstructorRule(),
     new RecordsAreValueObjectsRule(),
 };
 

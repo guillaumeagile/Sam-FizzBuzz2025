@@ -1,6 +1,6 @@
 # HA4 Roslyn rules plan
 
-**Resume at:** HA4.4 (no `is`/`as`/`switch` on a `OneOf` alternative outside `.Match`; agree the exact wording with the user first, then test-first). HA4.1-HA4.3 done; HA4.3 committed locally, not pushed.
+**Resume at:** HA4.4 (no `is`/`as`/`switch` on a `OneOf` alternative outside `.Match`; agree the exact wording with the user first, then test-first). HA4.1, 4.2, 4.3, 4.5 done (4.4 skipped for now); committed locally, not pushed since `1c124fa`.
 
 Source of truth for the exercise: `OmniProduct-CoreDomain/CUPID-step1-2.md` (HA4 section, 7 steps).
 Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTestHarness.Compile`), registered in `Cupid.Harness/Program.cs` (`step1Dot2Rules`).
@@ -17,13 +17,15 @@ Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTes
 | HA4.2 | 2. One shelf-life property | (relaxed 2026-10-09) `Product` has at least one property of type `OneOf<X, Y, ...>` (corrected 2026-10-09: at least one, not exactly one), no setter (get-only or init) on each such property. Name not pinned. Optional: type arguments must be VOs | none; setter; `OneOfBase`; one valid; two valid |
 | HA4.3 | 3. Validate at boundary | (heuristic, 2026-10-10) at least one VO has a static `Create` or `Build` returning `OneOf<Self, E>` where `E` implements `IValidationError` | no factory; returns VO directly; E not IValidationError; OneOf of another type; other name; IDentifiable record |
 | HA4.4 | 4. Behaviour behind `Match` | `Product.CanSell(...)` returns `OneOf<Sellable, PastSellByDate>`; no `is`/`as`/`switch` on `Perishable`/`NonExpiring` anywhere (use `.Match`) | `is Perishable` check; switch on kind; Match used |
-| HA4.5 | 5. No expiry in `ProductStatus` | `ProductStatus` has no member naming expiry (Expired, Expiry, PastSellBy, ...) | enum member `Expired`; clean enum |
+| HA4.5 | 3 (follow-up). No throw in constructors | (replaces the old "no expiry in ProductStatus" idea, 2026-10-10) no `throw` statement, `throw` expression or `ThrowIf*` call inside any constructor | throw stmt; `?? throw`; `ThrowIfNull`; record ctor; clean ctor; throw in method; Create factory |
 | HA4.6 | 6. No clock in the model | No `DateTime.Now/UtcNow/Today`, `DateOnly.FromDateTime(...Now)`, `DateTimeOffset.Now/UtcNow` in `Models`/`ValueObjects` | `DateTime.Now` in Product; `today` parameter |
 | HA4.7 | 7. Services wired | `SellProduct` calls `CanSell` before `Withdraw`; `AddProduct` takes a `ShelfLife` parameter; `GetDisplayLabel` uses `ShelfLife.Match` and mentions "[BEST BEFORE PASSED]" | withdraw without CanSell; AddProduct without ShelfLife |
 
 Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type") is not a separate rule: HA4.4's no-`is`/`as` check is what makes it hold.
 
 ## Decisions
+
+- **2026-10-10:** user asked to add "no exception thrown in constructors" as HA4.5 if no rule covers it; none did. It replaces the previous HA4.5 idea (no expiry in `ProductStatus`), which is dropped. HA4.6 (no clock) and HA4.7 (services) keep their numbers.
 
 - **2026-10-10:** HA4.3 error relation: `E` *implements* `IValidationError` (interface), not a base class, because HA4 forbids inheritance (user chose the interface option). The error types live in the domain under `Errors/` (user: "a special place for error representation"). This is the one addition to the otherwise untouched failing domain.
 
@@ -45,7 +47,7 @@ Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type
 - [x] HA4.2 — **done 2026-10-09, verified locally**: `Cupid.Harness/Rules/ProductHasOneOfPropertyRule.cs` (id `HA4.2`; type named `Product`, at least one real `OneOf<...>` property, no `set`, type args are VOs; `OneOfBase` subclass does not count), 9 tests in `Cupid.Harness.Test/ProductHasOneOfPropertyRuleTests.cs`, registered in `Program.cs`. `dotnet test` 84/84. On the real domain `[FAIL] HA4.2` (Product has no OneOf property), which is the intended state.
 - [x] HA4.3 — **done 2026-10-10, verified locally**: `Cupid.Harness/Rules/ValueObjectFactoryRule.cs` (id `HA4.3`), 9 tests in `ValueObjectFactoryRuleTests.cs`, registered in `Program.cs`. `dotnet test` 93/93. Real domain: `[FAIL] HA4.3` (no factory yet), intended. Added to the domain in a dedicated `OmniProduct-CoreDomain/Errors/` folder: `IValidationError` (interface, `string Message`) and `record ValidationError(string Message) : IValidationError`. Domain builds; other rule results unchanged with or without these files.
 - [ ] HA4.4
-- [ ] HA4.5
+- [x] HA4.5 — **done 2026-10-10, verified locally**: checked first, no existing rule forbade throwing in constructors (HA10 only bans services in entity constructors; HA3 text only mentions it). `Cupid.Harness/Rules/NoThrowInConstructorRule.cs` (id `HA4.5`), 7 tests in `NoThrowInConstructorRuleTests.cs`, registered. `dotnet test` 100/100. Real domain: `[PASS] HA4.5` today (no constructor throws yet).
 - [ ] HA4.6
 - [ ] HA4.7
 
