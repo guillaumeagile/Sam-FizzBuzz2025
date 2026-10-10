@@ -60,7 +60,7 @@ public class ProductLifecycleService
 
     public List<Product> GetActiveProducts()
     {
-        return _products.Where(p => p.Status != "deprecated").ToList();
+        return _products.Where(p => !p.IsDeprecated()).ToList();
     }
 
     public void SellProduct(Ulid productId, int quantity)

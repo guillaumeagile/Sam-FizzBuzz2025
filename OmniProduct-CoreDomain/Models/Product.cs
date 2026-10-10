@@ -1,4 +1,6 @@
 using OmniProduct_CoreDomain.Abstractions;
+using OmniProduct_CoreDomain.ValueObjects;
+using OneOf;
 
 namespace OmniProduct_CoreDomain.Models;
 
@@ -8,7 +10,7 @@ public record Product : IDentifiable
 
     public string Name { get; init; }
 
-    public string Status { get; init; }
+    public OneOf<Active, OutOfStock, Deprecated> Status { get; init; }
 
     public DateTime CreatedAt { get; init; }
     public DateTime UpdatedAt { get; init; }
@@ -22,7 +24,7 @@ public record Product : IDentifiable
     {
         Id = id;
         Name = name;
-        Status = "active";
+        Status = new Active();
         CreatedAt = DateTime.Now;
         UpdatedAt = DateTime.Now;
     }
@@ -36,7 +38,7 @@ public record Product : IDentifiable
         var sold = this with { UpdatedAt = DateTime.Now };
 
         return remainingStock == 0
-            ? sold with { Status = "out_of_stock" }
+            ? sold with { Status = new OutOfStock() }
             : sold;
     }
 
@@ -51,8 +53,10 @@ public record Product : IDentifiable
 
     public Product Deprecate()
     {
-        return this with { Status = "deprecated", UpdatedAt = DateTime.Now };
+        return this with { Status = new Deprecated(), UpdatedAt = DateTime.Now };
     }
+
+    public bool IsDeprecated() => Status.Match(_ => false, _ => false, _ => true);
 
     public Product Touch()
     {

@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 using OmniProduct_CoreDomain.Abstractions;
+using OmniProduct_CoreDomain.ValueObjects;
+using OneOf;
 
 namespace OmniProduct_CoreDomain.Models;
 
@@ -22,9 +24,9 @@ public record ProductCatalog : IDentifiable
         Discounts = discounts;
     }
 
-    public string GetDisplayLabel(string productName, string productStatus, int stock)
+    public string GetDisplayLabel(string productName, OneOf<Active, OutOfStock, Deprecated> productStatus, int stock)
     {
-        if (productStatus == "deprecated")
+        if (productStatus.Match(_ => false, _ => false, _ => true))
             return $"[DISCONTINUED] {productName}";
         if (stock == 0)
             return $"[OUT OF STOCK] {productName}";

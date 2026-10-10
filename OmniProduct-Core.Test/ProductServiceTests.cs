@@ -1,6 +1,7 @@
 using AwesomeAssertions;
 using OmniProduct_CoreDomain.Models;
 using OmniProduct_CoreDomain.Services;
+using OmniProduct_CoreDomain.ValueObjects;
 
 namespace OmniProduct_Core.Test;
 
@@ -53,7 +54,7 @@ public class ProductServiceTests
         product.Should().NotBeNull();
         product.Name.Should().Be("Super Widget");
         storedProduct.Stock.Should().Be(0);
-        product.Status.Should().Be("active");
+        product.Status.Value.Should().BeOfType<Active>();
 
         storageService.ReceiveStock(product.Id, 50);
         storedProduct = storageService.GetStock(product.Id);
@@ -63,13 +64,13 @@ public class ProductServiceTests
         storedProduct = storageService.GetStock(product.Id);
         product = productLifecycleService.GetProduct(product.Id);
         storedProduct.Stock.Should().Be(40);
-        product.Status.Should().Be("active");
+        product.Status.Value.Should().BeOfType<Active>();
 
         productLifecycleService.SellProduct(product.Id, 40);
         storedProduct = storageService.GetStock(product.Id);
         product = productLifecycleService.GetProduct(product.Id);
         storedProduct.Stock.Should().Be(0);
-        product.Status.Should().Be("out_of_stock");
+        product.Status.Value.Should().BeOfType<OutOfStock>();
 
         var resellerPrice = pricingService.GetResellerPrice(product.Id);
         resellerPrice.Should().Be(124m); // 100 + 20% margin + 20% VAT on margin
@@ -77,7 +78,7 @@ public class ProductServiceTests
         productLifecycleService.DeprecateProduct(product.Id);
         product = productLifecycleService.GetProduct(product.Id);
         storedProduct = storageService.GetStock(product.Id);
-        product.Status.Should().Be("deprecated");
+        product.Status.Value.Should().BeOfType<Deprecated>();
         storedProduct.Stock.Should().Be(0);
 
         var catalog = catalogService.GetCatalog("FR");
