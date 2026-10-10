@@ -77,6 +77,8 @@ var step1Dot1Rules = new IHarnessRule[]
     new NoServicesInEntityConstructorRule(),
     new NoPersistenceInDomainRule(),
     new RecordsAreValueObjectsRule(),
+    new RichIdentifierRule(),
+    new BareIdentifierIsWeakRule(),
 };
 
 var step1Dot2Rules = new IHarnessRule[]

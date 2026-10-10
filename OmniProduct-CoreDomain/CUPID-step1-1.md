@@ -108,3 +108,14 @@ This rule also pins the concrete deliverable of this step: a record named `Price
 under `OmniProduct_CoreDomain.Models`. `Price` is the running Value Object example - refactor it
 to drop the VAT entity, and keep it composable (Margin, then TransportationFee, then VAT) while
 staying an immutable record.
+
+### HA12 - Identifiers are rich objects (UUID v7+ or ULID)
+
+every `Id` / `*Id` property or parameter of the model and events (anything outside a `Services` namespace) must be a
+`Guid` or a `Ulid`, or a record wrapping exactly one of them (`record ProductId(Guid Value)`). A `string`, `int` or
+`long` identifier is a violation. "At least v7" is checked by shape: `Guid.NewGuid()` (v4), `Guid.Empty`,
+`new Guid()` and `default(Guid)` are flagged where they build an identifier; `Guid.CreateVersion7()` and
+`Ulid.NewUlid()` are fine.
+
+**HA12.1 (warning only, `[WARN]`):** a bare `Guid` / `Ulid` is accepted by HA12 but still primitive obsession; wrap it
+in a record so a `ProductId` cannot be mixed up with a `SupplierId`.

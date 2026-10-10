@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # CUPID step 1.1 harness.
 #
-# Deterministic, non-AI checks for the HA1/HA5-HA8, HA11 assessment criteria described in
+# Deterministic, non-AI checks for the HA1/HA5-HA8, HA11-HA12, HA12 assessment criteria described in
 # CUPID-step1-1.md (Concept 1.1: Single Responsibility -> Unix Philosophy):
 #   HA1 - C# idioms            -> built-in Roslyn analyzers via .editorconfig, enforced as build errors
 #   HA5 - No god class         -> Cupid.Harness structural rule (max 6 public properties per class)
@@ -9,6 +9,7 @@
 #   HA7 - Fan-out              -> Cupid.Harness structural rule (a class touches at most 3 distinct domain types)
 #   HA8 - No Persistence in Domain -> Cupid.Harness structural rule (no EF/ORM vocabulary on domain models)
 #   HA11 - Records are VOs     -> Cupid.Harness structural rule (records never implement IDentifiable; Price must be one)
+#   HA12 - Rich identifiers    -> Cupid.Harness structural rules (Id/*Id is a Guid/Ulid or a record wrapping one, no NewGuid/Empty; HA12.1 bare Guid is a [WARN] only)
 #
 # Exit code is 0 only if every layer passes. Safe to run repeatedly (no state, no network).
 
@@ -35,12 +36,12 @@ fi
 
 echo
 echo "=============================================="
-echo " HA5-HA8, HA11 - structural checks (Cupid.Harness)"
+echo " HA5-HA8, HA11-HA12 - structural checks (Cupid.Harness)"
 echo "=============================================="
 if dotnet run --project "$HARNESS_PROJECT" -c Release -- --step 1.1 "$TARGET_PROJECT"; then
-    echo "[PASS] HA5-HA8, HA11"
+    echo "[PASS] HA5-HA8, HA11-HA12"
 else
-    echo "[FAIL] HA5-HA8, HA11"
+    echo "[FAIL] HA5-HA8, HA11-HA12"
     overall_status=1
 fi
 
