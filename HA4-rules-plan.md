@@ -1,6 +1,6 @@
 # HA4 Roslyn rules plan
 
-**Resume at:** nothing pending for HA4: 8 rules (HA4.0-HA4.7) written, renumbered and documented (2026-10-10). Next only if the user asks: bad-code starters in the domain for HA4.3/4.4/4.5 (like `Product.CanSell` for HA4.6), push, PR.
+**Resume at:** nothing pending. 2026-10-10: HA11 moved from step 1.2 to step 1.1 (Program.cs, both docs, both .sh, AGENTS.md), 125 tests pass, committed locally, not pushed. Next only if the user asks: bad-code starters for HA4.3/4.4/4.5, push, PR.
 
 Source of truth for the exercise: `OmniProduct-CoreDomain/CUPID-step1-2.md` (HA4 section, 7 steps).
 Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTestHarness.Compile`), registered in `Cupid.Harness/Program.cs` (`step1Dot2Rules`).
@@ -24,6 +24,8 @@ Rules live in `Cupid.Harness/Rules`, tests in `Cupid.Harness.Test` (use `RuleTes
 Self-check ("third kind `Frozen` only needs a new record + one more `OneOf` type") is not a separate rule: HA4.5's no-`is`/`as` check is what makes it hold.
 
 ## Decisions
+
+- **2026-10-10 (user request):** HA11 (`RecordsAreValueObjectsRule`) moves back from step 1.2 to step 1.1: registered in `step1Dot1Rules`, doc section moved to `CUPID-step1-1.md`, `cupid-step-1-1.harness.sh` now covers HA11, 1.2 script/docs no longer mention it.
 
 - **2026-10-10 RENUMBERED (user request):** HA4.5 (no throw in constructors) became HA4.1; HA4 (no inheritance) became HA4.0; old 4.1->4.2, 4.2->4.3, 4.3->4.4, 4.4->4.5; 4.6 and 4.7 unchanged. The table, status and rule ids use the NEW numbers; the older decisions below keep the OLD numbers they were written with.
 

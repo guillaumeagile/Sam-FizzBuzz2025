@@ -96,3 +96,15 @@ under `OmniProduct_CoreDomain.Services.*` or simply named `*Service` - as a cons
 constructible from plain values, value objects, or other entities. Accepting a service inverts the
 dependency direction the workshop is teaching - services depend on entities, never the other way
 round. Move the orchestration into the service layer instead.
+
+### HA11 - Records are Value Objects, never entities
+
+a record must never implement `IDentifiable` - identity belongs to entities (HA9), and a record's
+job is to be a Value Object: immutable, equality by value, no identity. HA2 already forbids
+setters and HA5 already caps public properties at 4, so this rule only adds the one thing they
+don't check: record != entity.
+
+This rule also pins the concrete deliverable of this step: a record named `Price` must exist
+under `OmniProduct_CoreDomain.Models`. `Price` is the running Value Object example - refactor it
+to drop the VAT entity, and keep it composable (Margin, then TransportationFee, then VAT) while
+staying an immutable record.

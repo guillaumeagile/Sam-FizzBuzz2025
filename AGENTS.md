@@ -38,8 +38,8 @@ Each step ships its own shell script under `OmniProduct-CoreDomain/`, run from t
 directory:
 
 ```
-./cupid-step-1-1.harness.sh   # HA1, HA5-HA10: idioms, god class, single concern, fan-out, no persistence in domain, entities implement IDentifiable, no services in entity ctors
-./cupid-step-1-2.harness.sh   # HA1-HA4, HA11: idioms, immutability, ADT, composable (HA4.0-HA4.7: no inheritance, no throwing ctors, VOs, OneOf/Match, no clock; HA4.7 is a [WARN]), records are Value Objects
+./cupid-step-1-1.harness.sh   # HA1, HA5-HA11: idioms, god class, single concern, fan-out, no persistence in domain, entities implement IDentifiable, no services in entity ctors, records are Value Objects
+./cupid-step-1-2.harness.sh   # HA1-HA4: idioms, immutability, ADT, composable (HA4.0-HA4.7: no inheritance, no throwing ctors, VOs, OneOf/Match, no clock; HA4.7 is a [WARN])
 ```
 
 These build the exercise project with Roslyn analyzers promoted to errors, then run

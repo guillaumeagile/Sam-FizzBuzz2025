@@ -80,7 +80,7 @@ Products now have a shelf life, and the two kinds differ in their dates, not in 
 | **Perishable** | `SellByDate`, `UseByDate` | After `SellByDate` the product can no longer be sold. After `UseByDate` it is unsafe to consume. Invariant: `SellByDate <= UseByDate`. |
 | **NonExpiring** | `BestBeforeDate` | Advisory only: a quality guideline. The product can still be sold after it, but the catalog label should say so. |
 
-1. **Create the two value objects** as immutable records in `ValueObjects` (HA2, HA11).  This is what makes illegal combinations unrepresentable.
+1. **Create the two value objects** as immutable records in `ValueObjects` (HA2).  This is what makes illegal combinations unrepresentable.
 2. **Give `Product` one `ShelfLife` property** of type `OneOf<Perishable, NonExpiring>`, set once at
    creation (no setter).  
 3. **Validate the invariant at the boundary.** Dates are input data, so a `Perishable.Create(...)` that
@@ -121,16 +121,3 @@ choose yours. A *value object* here is a `record` / `record struct` that does no
 `E` implements the interface `IValidationError` (provided in `OmniProduct_CoreDomain.Errors`, with a
 generic `ValidationError` record) rather than inheriting from a base class, because HA4.0 forbids inheritance.
 A warning is printed as `[WARN]` and does not fail the harness.
-
-
-### HA11 - Records are Value Objects, never entities
-
-a record must never implement `IDentifiable` - identity belongs to entities (HA9), and a record's
-job is to be a Value Object: immutable, equality by value, no identity. HA2 already forbids
-setters and HA5 already caps public properties at 4, so this rule only adds the one thing they
-don't check: record != entity.
-
-This rule also pins the concrete deliverable of this step: a record named `Price` must exist
-under `OmniProduct_CoreDomain.Models`. `Price` is the running Value Object example - refactor it
-to drop the VAT entity, and keep it composable (Margin, then TransportationFee, then VAT) while
-staying an immutable record.
