@@ -4,7 +4,7 @@ namespace OmniProduct_CoreDomain.Events;
 
 public class Notification : IDentifiable
 {
-    public string Id { get; set; }
+    public Ulid Id { get; set; }
 
     public string Recipient { get; set; }
 
@@ -14,5 +14,5 @@ public class Notification : IDentifiable
 
     public DateTime SentAt { get; set; }
 
-    public string ProductId { get; set; }
+    public Ulid ProductId { get; set; }
 }

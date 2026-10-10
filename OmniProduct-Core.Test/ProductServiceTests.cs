@@ -12,7 +12,7 @@ public class ProductServiceTests
     public void Product_Name_ShouldBeSet()
     {
         var product = new Product(
-            id: "p1",
+            id: Ulid.NewUlid(),
             name: "Super Widget",
             slug: "super-widget"
         );

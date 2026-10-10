@@ -4,7 +4,7 @@ namespace OmniProduct_CoreDomain.Models;
 
 public class Product : IDentifiable
 {
-    public string Id { get; set; }
+    public Ulid Id { get; set; }
 
     public string Name { get; set; }
 
@@ -18,7 +18,7 @@ public class Product : IDentifiable
     {
     }
 
-    public Product(string id, string name, string slug)
+    public Product(Ulid id, string name, string slug)
     {
         Id = id;
         Name = name;

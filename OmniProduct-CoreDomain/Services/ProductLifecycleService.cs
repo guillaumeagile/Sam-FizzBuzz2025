@@ -34,10 +34,10 @@ public class ProductLifecycleService
         var warehouse = _storageService.FindWarehouseNear(region);
 
         var price = new Price(supplierPrice, currency);
-        var suppliersRegions = new Dictionary<string, Supplier> { { region, supplier } };
+        var suppliersRegions = new Dictionary<string, Ulid> { { region, supplier.Id } };
 
         var product = new Product(
-            id: Guid.NewGuid().ToString(),
+            id: Ulid.NewUlid(),
             name: name,
             slug: slug
         );
@@ -50,7 +50,7 @@ public class ProductLifecycleService
         return product;
     }
 
-    public Product GetProduct(string id)
+    public Product GetProduct(Ulid id)
     {
         var product = _products.FirstOrDefault(p => p.Id == id);
         if (product == null)
@@ -63,7 +63,7 @@ public class ProductLifecycleService
         return _products.Where(p => p.Status != "deprecated").ToList();
     }
 
-    public void SellProduct(string productId, int quantity)
+    public void SellProduct(Ulid productId, int quantity)
     {
         var product = GetProduct(productId);
         var storedProduct = _storageService.GetStock(productId);
@@ -72,11 +72,11 @@ public class ProductLifecycleService
         storedProduct.Withdraw(quantity);
         product.Sell(storedProduct.Stock);
 
-        foreach (var (region, supplier) in suppliersRegions)
+        foreach (var (region, supplierId) in suppliersRegions)
         {
             _notificationService.AddNotification(new Notification
             {
-                Recipient = supplier.Email,
+                Recipient = _supplierService.GetSupplier(supplierId).Email,
                 Subject = $"Sale confirmed: {product.Name}",
                 Body = $"Sold {quantity} of {product.Name}. Stock left: {storedProduct.Stock}.",
                 SentAt = DateTime.Now
@@ -84,17 +84,17 @@ public class ProductLifecycleService
         }
     }
 
-    public void DeprecateProduct(string productId)
+    public void DeprecateProduct(Ulid productId)
     {
         var product = GetProduct(productId);
         var suppliersRegions = _supplierService.GetSuppliers(productId).SuppliersRegions;
         product.Deprecate();
 
-        foreach (var (region, supplier) in suppliersRegions)
+        foreach (var (region, supplierId) in suppliersRegions)
         {
             _notificationService.AddNotification(new Notification
             {
-                Recipient = supplier.Email,
+                Recipient = _supplierService.GetSupplier(supplierId).Email,
                 Subject = $"Product deprecated: {product.Name}",
                 Body = $"The product {product.Name} has been deprecated and removed from the catalog.",
                 SentAt = DateTime.Now

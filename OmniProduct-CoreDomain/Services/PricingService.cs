@@ -7,14 +7,14 @@ public class PricingService
 {
     private readonly List<ProductPricing> _pricings = new();
 
-    public ProductPricing AddPricing(string productId, Price price)
+    public ProductPricing AddPricing(Ulid productId, Price price)
     {
         var pricing = new ProductPricing(productId, price);
         _pricings.Add(pricing);
         return pricing;
     }
 
-    public ProductPricing GetPricing(string productId)
+    public ProductPricing GetPricing(Ulid productId)
     {
         var pricing = _pricings.FirstOrDefault(p => p.ProductId == productId);
         if (pricing == null)
@@ -22,12 +22,12 @@ public class PricingService
         return pricing;
     }
 
-    public decimal GetResellerPrice(string productId)
+    public decimal GetResellerPrice(Ulid productId)
     {
         return GetPricing(productId).GetResellerPrice();
     }
 
-    public void SetMargin(string productId, decimal marginPercent)
+    public void SetMargin(Ulid productId, decimal marginPercent)
     {
         GetPricing(productId).SetMargin(marginPercent);
     }

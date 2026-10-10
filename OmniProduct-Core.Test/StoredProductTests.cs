@@ -9,11 +9,11 @@ public class StoredProductTests
     private static StoredProduct CreateStoredProduct(int stock = 0)
     {
         return new StoredProduct(
-            productId: "p1",
+            productId: Ulid.NewUlid(),
             weight: 0.5,
             dimensions: "10x5x3",
             stock: stock,
-            warehouseId: Guid.NewGuid().ToString()
+            warehouseId: Ulid.NewUlid()
         );
     }
 

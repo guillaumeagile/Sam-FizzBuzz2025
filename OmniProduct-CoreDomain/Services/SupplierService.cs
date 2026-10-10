@@ -11,7 +11,7 @@ public class SupplierService
     {
         var supplier = new Supplier
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Ulid.NewUlid(),
             Name = name,
             Email = email,
             Region = region
@@ -20,19 +20,27 @@ public class SupplierService
         return supplier;
     }
 
-    public ProductSuppliers AddSupplierAssignment(string productId, Dictionary<string, Supplier> suppliersRegions)
+    public ProductSuppliers AddSupplierAssignment(Ulid productId, Dictionary<string, Ulid> suppliersRegions)
     {
         var productSuppliers = new ProductSuppliers(productId, suppliersRegions);
         _productSuppliers.Add(productSuppliers);
         return productSuppliers;
     }
 
-    public ProductSuppliers GetSuppliers(string productId)
+    public ProductSuppliers GetSuppliers(Ulid productId)
     {
         var productSuppliers = _productSuppliers.FirstOrDefault(s => s.ProductId == productId);
         if (productSuppliers == null)
             throw new Exception($"No supplier assignment found for product {productId}");
         return productSuppliers;
+    }
+
+    public Supplier GetSupplier(Ulid supplierId)
+    {
+        var supplier = _suppliers.FirstOrDefault(s => s.Id == supplierId);
+        if (supplier == null)
+            throw new Exception($"No supplier found with id {supplierId}");
+        return supplier;
     }
 
     public Supplier FindSupplierForRegion(string region)
@@ -43,8 +51,8 @@ public class SupplierService
         return supplier;
     }
 
-    public void AddSupplierToRegion(string productId, string region)
+    public void AddSupplierToRegion(Ulid productId, string region)
     {
-        GetSuppliers(productId).AddSupplierToRegion(region, _suppliers);
+        GetSuppliers(productId).AddSupplierToRegion(region, FindSupplierForRegion(region).Id);
     }
 }

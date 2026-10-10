@@ -4,7 +4,7 @@ namespace OmniProduct_CoreDomain.Models;
 
 public class Supplier: IDentifiable
 {
-    public string Id { get; set; }
+    public Ulid Id { get; set; }
 
     public string Name { get; set; }
 
@@ -12,5 +12,5 @@ public class Supplier: IDentifiable
 
     public string Region { get; set; }
 
-    public List<Product> Products { get; set; } = new();
+    public List<Ulid> ProductIds { get; set; } = new();
 }

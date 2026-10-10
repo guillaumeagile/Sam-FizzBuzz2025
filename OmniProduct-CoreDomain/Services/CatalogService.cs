@@ -28,7 +28,7 @@ public class CatalogService
         return product;
     }
 
-    public ProductCatalog GetListing(string productId)
+    public ProductCatalog GetListing(Ulid productId)
     {
         var catalog = _catalogs.FirstOrDefault(c => c.ProductId == productId);
         if (catalog == null)
@@ -43,13 +43,13 @@ public class CatalogService
             .ToList();
     }
 
-    public void AddImage(string productId, string context, string url)
+    public void AddImage(Ulid productId, string context, string url)
     {
         GetListing(productId).AddImage(context, url);
         _productLifecycleService.GetProduct(productId).UpdatedAt = DateTime.Now;
     }
 
-    public void AddDiscount(string productId, string discountCode)
+    public void AddDiscount(Ulid productId, string discountCode)
     {
         GetListing(productId).AddDiscount(discountCode);
         _productLifecycleService.GetProduct(productId).UpdatedAt = DateTime.Now;

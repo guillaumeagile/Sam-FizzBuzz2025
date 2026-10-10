@@ -5,24 +5,20 @@ namespace OmniProduct_CoreDomain.Models;
 // Supplier concern for a Product: which supplier serves which region, keyed back to the product by ProductId.
 public class ProductSuppliers : IDentifiable
 {
-    public string ProductId { get; set; }
+    public Ulid ProductId { get; set; }
 
-    public Dictionary<string, Supplier> SuppliersRegions { get; set; } // key = region, value = supplier
+    public Dictionary<string, Ulid> SuppliersRegions { get; set; } // key = region, value = supplier id
 
-    public ProductSuppliers(string productId, Dictionary<string, Supplier> suppliersRegions)
+    public ProductSuppliers(Ulid productId, Dictionary<string, Ulid> suppliersRegions)
     {
         ProductId = productId;
         SuppliersRegions = suppliersRegions;
     }
 
-    public void AddSupplierToRegion(string region, List<Supplier> suppliers)
+    public void AddSupplierToRegion(string region, Ulid supplierId)
     {
-        var supplier = suppliers.FirstOrDefault(s => s.Region == region);
-        if (supplier == null)
-            throw new Exception($"No supplier found for region {region}");
-
-        SuppliersRegions[region] = supplier;
+        SuppliersRegions[region] = supplierId;
     }
 
-    public string Id { get; set; }
+    public Ulid Id { get; set; }
 }
