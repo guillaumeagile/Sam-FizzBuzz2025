@@ -121,3 +121,19 @@ choose yours. A *value object* here is a `record` / `record struct` that does no
 `E` implements the interface `IValidationError` (provided in `OmniProduct_CoreDomain.Errors`, with a
 generic `ValidationError` record) rather than inheriting from a base class, because HA4.0 forbids inheritance.
 A warning is printed as `[WARN]` and does not fail the harness.
+
+
+
+### HA4 - Variant
+
+for ADT (OneOf)  , you could also refactor this:
+
+Product.Status (recommended for HA4.3). Today it's a string with three values: "active", "out_of_stock", "deprecated". It's a closed set, which is the case OneOf is for. The strings are compared in ProductLifecycleService.GetActiveProducts and ProductCatalog.GetDisplayLabel, so a typo would compile today.
+   // ValueObjects/ProductStatus.cs
+   public record Active;
+   public record OutOfStock;
+   public record Deprecated;
+
+// Models/Product.cs
+public OneOf<Active, OutOfStock, Deprecated> Status { get; init; } = new Active();
+Sell and Deprecate would assign new OutOfStock() or new Deprecated(), relying on OneOf's implicit conversions. The checks against "deprecated" would become Match or IsT2. That also brings HA4.5 into play, which is good practice.
