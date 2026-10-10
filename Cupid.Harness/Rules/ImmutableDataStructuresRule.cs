@@ -26,6 +26,9 @@ public sealed class ImmutableDataStructuresRule : IHarnessRule
 
             foreach (var classDecl in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
             {
+                if (IsInServicesNamespace(classDecl))
+                    continue;
+
                 violations.Add(new Violation(
                     tree.FilePath,
                     classDecl.Identifier.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
@@ -48,7 +51,7 @@ public sealed class ImmutableDataStructuresRule : IHarnessRule
 
             foreach (var genericName in root.DescendantNodes().OfType<GenericNameSyntax>())
             {
-                if (MutableCollectionTypes.Contains(genericName.Identifier.Text))
+                if (MutableCollectionTypes.Contains(genericName.Identifier.Text) && !IsInServicesNamespace(genericName))
                 {
                     violations.Add(new Violation(
                         tree.FilePath,
@@ -59,5 +62,12 @@ public sealed class ImmutableDataStructuresRule : IHarnessRule
         }
 
         return violations;
+    }
+
+    // Services (namespace segment "Services") may be classes and mutable collections: they hold state, domain types may not.
+    private static bool IsInServicesNamespace(SyntaxNode node)
+    {
+        var namespaceName = node.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ?? string.Empty;
+        return namespaceName.Split('.').Contains("Services");
     }
 }
