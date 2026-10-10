@@ -12,7 +12,7 @@ public class StorageService
     {
         var warehouse = new Warehouse
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Ulid.NewUlid(),
             Name = name,
             Address = address,
             Region = region
@@ -29,7 +29,7 @@ public class StorageService
         return warehouse;
     }
 
-    public StoredProduct AddStock(string productId, string warehouseId)
+    public StoredProduct AddStock(Ulid productId, Ulid warehouseId)
     {
         var storedProduct = new StoredProduct(
             productId: productId,
@@ -42,7 +42,7 @@ public class StorageService
         return storedProduct;
     }
 
-    public StoredProduct GetStock(string productId)
+    public StoredProduct GetStock(Ulid productId)
     {
         var storedProduct = _storedProducts.FirstOrDefault(sp => sp.ProductId == productId);
         if (storedProduct == null)
@@ -50,5 +50,5 @@ public class StorageService
         return storedProduct;
     }
 
-    public void ReceiveStock(string productId, int quantity) => GetStock(productId).Receive(quantity);
+    public void ReceiveStock(Ulid productId, int quantity) => GetStock(productId).Receive(quantity);
 }

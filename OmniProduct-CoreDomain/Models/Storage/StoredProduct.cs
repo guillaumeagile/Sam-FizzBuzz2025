@@ -6,17 +6,17 @@ namespace OmniProduct_CoreDomain.Models.Storage;
 // No price, discounts, images, suppliers, or notifications - that's Catalog/Pricing/Sales concerns.
 public class StoredProduct : IDentifiable
 {
-    public string Id { get; set; }
-    public string ProductId { get; set; }
+    public Ulid Id { get; set; }
+    public Ulid ProductId { get; set; }
 
     public double Weight { get; set; }
     public string Dimensions { get; set; }
 
     public int Stock { get; set; }
 
-    public string WarehouseId { get; set; }
+    public Ulid WarehouseId { get; set; }
 
-    public StoredProduct(string productId, double weight, string dimensions, int stock, string warehouseId)
+    public StoredProduct(Ulid productId, double weight, string dimensions, int stock, Ulid warehouseId)
     {
         ProductId = productId;
         Weight = weight;

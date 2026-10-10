@@ -5,7 +5,7 @@ namespace OmniProduct_CoreDomain.Models;
 // Catalog concern for a Product: images and discounts, keyed back to the product by ProductId.
 public class ProductCatalog : IDentifiable
 {
-    public string ProductId { get; set; }
+    public Ulid ProductId { get; set; }
 
     public string Slug { get; set; }
 
@@ -13,7 +13,7 @@ public class ProductCatalog : IDentifiable
 
     public List<string> Discounts { get; set; }
 
-    public ProductCatalog(string productId, string slug, Dictionary<string, string> images, List<string> discounts)
+    public ProductCatalog(Ulid productId, string slug, Dictionary<string, string> images, List<string> discounts)
     {
         ProductId = productId;
         Slug = slug;
@@ -40,5 +40,5 @@ public class ProductCatalog : IDentifiable
         Discounts.Add(discountCode);
     }
 
-    public string Id { get; set; }
+    public Ulid Id { get; set; }
 }

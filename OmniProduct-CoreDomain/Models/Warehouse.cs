@@ -5,7 +5,7 @@ namespace OmniProduct_CoreDomain.Models;
 
 public class Warehouse : IDentifiable
 {
-    public string Id { get; set; }
+    public Ulid Id { get; set; }
 
     public string Name { get; set; }
 
@@ -13,5 +13,5 @@ public class Warehouse : IDentifiable
 
     public string Region { get; set; }
 
-    public List<StoredProduct> StoredProducts { get; set; } = new();
+    public List<Ulid> StoredProductIds { get; set; } = new();
 }

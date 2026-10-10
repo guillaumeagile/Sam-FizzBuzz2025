@@ -6,11 +6,11 @@ namespace OmniProduct_CoreDomain.Models;
 // Pricing concern for a Product: the Price value and margin operations, keyed back to the product by ProductId.
 public class ProductPricing : IDentifiable
 {
-    public string ProductId { get; set; }
+    public Ulid ProductId { get; set; }
 
     public Price Price { get; set; }
 
-    public ProductPricing(string productId, Price price)
+    public ProductPricing(Ulid productId, Price price)
     {
         ProductId = productId;
         Price = price;
@@ -23,5 +23,5 @@ public class ProductPricing : IDentifiable
 
     public void SetMargin(decimal marginPercent) => Price = Price with { Margin = marginPercent };
 
-    public string Id { get; set; }
+    public Ulid Id { get; set; }
 }
