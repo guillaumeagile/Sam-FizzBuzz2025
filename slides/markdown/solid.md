@@ -2,12 +2,14 @@
 ## Code to follow along
 
 
-<img src="img/qrcode_repo_FizzBuzz2025.png" alt="Alt text" style="width: 50%; height: auto;">
+<img src="img/" alt="Alt text" style="width: 50%; height: auto;">
 
 
 --
 
-# SOLID Principles    
+# SOLID Principles
+### Stop Me If You Think You've Heard This One Before
+![The Smiths single](./img/StopMeTheSmiths.jpg)
 
 --
 
