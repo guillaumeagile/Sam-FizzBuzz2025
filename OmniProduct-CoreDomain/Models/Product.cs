@@ -56,7 +56,10 @@ public record Product : IDentifiable
         return this with { Status = new Deprecated(), UpdatedAt = DateTime.Now };
     }
 
-    public bool IsDeprecated() => Status.IsT2;
+    public bool IsDeprecated() => Status
+        .Match(_ => false,
+            _ => false,
+            _ => true );
 
     public Product Touch()
     {
