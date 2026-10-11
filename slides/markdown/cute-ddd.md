@@ -81,4 +81,4 @@ SOLID → CUPID → CUTE DDD
 
 ## Feedback?
 
-![SOLID -_ CUPID -_ Cute DDD-qr-code-openfeedback.png](./img/SOLID%20-_%20CUPID%20-_%20Cute%20DDD-qr-code-openfeedback.png)
+![add-image.png](https://)
